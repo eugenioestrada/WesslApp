@@ -8,6 +8,8 @@ The app manages real containers using `wslc` on `PATH`; its list command must su
 
 Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
 
+Open **Images** to explicitly load the WSLc image list and its reported size. Refresh reloads it. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action.
+
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Windows Terminal and a WSLc version supporting `exec -it` must be available.
 
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.

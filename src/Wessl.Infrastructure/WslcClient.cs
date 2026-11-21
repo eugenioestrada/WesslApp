@@ -4,7 +4,7 @@ using Wessl.Domain;
 
 namespace Wessl.Infrastructure;
 
-public sealed class WslcClient : IWslcClient
+public sealed class WslcClient : IWslcClient, IImageClient
 {
     private readonly string _executable;
 
@@ -17,6 +17,15 @@ public sealed class WslcClient : IWslcClient
         var output = await RunCommandAsync(cancellationToken, "container", "list", "--all", "--format", "json");
         return WslcOutputParser.Parse(output);
     }
+
+    public async Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
+    {
+        var output = await RunCommandAsync(cancellationToken, "image", "list", "--format", "json");
+        return WslcOutputParser.ParseImages(output);
+    }
+
+    public Task<string> PruneImagesAsync(CancellationToken cancellationToken = default) =>
+        RunCommandAsync(cancellationToken, "image", "prune", "--all", "--force");
 
     public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunCommandAsync(cancellationToken, "container", "start", id);

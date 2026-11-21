@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="ImagesHeading" xml:space="preserve"><value>Images</value></data>
+  <data name="ImagesOpenButton" xml:space="preserve"><value>Images</value></data>
+  <data name="ImagesEmpty" xml:space="preserve"><value>No images found.</value></data>
+  <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
+  <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Size: {1}</value></data>
+  <data name="ImagesLoading" xml:space="preserve"><value>Loading images…</value></data>
+  <data name="ImagesRefreshError" xml:space="preserve"><value>Unable to refresh images: {0}</value></data>
+  <data name="ImagesPruneButton" xml:space="preserve"><value>Prune unused images</value></data>
+  <data name="ImagesPruneConfirmation" xml:space="preserve"><value>Remove all images not used by any container, including tagged images? This cannot be undone.</value></data>
+  <data name="ImagesPruneConfirm" xml:space="preserve"><value>Confirm prune</value></data>
+  <data name="ImagesPrunePending" xml:space="preserve"><value>Pruning unused images…</value></data>
+  <data name="ImagesPruneError" xml:space="preserve"><value>Unable to prune images: {0}</value></data>
+  <data name="ImagesPruneSuccess" xml:space="preserve"><value>Image prune completed: {0}</value></data>
+  <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc returned no details.</value></data>
   <data name="ContainersHeading" xml:space="preserve">
     <value>Containers</value>
   </data>

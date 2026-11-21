@@ -22,6 +22,17 @@ using var services = new ServiceCollection()
         provider.GetRequiredService<IContainerShellLauncher>(),
         provider.GetRequiredService<AppSettings>()))
     .AddSingleton<ContainerPolling>()
+    .AddSingleton<ImageService>(provider => new ImageService(
+        provider.GetRequiredService<IImageClient>(),
+        action =>
+        {
+            var dispatcher = ReactorApp.UIDispatcher
+                ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+            if (!dispatcher.TryEnqueue(() => action()))
+            {
+                throw new InvalidOperationException("Could not dispatch the image result.");
+            }
+        }))
     .AddSingleton<AppSettings>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();

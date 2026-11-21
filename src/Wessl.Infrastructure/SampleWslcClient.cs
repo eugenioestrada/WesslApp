@@ -2,8 +2,20 @@ using Wessl.Domain;
 
 namespace Wessl.Infrastructure;
 
-public sealed class SampleWslcClient : IWslcClient
+public sealed class SampleWslcClient : IWslcClient, IImageClient
 {
+    public Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyList<ImageInfo>>([]);
+    }
+
+    public Task<string> PruneImagesAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult("0 B");
+    }
+
     private readonly List<ContainerInfo> _containers =
     [
         new("sample-1", "web", "nginx:latest", ContainerState.Running),
