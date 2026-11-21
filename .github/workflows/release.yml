@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2022
+            profile: win-x64-nativeaot
+          - rid: win-arm64
+            runner: windows-11-arm
+            profile: win-arm64-nativeaot
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: 11.0.x
+      - id: version
+        name: Validate release tag
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?)$') {
+            throw "Release tags must use vMAJOR.MINOR.PATCH with an optional prerelease suffix."
+          }
+          "value=$($Matches.version)" >> $env:GITHUB_OUTPUT
+      - name: Publish NativeAOT
+        run: dotnet publish src/Wessl.App/Wessl.App.csproj --configuration Release -p:PublishProfile=${{ matrix.profile }} -p:Version=${{ steps.version.outputs.value }} -p:ContinuousIntegrationBuild=true
+      - name: Create deterministic archive
+        run: python .github/scripts/package_release.py --publish-directory src/Wessl.App/bin/publish/${{ matrix.rid }}-nativeaot --output release-assets/wessl-${{ matrix.rid }}.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-${{ matrix.rid }}
+          path: release-assets/wessl-${{ matrix.rid }}.zip
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    needs: build
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Generate winget manifests
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python .github/scripts/generate_winget_manifests.py --tag $env:RELEASE_TAG --assets-directory release-assets --output-directory release-assets/manifests
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $assets = @(
+            "release-assets/wessl-win-x64.zip",
+            "release-assets/wessl-win-arm64.zip"
+          ) + @(Get-ChildItem release-assets/manifests -File | ForEach-Object { $_.FullName })
+          $releaseArguments = @($env:GITHUB_REF_NAME) + $assets + @("--verify-tag", "--title", "Wessl $env:GITHUB_REF_NAME", "--generate-notes")
+          if ($env:GITHUB_REF_NAME -match '-') {
+            $releaseArguments += "--prerelease"
+          }
+          gh release create @releaseArguments
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
