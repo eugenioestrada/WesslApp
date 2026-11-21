@@ -1,6 +1,6 @@
 # Wessl
 
-Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc), built with Microsoft.UI.Reactor and WinUI 3. It starts in the tray: left-click the icon to toggle the container window, or right-click for Open, Refresh, and Exit.
+Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc), built with Microsoft.UI.Reactor and WinUI 3. It starts in the tray: left-click the icon to open the container window beside the tray, or right-click for the native WinUI Open and Exit menu.
 
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 

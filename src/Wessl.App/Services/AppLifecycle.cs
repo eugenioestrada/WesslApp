@@ -1,45 +1,68 @@
 using Microsoft.UI.Reactor;
+using Microsoft.UI.Xaml.Controls;
 using Wessl.App.Components;
+using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
 public sealed class AppLifecycle(ContainerService containers)
 {
     private ReactorWindow? _window;
+    private ReactorWindow? _menuHostWindow;
     private ReactorTrayIcon? _tray;
+    private MenuFlyout? _trayMenu;
 
     public void Start()
     {
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
         var icon = WindowIcon.FromPath(Path.Combine(AppContext.BaseDirectory, "Assets", "Wessl.ico"));
         _tray = ReactorApp.OpenTrayIcon(new TrayIconSpec(icon, "Wessl"));
-        _tray.Click += (_, _) => ToggleWindow();
-        _tray.RightClick += (_, _) => _tray.ShowFlyout(TrayMenu.Create(
-            OpenWindow,
-            () =>
-            {
-                _tray.HideFlyout();
-                _ = containers.RefreshAsync();
-            },
-            Exit));
+        _tray.Click += (_, _) => OpenWindow();
+        _tray.RightClick += (_, _) => ShowTrayMenu();
         _ = containers.RefreshAsync();
     }
 
-    private void ToggleWindow()
+    private void ShowTrayMenu()
     {
-        if (_window is { IsVisible: true })
+        _trayMenu?.Hide();
+        _trayMenu = null;
+
+        var cursorPosition = TrayPlacement.GetCursorPosition();
+        var host = EnsureMenuHostWindow();
+        TrayPlacement.MoveMenuHost(host.AppWindow, cursorPosition);
+        host.Show();
+
+        var target = host.NativeWindow.Content
+            ?? throw new InvalidOperationException("The tray menu host has no content element.");
+        var menu = TrayMenu.Create(OpenWindow, Exit);
+        _trayMenu = menu;
+        menu.Closed += (_, _) =>
         {
-            _window.Hide();
-        }
-        else
-        {
-            OpenWindow();
-        }
+            if (ReferenceEquals(_trayMenu, menu))
+            {
+                _trayMenu = null;
+            }
+
+            host.Hide();
+        };
+        menu.ShowAt(target, new Point(0, 0));
     }
 
     private void OpenWindow()
     {
-        _tray?.HideFlyout();
+        _trayMenu?.Hide();
+        _trayMenu = null;
+        _menuHostWindow?.Hide();
+
+        var cursorPosition = TrayPlacement.GetCursorPosition();
+        var window = EnsureMainWindow();
+        TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
+        window.Show();
+        window.Activate();
+    }
+
+    private ReactorWindow EnsureMainWindow()
+    {
         if (_window is null)
         {
             _window = ReactorApp.OpenWindow(
@@ -48,13 +71,40 @@ public sealed class AppLifecycle(ContainerService containers)
             _window.Closed += (_, _) => _window = null;
         }
 
-        _window.Show();
-        _window.Activate();
+        return _window;
+    }
+
+    private ReactorWindow EnsureMenuHostWindow()
+    {
+        if (_menuHostWindow is null)
+        {
+            _menuHostWindow = ReactorApp.OpenWindow(
+                new WindowSpec
+                {
+                    Title = string.Empty,
+                    Width = 1,
+                    Height = 1,
+                    Style = WindowStyle.None,
+                    ShowInTaskbar = false,
+                    ShowInSwitcher = false
+                },
+                () => new TrayMenuHost());
+            _menuHostWindow.Closed += (_, _) => _menuHostWindow = null;
+        }
+
+        return _menuHostWindow;
     }
 
     private void Exit()
     {
+        _trayMenu?.Hide();
+        _trayMenu = null;
         _tray?.Close();
+        _tray = null;
+        _menuHostWindow?.Close();
+        _menuHostWindow = null;
+        _window?.Close();
+        _window = null;
         ReactorApp.Exit();
     }
 }
