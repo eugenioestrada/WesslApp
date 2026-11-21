@@ -4,13 +4,13 @@ Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc),
 
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
-This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Verify that your WSLc version supports this format before enabling it.
+The app uses `WslcClient` to list and manage real containers through the `wslc` CLI. Start, Stop, and Restart run directly from each container row; Remove requires confirmation and can stop a running container as part of deletion. The CLI must be available on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line.
 
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.
 - .NET 11 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
-- WSL with WSL Containers and `wslc` on `PATH` only when using the real client. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
+- WSL with WSL Containers and `wslc` on `PATH`. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
 
 ## Build and run
 

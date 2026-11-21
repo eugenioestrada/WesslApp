@@ -10,6 +10,7 @@ public sealed class MainWindow(ContainerService containers) : Component
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
+        var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         UseEffect(() =>
         {
             var revision = 0;
@@ -20,9 +21,14 @@ public sealed class MainWindow(ContainerService containers) : Component
 
         return VStack(12,
             TextBlock("Containers").FontSize(24),
-            containers.Error is { } error
-                ? TextBlock($"Unable to refresh: {error}")
-                : ContainerList.Create(containers.Containers),
+            containers.Error is { } error ? TextBlock(error) : TextBlock(string.Empty),
+            containers.Status is { } status ? TextBlock(status) : TextBlock(string.Empty),
+            ContainerList.Create(
+                containers.Containers,
+                containers,
+                pendingRemoval,
+                id => setPendingRemoval(id),
+                () => setPendingRemoval(null)),
             Button("Refresh", () => _ = containers.RefreshAsync())
         ).Padding(20);
     }

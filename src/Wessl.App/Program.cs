@@ -5,7 +5,7 @@ using Wessl.Domain;
 using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
-    .AddSingleton<IWslcClient, SampleWslcClient>()
+    .AddSingleton<IWslcClient, WslcClient>()
     .AddSingleton<ContainerService>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();
