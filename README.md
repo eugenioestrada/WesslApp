@@ -4,13 +4,19 @@ Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc),
 
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
-This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Published TCP mappings in a container's `Ports` field are shown as localhost URLs that can be opened or copied. Verify that your WSLc version supports this format before enabling it.
+The app uses sample containers by default, so lifecycle actions update demo data. To manage real containers, register `WslcClient` instead of `SampleWslcClient` in `src/Wessl.App/Program.cs`; `wslc` must be available on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.
+
+Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
+
+For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Windows Terminal and a WSLc version supporting `exec -it` must be available; the sample client only displays demo containers, so use `WslcClient` to open a real container shell.
+
+Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
 
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.
 - .NET 11 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
-- WSL with WSL Containers and `wslc` on `PATH` only when using the real client. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
+- WSL with WSL Containers and `wslc` on `PATH`. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
 
 ## Build and run
 

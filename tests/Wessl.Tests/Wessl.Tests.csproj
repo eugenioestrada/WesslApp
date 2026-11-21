@@ -22,4 +22,9 @@
     <ProjectReference Include="..\..\src\Wessl.Infrastructure\Wessl.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerService.cs" Link="ContainerService.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerPolling.cs" Link="ContainerPolling.cs" />
+  </ItemGroup>
+
 </Project>

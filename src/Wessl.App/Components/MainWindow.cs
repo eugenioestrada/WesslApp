@@ -5,11 +5,12 @@ using static Microsoft.UI.Reactor.Factories;
 
 namespace Wessl.App.Components;
 
-public sealed class MainWindow(ContainerService containers) : Component
+public sealed class MainWindow(ContainerService containers, ContainerPolling polling) : Component
 {
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
+        var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         UseEffect(() =>
         {
             var revision = 0;
@@ -20,10 +21,19 @@ public sealed class MainWindow(ContainerService containers) : Component
 
         return VStack(12,
             TextBlock("Containers").FontSize(24),
-            containers.Error is { } error
-                ? TextBlock($"Unable to refresh: {error}")
-                : ContainerList.Create(containers.Containers),
-            Button("Refresh", () => _ = containers.RefreshAsync())
+            containers.Error is { } error ? TextBlock(error) : TextBlock(string.Empty),
+            containers.Status is { } status ? TextBlock(status) : TextBlock(string.Empty),
+            ContainerList.Create(
+                containers.Containers,
+                containers,
+                containers.OpenShell,
+                pendingRemoval,
+                id => setPendingRemoval(id),
+                () => setPendingRemoval(null)),
+            containers.ShellError is { } shellError
+                ? TextBlock($"Unable to open shell: {shellError}")
+                : TextBlock(string.Empty),
+            Button("Refresh", () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
 }
