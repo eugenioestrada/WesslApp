@@ -56,6 +56,22 @@ public sealed class LocalizationResourceTests
     }
 
     [Fact]
+    public void SettingsChoiceControlsAreRecreatedWhenLanguageChanges()
+    {
+        var settingsPage = File.ReadAllText(Path.Combine(
+            FindRepositoryRoot(),
+            "src",
+            "Wessl.App",
+            "Components",
+            "SettingsPage.cs"));
+
+        Assert.Contains(".WithKey($\"settings-theme-{settings.LanguageTag}\")", settingsPage);
+        Assert.Contains(".WithKey($\"settings-language-{settings.LanguageTag}\")", settingsPage);
+        Assert.Contains(".WithKey($\"settings-refresh-{settings.LanguageTag}\")", settingsPage);
+        Assert.Contains(".WithKey($\"settings-terminal-{settings.LanguageTag}\")", settingsPage);
+    }
+
+    [Fact]
     public void ResourceKeysAreReferencedByApplicationCode()
     {
         var repositoryRoot = FindRepositoryRoot();

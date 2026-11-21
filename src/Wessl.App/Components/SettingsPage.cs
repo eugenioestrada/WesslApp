@@ -11,6 +11,7 @@ public static class SettingsPage
     public static Element Create(AppSettings settings, Action navigateBack) =>
         ScrollViewer(VStack(12,
             TextBlock(AppStrings.Get("SettingsHeading")).FontSize(24),
+            // Collection-backed controls need a new identity when the locale changes.
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsThemeLabel")),
                 RadioButtons(
@@ -21,7 +22,8 @@ public static class SettingsPage
                     ],
                     (int)settings.Theme,
                     index => { if (index >= 0) settings.SetTheme((AppTheme)index); })
-                    .AutomationName(AppStrings.Get("SettingsThemeLabel"))),
+                    .AutomationName(AppStrings.Get("SettingsThemeLabel"))
+                    .WithKey($"settings-theme-{settings.LanguageTag}")),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsLanguageLabel")),
                 ComboBox(
@@ -35,7 +37,8 @@ public static class SettingsPage
                     ],
                     (int)settings.Language,
                     index => { if (index >= 0) settings.SetLanguage((AppLanguage)index); })
-                    .AutomationName(AppStrings.Get("SettingsLanguageLabel"))),
+                    .AutomationName(AppStrings.Get("SettingsLanguageLabel"))
+                    .WithKey($"settings-language-{settings.LanguageTag}")),
             ToggleSwitch(
                 settings.StartWithWindows,
                 enabled => settings.SetStartWithWindows(enabled),
@@ -53,7 +56,8 @@ public static class SettingsPage
                     ],
                     RefreshIntervalIndex(settings.RefreshIntervalSeconds),
                     index => { if (index >= 0) settings.SetRefreshIntervalSeconds(new[] { 5, 10, 30, 60 }[index]); })
-                    .AutomationName(AppStrings.Get("SettingsRefreshIntervalLabel"))),
+                    .AutomationName(AppStrings.Get("SettingsRefreshIntervalLabel"))
+                    .WithKey($"settings-refresh-{settings.LanguageTag}")),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsDefaultTerminalLabel")),
                 RadioButtons(
@@ -64,7 +68,8 @@ public static class SettingsPage
                     ],
                     (int)settings.DefaultTerminal,
                     index => { if (index >= 0) settings.SetDefaultTerminal((ContainerTerminal)index); })
-                    .AutomationName(AppStrings.Get("SettingsDefaultTerminalLabel"))),
+                    .AutomationName(AppStrings.Get("SettingsDefaultTerminalLabel"))
+                    .WithKey($"settings-terminal-{settings.LanguageTag}")),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsContainerClientLabel")),
                 TextBlock(AppStrings.Get("SettingsContainerClientValue"))),

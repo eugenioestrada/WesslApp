@@ -107,6 +107,22 @@ public sealed class AppSettingsTests
         Assert.Equal(ContainerTerminal.PowerShell, reloaded.DefaultTerminal);
     }
 
+    [Fact]
+    public void ChangingLanguagePreservesOtherSettingsSelections()
+    {
+        using var directory = new TemporaryDirectory();
+        var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+        settings.SetTheme(AppTheme.Dark);
+        settings.SetRefreshIntervalSeconds(30);
+        settings.SetDefaultTerminal(ContainerTerminal.PowerShell);
+
+        settings.SetLanguage(AppLanguage.Spanish);
+
+        Assert.Equal(AppTheme.Dark, settings.Theme);
+        Assert.Equal(30, settings.RefreshIntervalSeconds);
+        Assert.Equal(ContainerTerminal.PowerShell, settings.DefaultTerminal);
+    }
+
     [Theory]
     [InlineData(ContainerTerminal.WindowsTerminal)]
     [InlineData(ContainerTerminal.PowerShell)]
