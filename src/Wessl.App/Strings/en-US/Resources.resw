@@ -48,6 +48,24 @@
   <data name="OpenShellError" xml:space="preserve">
     <value>Unable to open shell: {0}</value>
   </data>
+  <data name="CopyUrlButton" xml:space="preserve">
+    <value>Copy URL</value>
+  </data>
+  <data name="PortOpenSuccess" xml:space="preserve">
+    <value>Opened {0}</value>
+  </data>
+  <data name="PortOpenFailure" xml:space="preserve">
+    <value>Windows could not open {0}.</value>
+  </data>
+  <data name="PortOpenError" xml:space="preserve">
+    <value>Unable to open {0}: {1}</value>
+  </data>
+  <data name="PortCopySuccess" xml:space="preserve">
+    <value>Copied {0} to the clipboard.</value>
+  </data>
+  <data name="PortCopyError" xml:space="preserve">
+    <value>Unable to copy {0}: {1}</value>
+  </data>
   <data name="WaitForCurrentAction" xml:space="preserve">
     <value>Wait for the current container action to finish.</value>
   </data>

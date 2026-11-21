@@ -48,6 +48,24 @@
   <data name="OpenShellError" xml:space="preserve">
     <value>No se pudo abrir la consola: {0}</value>
   </data>
+  <data name="CopyUrlButton" xml:space="preserve">
+    <value>Copiar URL</value>
+  </data>
+  <data name="PortOpenSuccess" xml:space="preserve">
+    <value>Se abrió {0}</value>
+  </data>
+  <data name="PortOpenFailure" xml:space="preserve">
+    <value>Windows no pudo abrir {0}.</value>
+  </data>
+  <data name="PortOpenError" xml:space="preserve">
+    <value>No se pudo abrir {0}: {1}</value>
+  </data>
+  <data name="PortCopySuccess" xml:space="preserve">
+    <value>Se copió {0} al portapapeles.</value>
+  </data>
+  <data name="PortCopyError" xml:space="preserve">
+    <value>No se pudo copiar {0}: {1}</value>
+  </data>
   <data name="WaitForCurrentAction" xml:space="preserve">
     <value>Espera a que termine la acción actual del contenedor.</value>
   </data>
