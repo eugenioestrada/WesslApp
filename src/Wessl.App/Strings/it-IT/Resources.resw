@@ -32,6 +32,10 @@
   <data name="RestartButton" xml:space="preserve"><value>Riavvia</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>Apri terminale</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>Visualizza log</value></data>
+  <data name="ContainerUsageButton" xml:space="preserve"><value>Mostra l’utilizzo di CPU e RAM</value></data>
+  <data name="ContainerUsageLoading" xml:space="preserve"><value>Caricamento dell’utilizzo di CPU e RAM…</value></data>
+  <data name="ContainerUsage" xml:space="preserve"><value>CPU: {0} · RAM: {1}</value></data>
+  <data name="ContainerUsageError" xml:space="preserve"><value>Impossibile caricare l’utilizzo di CPU e RAM: {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Log: {0}</value></data>
   <data name="LogsFollowing" xml:space="preserve"><value>Visualizzazione continua dei log. Chiudi questa finestra per interromperla.</value></data>
   <data name="LogsFollowingTruncated" xml:space="preserve"><value>Visualizzazione continua dei log; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB. Chiudi questa finestra per interromperla.</value></data>

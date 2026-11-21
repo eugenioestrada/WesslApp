@@ -25,6 +25,14 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         return WslcOutputParser.Parse(output);
     }
 
+    public async Task<ContainerUsage> GetContainerUsageAsync(
+        string id,
+        CancellationToken cancellationToken = default)
+    {
+        var output = await RunCommandAsync(CreateStatsStartInfo(id), cancellationToken);
+        return WslcOutputParser.ParseUsage(output);
+    }
+
     public async Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
     {
         var output = await RunCommandAsync(cancellationToken, "image", "list", "--format", "json");
@@ -157,20 +165,44 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         return startInfo;
     }
 
+    internal ProcessStartInfo CreateStatsStartInfo(string id)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        if (id.StartsWith('-'))
+        {
+            throw new ArgumentException("The container ID cannot start with a hyphen.", nameof(id));
+        }
+
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "stats", "--format", "json", id })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        return startInfo;
+    }
+
     private async Task<string> RunCommandAsync(CancellationToken cancellationToken, params string[] arguments)
     {
-        var startInfo = new ProcessStartInfo(_executable)
-        {
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        };
+        var startInfo = CreateStartInfo();
         foreach (var argument in arguments)
         {
             startInfo.ArgumentList.Add(argument);
         }
 
+        return await RunCommandAsync(startInfo, cancellationToken);
+    }
+
+    private ProcessStartInfo CreateStartInfo() => new(_executable)
+    {
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true
+    };
+
+    private async Task<string> RunCommandAsync(ProcessStartInfo startInfo, CancellationToken cancellationToken)
+    {
         Process? startedProcess;
         try
         {

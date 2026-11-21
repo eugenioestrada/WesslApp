@@ -6,6 +6,25 @@ namespace Wessl.Tests;
 public sealed class WslcOutputParserTests
 {
     [Fact]
+    public void ParseReadsCpuAndMemoryUsageFromJsonLines()
+    {
+        const string output = """
+            {"ID":"abc","Name":"web","CPUPerc":"0.16%","MemUsage":"47.21MiB / 15.62GiB"}
+            """;
+
+        Assert.Equal(
+            new ContainerUsage("0.16%", "47.21MiB / 15.62GiB"),
+            WslcOutputParser.ParseUsage(output));
+    }
+
+    [Fact]
+    public void ParseUsageRejectsEmptyOrIncompleteOutput()
+    {
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseUsage(""));
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseUsage("""{"CPUPerc":"0.00%"}"""));
+    }
+
+    [Fact]
     public void ParseReadsJsonLinesAndStates()
     {
         const string output = """
@@ -70,9 +89,13 @@ public sealed class WslcOutputParserTests
     {
         var client = new SampleWslcClient();
         Assert.Equal(2, (await client.ListContainersAsync()).Count);
+        Assert.Equal(new ContainerUsage("0.00%", "12.4 MiB / 7.6 GiB"),
+            await client.GetContainerUsageAsync("sample-1"));
         using var source = new CancellationTokenSource();
         source.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await client.ListContainersAsync(source.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await client.GetContainerUsageAsync("sample-1", source.Token));
     }
 
     [Fact]
@@ -98,5 +121,7 @@ public sealed class WslcOutputParserTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => client.StartContainerAsync("missing"));
         await Assert.ThrowsAsync<InvalidOperationException>(() => client.RemoveContainerAsync("missing"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.GetContainerUsageAsync("missing"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.GetContainerUsageAsync("sample-2"));
     }
 }

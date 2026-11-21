@@ -32,6 +32,10 @@
   <data name="RestartButton" xml:space="preserve"><value>Neu starten</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>Shell öffnen</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>Protokolle anzeigen</value></data>
+  <data name="ContainerUsageButton" xml:space="preserve"><value>CPU- und RAM-Auslastung anzeigen</value></data>
+  <data name="ContainerUsageLoading" xml:space="preserve"><value>CPU- und RAM-Auslastung wird geladen…</value></data>
+  <data name="ContainerUsage" xml:space="preserve"><value>CPU: {0} · RAM: {1}</value></data>
+  <data name="ContainerUsageError" xml:space="preserve"><value>CPU- und RAM-Auslastung konnte nicht geladen werden: {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Protokolle: {0}</value></data>
   <data name="LogsFollowing" xml:space="preserve"><value>Protokolle werden verfolgt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>
   <data name="LogsFollowingTruncated" xml:space="preserve"><value>Protokolle werden verfolgt; ältere Zeilen wurden nach Erreichen des Limits von 128 KB entfernt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>

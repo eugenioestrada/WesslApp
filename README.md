@@ -22,6 +22,8 @@ For a running container, **Open shell** launches Windows Terminal with an intera
 
 **View logs** opens a separate window following `wslc container logs -f <container-id>`. Closing the window stops the follow process. The display retains the most recent 128 Ki characters.
 
+For a running container, **Show CPU and RAM usage** requests a one-shot snapshot with `wslc stats --format json <container-id>`. Usage is not polled automatically.
+
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
 
 ## Prerequisites

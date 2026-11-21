@@ -22,6 +22,8 @@ Pour un conteneur en cours d’exécution, **Ouvrir le terminal** lance Windows 
 
 **Afficher les journaux** ouvre une fenêtre séparée qui suit `wslc container logs -f <container-id>`. Fermer cette fenêtre arrête le processus de suivi. L’affichage conserve les 128 Ki les plus récents.
 
+Pour un conteneur en cours d’exécution, **Afficher l’utilisation du processeur et de la RAM** demande un instantané unique avec `wslc stats --format json <container-id>`. L’utilisation n’est pas actualisée automatiquement.
+
 L’état des conteneurs est actualisé à l’ouverture de la fenêtre, puis toutes les 10 secondes tant qu’elle reste visible. Le bouton Actualiser permet également de demander une mise à jour immédiate. La vérification périodique s’arrête lorsque la fenêtre est masquée, réduite ou fermée ; le simple démarrage de l’application dans la zone de notification n’invoque pas WSLc. L’indicateur de la zone affiche un état inconnu jusqu’à la première actualisation réussie, puis reflète le dernier état connu lorsque la fenêtre est fermée.
 
 ## Prérequis

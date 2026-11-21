@@ -33,6 +33,18 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public void StatsCommandRequestsJsonForOneContainer()
+    {
+        var client = new WslcClient("wslc");
+        var startInfo = client.CreateStatsStartInfo("container-123");
+
+        Assert.Equal("wslc", startInfo.FileName);
+        Assert.Equal(["stats", "--format", "json", "container-123"], startInfo.ArgumentList);
+        Assert.True(startInfo.RedirectStandardOutput);
+        Assert.Throws<ArgumentException>(() => client.CreateStatsStartInfo("--help"));
+    }
+
+    [Fact]
     public async Task UnavailableStateReplacesStaleContainersAndRecovers()
     {
         var client = new ChangingClient();
@@ -167,6 +179,9 @@ public sealed class WslcIntegrationTests
                 ? Task.FromException<IReadOnlyList<ContainerInfo>>(failure)
                 : Task.FromResult<IReadOnlyList<ContainerInfo>>([new("id", "name", "image", ContainerState.Running)]);
 
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -181,6 +196,9 @@ public sealed class WslcIntegrationTests
 
         public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<ContainerInfo>>(containers);
+
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
