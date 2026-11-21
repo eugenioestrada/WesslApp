@@ -30,6 +30,22 @@ public sealed class WslcOutputParserTests
     }
 
     [Fact]
+    public void ParseReadsPortsAsDelimitedTextOrStringArray()
+    {
+        const string output = """
+            {"ID":"abc","Names":"web","Image":"nginx","State":"running","Ports":"8080:80/tcp, 443/tcp"}
+            {"ID":"def","Names":"db","Image":"postgres","State":"stopped","Ports":["5432/tcp","127.0.0.1:15432->5432/tcp"]}
+            {"ID":"ghi","Names":"worker","Image":"busybox","State":"running"}
+            """;
+
+        var containers = WslcOutputParser.Parse(output);
+
+        Assert.Equal(["8080:80/tcp", "443/tcp"], containers[0].Ports);
+        Assert.Equal(["5432/tcp", "127.0.0.1:15432->5432/tcp"], containers[1].Ports);
+        Assert.Empty(containers[2].Ports);
+    }
+
+    [Fact]
     public async Task SampleClientReturnsContainersAndHonorsCancellation()
     {
         var client = new SampleWslcClient();
