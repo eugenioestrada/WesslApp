@@ -29,6 +29,18 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
         return Task.FromResult<IReadOnlyList<ContainerInfo>>(_containers.ToArray());
     }
 
+    public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var container = FindContainer(id);
+        if (container.State != ContainerState.Running)
+        {
+            throw new InvalidOperationException("Usage is only available for a running container.");
+        }
+
+        return Task.FromResult(new ContainerUsage("0.00%", "12.4 MiB / 7.6 GiB"));
+    }
+
     public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
         SetStateAsync(id, ContainerState.Running, cancellationToken);
 

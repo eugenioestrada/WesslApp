@@ -9,6 +9,11 @@ public sealed class ContainerService(
     AppSettings? settings = null)
 {
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private readonly object _usageRequestLock = new();
+    private readonly HashSet<string> _usageRequests = [];
+    private readonly HashSet<string> _usageLoading = [];
+    private readonly Dictionary<string, ContainerUsage> _usage = [];
+    private readonly Dictionary<string, LocalizedMessage> _usageErrors = [];
     private int _actionInProgress;
 
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
@@ -27,7 +32,74 @@ public sealed class ContainerService(
 
     public string? ShellError { get; private set; }
 
+    public IReadOnlyDictionary<string, ContainerUsage> Usage => _usage;
+
+    public IReadOnlySet<string> UsageLoading => _usageLoading;
+
+    public IReadOnlyDictionary<string, LocalizedMessage> UsageErrors => _usageErrors;
+
     public event Action? Changed;
+
+    public async Task RefreshUsageAsync(ContainerInfo container)
+    {
+        if (container.State != ContainerState.Running
+            || !Containers.Any(item => item.Id == container.Id && item.State == ContainerState.Running))
+        {
+            return;
+        }
+
+        lock (_usageRequestLock)
+        {
+            if (!_usageRequests.Add(container.Id))
+            {
+                return;
+            }
+        }
+
+        dispatch(() =>
+        {
+            _usageLoading.Add(container.Id);
+            _usage.Remove(container.Id);
+            _usageErrors.Remove(container.Id);
+            Changed?.Invoke();
+        });
+
+        ContainerUsage? usage = null;
+        Exception? error = null;
+        try
+        {
+            usage = await client.GetContainerUsageAsync(container.Id).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            error = exception;
+        }
+        finally
+        {
+            lock (_usageRequestLock)
+            {
+                _usageRequests.Remove(container.Id);
+            }
+        }
+
+        dispatch(() =>
+        {
+            _usageLoading.Remove(container.Id);
+            if (Containers.Any(item => item.Id == container.Id && item.State == ContainerState.Running))
+            {
+                if (usage is not null)
+                {
+                    _usage[container.Id] = usage;
+                }
+                else if (error is not null)
+                {
+                    _usageErrors[container.Id] = new("ContainerUsageError", [error.Message]);
+                }
+            }
+
+            Changed?.Invoke();
+        });
+    }
 
     public void OpenShell(ContainerInfo container)
     {
@@ -103,12 +175,12 @@ public sealed class ContainerService(
 
             if (result is not null)
             {
-                Containers = result;
+                SetContainers(result);
                 HasRefreshed = true;
             }
             else if (unavailable)
             {
-                Containers = [];
+                SetContainers([]);
                 HasRefreshed = false;
             }
 
@@ -203,12 +275,12 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    Containers = result;
+                    SetContainers(result);
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
-                    Containers = [];
+                    SetContainers([]);
                     HasRefreshed = false;
                 }
 
@@ -288,12 +360,12 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    Containers = result;
+                    SetContainers(result);
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
-                    Containers = [];
+                    SetContainers([]);
                     HasRefreshed = false;
                 }
 
@@ -328,6 +400,24 @@ public sealed class ContainerService(
         finally
         {
             Interlocked.Exchange(ref _actionInProgress, 0);
+        }
+    }
+
+    private void SetContainers(IReadOnlyList<ContainerInfo> containers)
+    {
+        Containers = containers;
+        var runningIds = containers
+            .Where(container => container.State == ContainerState.Running)
+            .Select(container => container.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        foreach (var id in _usage.Keys.Where(id => !runningIds.Contains(id)).ToArray())
+        {
+            _usage.Remove(id);
+        }
+
+        foreach (var id in _usageErrors.Keys.Where(id => !runningIds.Contains(id)).ToArray())
+        {
+            _usageErrors.Remove(id);
         }
     }
 }

@@ -116,6 +116,9 @@ public sealed class ContainerPollingTests
                 [new("id", "name", "image", ContainerState.Running)]);
         }
 
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
@@ -147,6 +150,9 @@ public sealed class ContainerPollingTests
             Token = cancellationToken;
             return _result.Task;
         }
+
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
@@ -181,6 +187,9 @@ public sealed class ContainerPollingTests
             SecondStarted.SetResult();
             return Task.FromResult<IReadOnlyList<ContainerInfo>>([]);
         }
+
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();

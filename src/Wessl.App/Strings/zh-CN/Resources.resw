@@ -32,6 +32,10 @@
   <data name="RestartButton" xml:space="preserve"><value>重启</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>打开终端</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>查看日志</value></data>
+  <data name="ContainerUsageButton" xml:space="preserve"><value>显示 CPU 和 RAM 使用情况</value></data>
+  <data name="ContainerUsageLoading" xml:space="preserve"><value>正在加载 CPU 和 RAM 使用情况…</value></data>
+  <data name="ContainerUsage" xml:space="preserve"><value>CPU：{0} · RAM：{1}</value></data>
+  <data name="ContainerUsageError" xml:space="preserve"><value>无法加载 CPU 和 RAM 使用情况：{0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>日志：{0}</value></data>
   <data name="LogsFollowing" xml:space="preserve"><value>正在跟踪日志。关闭此窗口以停止。</value></data>
   <data name="LogsFollowingTruncated" xml:space="preserve"><value>正在跟踪日志；达到 128 KB 限制后，较早的行已被删减。关闭此窗口以停止。</value></data>

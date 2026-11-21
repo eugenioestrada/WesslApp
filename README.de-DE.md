@@ -22,6 +22,8 @@ Bei einem laufenden Container öffnet **Shell öffnen** Windows Terminal mit ein
 
 **Protokolle anzeigen** öffnet ein separates Fenster, das `wslc container logs -f <container-id>` verfolgt. Beim Schließen des Fensters wird der Verfolgungsprozess beendet. Die Anzeige behält die letzten 128 Ki Zeichen bei.
 
+Bei einem laufenden Container fordert **CPU- und RAM-Auslastung anzeigen** eine einmalige Momentaufnahme mit `wslc stats --format json <container-id>` an. Die Auslastung wird nicht automatisch abgefragt.
+
 Der Containerstatus wird beim Öffnen des Fensters und anschließend alle 10 Sekunden aktualisiert, solange es sichtbar ist. Die Schaltfläche Aktualisieren fordert ebenfalls sofort eine Aktualisierung an. Die regelmäßige Abfrage endet, sobald das Fenster ausgeblendet, minimiert oder geschlossen wird; allein der Start der App im Infobereich ruft WSLc nicht auf. Der Infobereich-Indikator zeigt bis zur ersten erfolgreichen Aktualisierung einen unbekannten Status und danach bei geschlossenem Fenster den zuletzt bekannten Status.
 
 ## Voraussetzungen

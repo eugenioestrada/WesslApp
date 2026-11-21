@@ -32,6 +32,10 @@
   <data name="RestartButton" xml:space="preserve"><value>Redémarrer</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>Ouvrir le terminal</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>Afficher les journaux</value></data>
+  <data name="ContainerUsageButton" xml:space="preserve"><value>Afficher l’utilisation du processeur et de la RAM</value></data>
+  <data name="ContainerUsageLoading" xml:space="preserve"><value>Chargement de l’utilisation du processeur et de la RAM…</value></data>
+  <data name="ContainerUsage" xml:space="preserve"><value>Processeur : {0} · RAM : {1}</value></data>
+  <data name="ContainerUsageError" xml:space="preserve"><value>Impossible de charger l’utilisation du processeur et de la RAM : {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Journaux : {0}</value></data>
   <data name="LogsFollowing" xml:space="preserve"><value>Suivi des journaux. Fermez cette fenêtre pour arrêter le suivi.</value></data>
   <data name="LogsFollowingTruncated" xml:space="preserve"><value>Suivi des journaux ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. Fermez cette fenêtre pour arrêter le suivi.</value></data>

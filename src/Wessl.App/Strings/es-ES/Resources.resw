@@ -68,6 +68,18 @@
   <data name="OpenLogsButton" xml:space="preserve">
     <value>Ver registros</value>
   </data>
+  <data name="ContainerUsageButton" xml:space="preserve">
+    <value>Mostrar uso de CPU y RAM</value>
+  </data>
+  <data name="ContainerUsageLoading" xml:space="preserve">
+    <value>Cargando uso de CPU y RAM…</value>
+  </data>
+  <data name="ContainerUsage" xml:space="preserve">
+    <value>CPU: {0} · RAM: {1}</value>
+  </data>
+  <data name="ContainerUsageError" xml:space="preserve">
+    <value>No se pudo cargar el uso de CPU y RAM: {0}</value>
+  </data>
   <data name="LogsTitle" xml:space="preserve">
     <value>Registros: {0}</value>
   </data>

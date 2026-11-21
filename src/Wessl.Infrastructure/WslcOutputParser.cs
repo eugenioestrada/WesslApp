@@ -6,6 +6,36 @@ namespace Wessl.Infrastructure;
 
 public static class WslcOutputParser
 {
+    public static ContainerUsage ParseUsage(string output)
+    {
+        using var reader = new StringReader(output);
+        while (reader.ReadLine() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            using var document = JsonDocument.Parse(line);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc output contains invalid container usage.");
+            }
+
+            var cpuPercent = GetString(root, "CPUPerc");
+            var memoryUsage = GetString(root, "MemUsage");
+            if (cpuPercent.Length == 0 || memoryUsage.Length == 0)
+            {
+                throw new FormatException("WSLc output is missing container usage information.");
+            }
+
+            return new ContainerUsage(cpuPercent, memoryUsage);
+        }
+
+        throw new FormatException("WSLc output contains no container usage.");
+    }
+
     public static IReadOnlyList<ImageInfo> ParseImages(string output)
     {
         var images = new List<ImageInfo>();
