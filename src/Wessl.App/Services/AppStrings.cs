@@ -23,6 +23,12 @@ public static class AppStrings
     public static string Format(string name, params object?[] args) =>
         string.Format(CultureInfo.CurrentCulture, Get(name), args);
 
+    public static string Format(LocalizedMessage message) =>
+        Format(
+            message.ResourceKey,
+            message.Arguments.Select(argument =>
+                argument is LocalizedMessage nested ? Format(nested) : argument).ToArray());
+
     public static string GetContainerState(ContainerState state) =>
         Get(state switch
         {

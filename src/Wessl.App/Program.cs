@@ -6,6 +6,7 @@ using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
     .AddSingleton<IWslcClient, SampleWslcClient>()
+    .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
     .AddSingleton<ContainerService>(provider => new ContainerService(
         provider.GetRequiredService<IWslcClient>(),
         action =>
@@ -16,7 +17,8 @@ using var services = new ServiceCollection()
             {
                 throw new InvalidOperationException("Could not dispatch the container refresh result.");
             }
-        }))
+        },
+        provider.GetRequiredService<IContainerShellLauncher>()))
     .AddSingleton<ContainerPolling>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();

@@ -10,6 +10,7 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
+        var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         UseEffect(() =>
         {
             var revision = 0;
@@ -21,8 +22,21 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
         return VStack(12,
             TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
             containers.Error is { } error
-                ? TextBlock(AppStrings.Format("RefreshError", error))
-                : ContainerList.Create(containers.Containers),
+                ? TextBlock(AppStrings.Format(error))
+                : TextBlock(string.Empty),
+            containers.Status is { } status
+                ? TextBlock(AppStrings.Format(status))
+                : TextBlock(string.Empty),
+            ContainerList.Create(
+                containers.Containers,
+                containers,
+                containers.OpenShell,
+                pendingRemoval,
+                id => setPendingRemoval(id),
+                () => setPendingRemoval(null)),
+            containers.ShellError is { } shellError
+                ? TextBlock(AppStrings.Format("OpenShellError", shellError))
+                : TextBlock(string.Empty),
             Button(AppStrings.Get("RefreshButton"), () => _ = polling.RefreshAsync())
         ).Padding(20);
     }

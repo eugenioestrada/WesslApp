@@ -21,6 +21,75 @@
   <data name="PortsLabel" xml:space="preserve">
     <value>Ports: {0}</value>
   </data>
+  <data name="StartButton" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="StopButton" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="RestartButton" xml:space="preserve">
+    <value>Restart</value>
+  </data>
+  <data name="OpenShellButton" xml:space="preserve">
+    <value>Open shell</value>
+  </data>
+  <data name="RemoveButton" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="ConfirmRemoveButton" xml:space="preserve">
+    <value>Confirm remove</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RemoveConfirmation" xml:space="preserve">
+    <value>Remove {0}? This permanently deletes the container and stops it if running.</value>
+  </data>
+  <data name="OpenShellError" xml:space="preserve">
+    <value>Unable to open shell: {0}</value>
+  </data>
+  <data name="WaitForCurrentAction" xml:space="preserve">
+    <value>Wait for the current container action to finish.</value>
+  </data>
+  <data name="ActionAndRefreshError" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="ActionStartPending" xml:space="preserve">
+    <value>Starting {0}…</value>
+  </data>
+  <data name="ActionStartSucceeded" xml:space="preserve">
+    <value>Started {0} successfully.</value>
+  </data>
+  <data name="ActionStartFailed" xml:space="preserve">
+    <value>Unable to start {0}: {1}</value>
+  </data>
+  <data name="ActionStopPending" xml:space="preserve">
+    <value>Stopping {0}…</value>
+  </data>
+  <data name="ActionStopSucceeded" xml:space="preserve">
+    <value>Stopped {0} successfully.</value>
+  </data>
+  <data name="ActionStopFailed" xml:space="preserve">
+    <value>Unable to stop {0}: {1}</value>
+  </data>
+  <data name="ActionRestartPending" xml:space="preserve">
+    <value>Restarting {0}…</value>
+  </data>
+  <data name="ActionRestartSucceeded" xml:space="preserve">
+    <value>Restarted {0} successfully.</value>
+  </data>
+  <data name="ActionRestartFailed" xml:space="preserve">
+    <value>Unable to restart {0}: {1}</value>
+  </data>
+  <data name="ActionRemovePending" xml:space="preserve">
+    <value>Removing {0}…</value>
+  </data>
+  <data name="ActionRemoveSucceeded" xml:space="preserve">
+    <value>Removed {0} successfully.</value>
+  </data>
+  <data name="ActionRemoveFailed" xml:space="preserve">
+    <value>Unable to remove {0}: {1}</value>
+  </data>
   <data name="ContainerStateUnknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
