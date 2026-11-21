@@ -6,6 +6,8 @@ See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
 The app uses sample containers by default, so lifecycle actions update demo data. To manage real containers, register `WslcClient` instead of `SampleWslcClient` in `src/Wessl.App/Program.cs`; `wslc` must be available on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.
 
+Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
+
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Windows Terminal and a WSLc version supporting `exec -it` must be available; the sample client only displays demo containers, so use `WslcClient` to open a real container shell.
 
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
