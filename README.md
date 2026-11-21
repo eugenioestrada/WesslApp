@@ -6,6 +6,8 @@ See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
 This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Verify that your WSLc version supports this format before enabling it.
 
+Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
+
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.

@@ -1,12 +1,15 @@
 using Microsoft.UI.Reactor;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Wessl.App.Components;
 using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(ContainerService containers)
+public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling)
 {
+    private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
     private ReactorWindow? _menuHostWindow;
     private ReactorTrayIcon? _tray;
@@ -19,7 +22,6 @@ public sealed class AppLifecycle(ContainerService containers)
         _tray.Click += (_, _) => OpenWindow();
         _tray.RightClick += (_, _) => ShowTrayMenu();
         containers.Changed += UpdateTrayIcon;
-        _ = containers.RefreshAsync();
     }
 
     private void ShowTrayMenu()
@@ -59,12 +61,13 @@ public sealed class AppLifecycle(ContainerService containers)
         TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
         window.Show();
         window.Activate();
+        UpdatePolling(window);
     }
 
     private TrayIconSpec CreateTrayIconSpec()
     {
         var running = containers.HasRunningContainers;
-        var status = running ? "Running" : "Idle";
+        var status = !containers.HasRefreshed ? "Unknown" : running ? "Running" : "Idle";
         return new TrayIconSpec(TrayStatusIcon.Create(running), $"Wessl - {status}");
     }
 
@@ -79,11 +82,60 @@ public sealed class AppLifecycle(ContainerService containers)
         {
             _window = ReactorApp.OpenWindow(
                 new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
-                () => new MainWindow(containers));
-            _window.Closed += (_, _) => _window = null;
+                () => new MainWindow(containers, polling));
+            var window = _window;
+            _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _pollTimer.Interval = TimeSpan.FromSeconds(10);
+            _pollTimer.Tick += (_, _) =>
+            {
+                if (IsVisible(window))
+                {
+                    polling.Tick();
+                }
+                else
+                {
+                    UpdatePolling(window);
+                }
+            };
+            window.NativeWindow.VisibilityChanged += (_, _) => UpdatePolling(window);
+            window.AppWindow.Changed += (_, _) => UpdatePolling(window);
+            window.Closed += (_, _) =>
+            {
+                _pollTimer?.Stop();
+                _pollTimer = null;
+                polling.Stop();
+                _window = null;
+            };
         }
 
         return _window;
+    }
+
+    private static bool IsVisible(ReactorWindow window) =>
+        window.AppWindow.IsVisible &&
+        (window.AppWindow.Presenter is not OverlappedPresenter presenter ||
+         presenter.State != OverlappedPresenterState.Minimized);
+
+    private void UpdatePolling(ReactorWindow window)
+    {
+        if (!ReferenceEquals(_window, window))
+        {
+            return;
+        }
+
+        if (IsVisible(window))
+        {
+            polling.Start();
+            if (_pollTimer is { IsRunning: false } timer)
+            {
+                timer.Start();
+            }
+        }
+        else
+        {
+            _pollTimer?.Stop();
+            polling.Stop();
+        }
     }
 
     private ReactorWindow EnsureMenuHostWindow()
@@ -109,6 +161,8 @@ public sealed class AppLifecycle(ContainerService containers)
 
     private void Exit()
     {
+        _pollTimer?.Stop();
+        polling.Stop();
         containers.Changed -= UpdateTrayIcon;
         _trayMenu?.Hide();
         _trayMenu = null;
