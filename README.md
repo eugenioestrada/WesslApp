@@ -15,11 +15,13 @@ This is an initial scaffold. The app uses sample containers by default and does 
 From a Windows developer terminal at the repository root:
 
 ```powershell
-dotnet restore Wessl.slnx -p:Platform=x64
+dotnet restore Wessl.slnx
 dotnet build Wessl.slnx -p:Platform=x64
 dotnet run --project src/Wessl.App/Wessl.App.csproj -p:Platform=x64
 dotnet test tests/Wessl.Tests/Wessl.Tests.csproj
 ```
+
+The repository's `NuGet.Config` restores packages from nuget.org, independently of any additional package sources configured on your machine.
 
 For ARM64, use `-p:Platform=ARM64` instead. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 10.
 
