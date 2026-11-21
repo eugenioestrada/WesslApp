@@ -72,7 +72,7 @@ public sealed class MainWindow(
         }
         if (containers.ShellError is { } shellError)
         {
-            messages.Add(InfoBar(message: AppStrings.Format("OpenShellError", shellError)).Error()
+            messages.Add(InfoBar(message: AppStrings.Format(shellError)).Error()
                 with { IsOpen = true, IsClosable = false });
         }
 
