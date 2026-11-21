@@ -18,10 +18,10 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     public void Start()
     {
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
-        var icon = WindowIcon.FromPath(Path.Combine(AppContext.BaseDirectory, "Assets", "Wessl.ico"));
-        _tray = ReactorApp.OpenTrayIcon(new TrayIconSpec(icon, "Wessl"));
+        _tray = ReactorApp.OpenTrayIcon(CreateTrayIconSpec());
         _tray.Click += (_, _) => OpenWindow();
         _tray.RightClick += (_, _) => ShowTrayMenu();
+        containers.Changed += UpdateTrayIcon;
     }
 
     private void ShowTrayMenu()
@@ -62,6 +62,18 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         window.Show();
         window.Activate();
         UpdatePolling(window);
+    }
+
+    private TrayIconSpec CreateTrayIconSpec()
+    {
+        var running = containers.HasRunningContainers;
+        var status = !containers.HasRefreshed ? "Unknown" : running ? "Running" : "Idle";
+        return new TrayIconSpec(TrayStatusIcon.Create(running), $"Wessl - {status}");
+    }
+
+    private void UpdateTrayIcon()
+    {
+        _tray?.Update(CreateTrayIconSpec());
     }
 
     private ReactorWindow EnsureMainWindow()
@@ -151,6 +163,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     {
         _pollTimer?.Stop();
         polling.Stop();
+        containers.Changed -= UpdateTrayIcon;
         _trayMenu?.Hide();
         _trayMenu = null;
         _tray?.Close();

@@ -60,15 +60,18 @@ public sealed class ContainerPollingTests
         var service = new ContainerService(new RecordingClient(), updates.Add);
         var polling = new ContainerPolling(service);
 
+        Assert.False(service.HasRefreshed);
         polling.Start();
         Assert.Single(updates);
         polling.Stop();
         updates[0]();
 
         Assert.Empty(service.Containers);
+        Assert.False(service.HasRefreshed);
         await polling.RefreshAsync();
         updates[1]();
         Assert.Single(service.Containers);
+        Assert.True(service.HasRefreshed);
     }
 
     [Fact]

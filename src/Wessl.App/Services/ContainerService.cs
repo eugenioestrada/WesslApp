@@ -8,6 +8,10 @@ public sealed class ContainerService(IWslcClient client, Action<Action> dispatch
 
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
 
+    public bool HasRunningContainers => Containers.Any(container => container.State == ContainerState.Running);
+
+    public bool HasRefreshed { get; private set; }
+
     public string? Error { get; private set; }
 
     public event Action? Changed;
@@ -63,6 +67,7 @@ public sealed class ContainerService(IWslcClient client, Action<Action> dispatch
             if (result is not null)
             {
                 Containers = result;
+                HasRefreshed = true;
             }
 
             Error = error;
