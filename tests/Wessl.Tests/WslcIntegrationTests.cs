@@ -59,6 +59,23 @@ public sealed class WslcIntegrationTests
         Assert.Equal("exit code 1", service.Error.Arguments[0]);
     }
 
+    [Fact]
+    public async Task OpeningShellUsesTheSavedDefaultTerminal()
+    {
+        var client = new ChangingClient();
+        using var directory = new TemporaryDirectory();
+        var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+        settings.SetDefaultTerminal(ContainerTerminal.PowerShell);
+        var launcher = new RecordingShellLauncher();
+        var service = new ContainerService(client, action => action(), launcher, settings);
+
+        await service.RefreshAsync();
+        service.OpenShell(service.Containers[0]);
+
+        Assert.Equal(ContainerTerminal.PowerShell, launcher.Terminal);
+        Assert.Null(service.ShellError);
+    }
+
     private sealed class ChangingClient : IWslcClient
     {
         public Exception? Failure { get; set; }
@@ -76,6 +93,29 @@ public sealed class WslcIntegrationTests
 
     private sealed class UnusedShellLauncher : IContainerShellLauncher
     {
-        public void OpenShell(string containerId) => throw new NotSupportedException();
+        public void OpenShell(string containerId, ContainerTerminal terminal) => throw new NotSupportedException();
+    }
+
+    private sealed class RecordingShellLauncher : IContainerShellLauncher
+    {
+        public ContainerTerminal? Terminal { get; private set; }
+
+        public void OpenShell(string containerId, ContainerTerminal terminal) => Terminal = terminal;
+    }
+
+    private sealed class TemporaryDirectory : IDisposable
+    {
+        public string Path { get; } = System.IO.Path.Combine(
+            System.IO.Path.GetTempPath(),
+            "WesslIntegrationTests",
+            Guid.NewGuid().ToString("N"));
+
+        public void Dispose()
+        {
+            if (Directory.Exists(Path))
+            {
+                Directory.Delete(Path, recursive: true);
+            }
+        }
     }
 }

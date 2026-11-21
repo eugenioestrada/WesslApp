@@ -4,11 +4,16 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Wessl.App.Components;
+using Wessl.Domain;
 using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling, AppSettings settings)
+public sealed class AppLifecycle(
+    ContainerService containers,
+    ContainerPolling polling,
+    AppSettings settings,
+    IStartupManager startupManager)
 {
     private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
@@ -22,6 +27,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     {
         AppStrings.SetLanguage(settings.LanguageTag);
         settings.Changed += OnSettingsChanged;
+        startupManager.SetEnabled(settings.StartWithWindows);
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
         _tray = ReactorApp.OpenTrayIcon(CreateTrayIconSpec());
         _tray.Click += (_, _) => OpenWindow();
@@ -118,9 +124,11 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     private void OnSettingsChanged()
     {
         AppStrings.SetLanguage(settings.LanguageTag);
+        startupManager.SetEnabled(settings.StartWithWindows);
         if (_window is { } window)
         {
             ApplyTheme(window);
+            ApplyRefreshInterval();
         }
     }
 
@@ -167,7 +175,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
             ApplyTheme(_window);
             var window = _window;
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-            _pollTimer.Interval = TimeSpan.FromSeconds(10);
+            ApplyRefreshInterval();
             _pollTimer.Tick += (_, _) =>
             {
                 if (IsVisible(window))
@@ -198,6 +206,14 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         window.AppWindow.IsVisible &&
         (window.AppWindow.Presenter is not OverlappedPresenter presenter ||
          presenter.State != OverlappedPresenterState.Minimized);
+
+    private void ApplyRefreshInterval()
+    {
+        if (_pollTimer is { } timer)
+        {
+            timer.Interval = polling.ActiveRefreshInterval;
+        }
+    }
 
     private void UpdatePolling(ReactorWindow window)
     {
