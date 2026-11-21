@@ -10,6 +10,8 @@ Published TCP mappings in a container's `Ports` field also offer localhost URLs 
 
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Windows Terminal and a WSLc version supporting `exec -it` must be available.
 
+**View logs** opens a separate window following `wslc container logs -f <container-id>`. Closing the window stops the follow process. The display retains the most recent 128 Ki characters.
+
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
 
 ## Prerequisites

@@ -6,6 +6,8 @@ using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
     .AddWslcClient()
+    .AddSingleton<IContainerLogsClient>(provider =>
+        (IContainerLogsClient)provider.GetRequiredService<IWslcClient>())
     .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
     .AddSingleton<ContainerService>(provider => new ContainerService(
         provider.GetRequiredService<IWslcClient>(),

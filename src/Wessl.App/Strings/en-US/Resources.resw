@@ -45,6 +45,24 @@
   <data name="OpenShellButton" xml:space="preserve">
     <value>Open shell</value>
   </data>
+  <data name="OpenLogsButton" xml:space="preserve">
+    <value>View logs</value>
+  </data>
+  <data name="LogsTitle" xml:space="preserve">
+    <value>Logs: {0}</value>
+  </data>
+  <data name="LogsFollowing" xml:space="preserve">
+    <value>Following logs. Close this window to stop.</value>
+  </data>
+  <data name="LogsEnded" xml:space="preserve">
+    <value>Log stream ended.</value>
+  </data>
+  <data name="LogsNotRunning" xml:space="preserve">
+    <value>Logs can only be followed for a running container.</value>
+  </data>
+  <data name="LogsError" xml:space="preserve">
+    <value>Unable to follow logs: {0}</value>
+  </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Remove</value>
   </data>

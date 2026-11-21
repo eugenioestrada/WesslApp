@@ -1,8 +1,9 @@
 using Wessl.Domain;
+using System.Runtime.CompilerServices;
 
 namespace Wessl.Infrastructure;
 
-public sealed class SampleWslcClient : IWslcClient
+public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient
 {
     private readonly List<ContainerInfo> _containers =
     [
@@ -30,6 +31,20 @@ public sealed class SampleWslcClient : IWslcClient
         cancellationToken.ThrowIfCancellationRequested();
         _containers.Remove(FindContainer(id));
         return Task.CompletedTask;
+    }
+
+    public async IAsyncEnumerable<string> FollowLogsAsync(
+        string id,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (FindContainer(id).State != ContainerState.Running)
+        {
+            throw new InvalidOperationException("The container is not running.");
+        }
+
+        await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+        yield break;
     }
 
     private Task SetStateAsync(string id, ContainerState state, CancellationToken cancellationToken)

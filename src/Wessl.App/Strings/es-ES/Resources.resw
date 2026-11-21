@@ -45,6 +45,24 @@
   <data name="OpenShellButton" xml:space="preserve">
     <value>Abrir consola</value>
   </data>
+  <data name="OpenLogsButton" xml:space="preserve">
+    <value>Ver registros</value>
+  </data>
+  <data name="LogsTitle" xml:space="preserve">
+    <value>Registros: {0}</value>
+  </data>
+  <data name="LogsFollowing" xml:space="preserve">
+    <value>Siguiendo los registros. Cierra esta ventana para detener el seguimiento.</value>
+  </data>
+  <data name="LogsEnded" xml:space="preserve">
+    <value>Finalizó el flujo de registros.</value>
+  </data>
+  <data name="LogsNotRunning" xml:space="preserve">
+    <value>Solo se pueden seguir los registros de un contenedor en ejecución.</value>
+  </data>
+  <data name="LogsError" xml:space="preserve">
+    <value>No se pudieron seguir los registros: {0}</value>
+  </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Eliminar</value>
   </data>
