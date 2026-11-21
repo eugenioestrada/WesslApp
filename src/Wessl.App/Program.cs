@@ -5,7 +5,7 @@ using Wessl.Domain;
 using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
-    .AddSingleton<IWslcClient, SampleWslcClient>()
+    .AddWslcClient()
     .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
     .AddSingleton<ContainerService>(provider => new ContainerService(
         provider.GetRequiredService<IWslcClient>(),

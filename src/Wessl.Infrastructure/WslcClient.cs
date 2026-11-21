@@ -1,10 +1,17 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using Wessl.Domain;
 
 namespace Wessl.Infrastructure;
 
 public sealed class WslcClient : IWslcClient
 {
+    private readonly string _executable;
+
+    public WslcClient() : this("wslc") { }
+
+    internal WslcClient(string executable) => _executable = executable;
+
     public async Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default)
     {
         var output = await RunCommandAsync(cancellationToken, "container", "list", "--all", "--format", "json");
@@ -26,9 +33,9 @@ public sealed class WslcClient : IWslcClient
     public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunCommandAsync(cancellationToken, "remove", "--force", id);
 
-    private static async Task<string> RunCommandAsync(CancellationToken cancellationToken, params string[] arguments)
+    private async Task<string> RunCommandAsync(CancellationToken cancellationToken, params string[] arguments)
     {
-        var startInfo = new ProcessStartInfo("wslc")
+        var startInfo = new ProcessStartInfo(_executable)
         {
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -40,7 +47,17 @@ public sealed class WslcClient : IWslcClient
             startInfo.ArgumentList.Add(argument);
         }
 
-        using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start wslc.");
+        Process? startedProcess;
+        try
+        {
+            startedProcess = Process.Start(startInfo);
+        }
+        catch (Exception exception) when (exception is Win32Exception or UnauthorizedAccessException)
+        {
+            throw new WslcUnavailableException(exception.Message, exception);
+        }
+
+        using var process = startedProcess ?? throw new WslcUnavailableException("Could not start wslc.");
         var output = process.StandardOutput.ReadToEndAsync(cancellationToken);
         var error = process.StandardError.ReadToEndAsync(cancellationToken);
         try
