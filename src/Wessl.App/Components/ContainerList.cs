@@ -16,7 +16,7 @@ public static class ContainerList
         Action<string> requestRemove,
         Action cancelRemove) =>
         containers.Count == 0
-            ? TextBlock("No containers found.")
+            ? TextBlock(AppStrings.Get("EmptyContainers"))
             : ScrollViewer(VStack(
                 8,
                 containers.Select(container =>

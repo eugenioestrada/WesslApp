@@ -33,6 +33,10 @@ The repository's `NuGet.Config` restores packages from nuget.org, independently 
 
 For ARM64, pass `-p:RuntimeIdentifier=win-arm64` to the restore, build, and run commands instead of the default `win-x64`. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 11.
 
+## Localization
+
+The WinUI app uses Windows App SDK MRT Core `.resw` resources in `src/Wessl.App/Strings/<BCP-47>/Resources.resw`. English (`en-US`) is the default language and Spanish (`es-ES`) is included. Add translations in a new language folder with the same resource keys; the Windows App SDK build indexes these files into the app's PRI resources. Because the app is unpackaged, Windows selects translations using the system display language rather than the user's preferred language list.
+
 ## NativeAOT publish
 
 NativeAOT publishes are available for unpackaged Windows x64 and ARM64 builds. Run the following commands from Windows with the .NET 11 SDK and Visual C++ Build Tools (Desktop development with C++) installed:

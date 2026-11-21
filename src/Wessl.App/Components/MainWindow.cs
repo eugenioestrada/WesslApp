@@ -20,9 +20,13 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
         }, containers);
 
         return VStack(12,
-            TextBlock("Containers").FontSize(24),
-            containers.Error is { } error ? TextBlock(error) : TextBlock(string.Empty),
-            containers.Status is { } status ? TextBlock(status) : TextBlock(string.Empty),
+            TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
+            containers.Error is { } error
+                ? TextBlock(AppStrings.Format(error))
+                : TextBlock(string.Empty),
+            containers.Status is { } status
+                ? TextBlock(AppStrings.Format(status))
+                : TextBlock(string.Empty),
             ContainerList.Create(
                 containers.Containers,
                 containers,
@@ -31,9 +35,9 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null)),
             containers.ShellError is { } shellError
-                ? TextBlock($"Unable to open shell: {shellError}")
+                ? TextBlock(AppStrings.Format("OpenShellError", shellError))
                 : TextBlock(string.Empty),
-            Button("Refresh", () => _ = polling.RefreshAsync())
+            Button(AppStrings.Get("RefreshButton"), () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
 }

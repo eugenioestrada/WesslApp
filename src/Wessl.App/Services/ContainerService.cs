@@ -16,9 +16,9 @@ public sealed class ContainerService(
 
     public bool HasRefreshed { get; private set; }
 
-    public string? Error { get; private set; }
+    public LocalizedMessage? Error { get; private set; }
 
-    public string? Status { get; private set; }
+    public LocalizedMessage? Status { get; private set; }
 
     public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
 
@@ -68,7 +68,7 @@ public sealed class ContainerService(
         }
 
         IReadOnlyList<ContainerInfo>? result = null;
-        string? error = null;
+        LocalizedMessage? error = null;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -80,7 +80,7 @@ public sealed class ContainerService(
         }
         catch (Exception exception)
         {
-            error = exception.Message;
+            error = new("RefreshError", [exception.Message]);
         }
         finally
         {
@@ -106,16 +106,16 @@ public sealed class ContainerService(
     }
 
     public Task StartAsync(ContainerInfo container) =>
-        RunActionAsync(container, "Starting", client.StartContainerAsync);
+        RunActionAsync(container, "Start", client.StartContainerAsync);
 
     public Task StopAsync(ContainerInfo container) =>
-        RunActionAsync(container, "Stopping", client.StopContainerAsync);
+        RunActionAsync(container, "Stop", client.StopContainerAsync);
 
     public Task RestartAsync(ContainerInfo container) =>
-        RunActionAsync(container, "Restarting", client.RestartContainerAsync);
+        RunActionAsync(container, "Restart", client.RestartContainerAsync);
 
     public Task RemoveAsync(ContainerInfo container) =>
-        RunActionAsync(container, "Removing", client.RemoveContainerAsync);
+        RunActionAsync(container, "Remove", client.RemoveContainerAsync);
 
     private async Task RunActionAsync(
         ContainerInfo container,
@@ -126,7 +126,7 @@ public sealed class ContainerService(
         {
             dispatch(() =>
             {
-                Error = "Wait for the current container action to finish.";
+                Error = new("WaitForCurrentAction", []);
                 Changed?.Invoke();
             });
             return;
@@ -137,7 +137,7 @@ public sealed class ContainerService(
             dispatch(() =>
             {
                 Error = null;
-                Status = $"{action} {container.Name}…";
+                Status = new($"Action{action}Pending", [container.Name]);
                 Changed?.Invoke();
             });
 
@@ -181,18 +181,23 @@ public sealed class ContainerService(
                 if (actionError is not null)
                 {
                     Status = null;
+                    var actionFailure = new LocalizedMessage(
+                        $"Action{action}Failed",
+                        [container.Name, actionError.Message]);
                     Error = refreshError is null
-                        ? $"{action} {container.Name} failed: {actionError.Message}"
-                        : $"{action} {container.Name} failed: {actionError.Message} Unable to refresh containers: {refreshError.Message}";
+                        ? actionFailure
+                        : new(
+                            "ActionAndRefreshError",
+                            [actionFailure, new LocalizedMessage("RefreshError", [refreshError.Message])]);
                 }
                 else if (refreshError is not null)
                 {
-                    Status = $"{action} {container.Name} succeeded.";
-                    Error = $"Unable to refresh containers: {refreshError.Message}";
+                    Status = new($"Action{action}Succeeded", [container.Name]);
+                    Error = new("RefreshError", [refreshError.Message]);
                 }
                 else
                 {
-                    Status = $"{action} {container.Name} succeeded.";
+                    Status = new($"Action{action}Succeeded", [container.Name]);
                     Error = null;
                 }
 
@@ -205,3 +210,5 @@ public sealed class ContainerService(
         }
     }
 }
+
+public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);
