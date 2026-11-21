@@ -13,60 +13,66 @@ public static class SettingsPage
             TextBlock(AppStrings.Get("SettingsHeading")).FontSize(24),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsThemeLabel")),
-                HStack(6,
-                    ThemeButton("SettingsThemeAutomatic", "SettingsThemeAutomaticSelected", AppTheme.Automatic, settings),
-                    ThemeButton("SettingsThemeLight", "SettingsThemeLightSelected", AppTheme.Light, settings),
-                    ThemeButton("SettingsThemeDark", "SettingsThemeDarkSelected", AppTheme.Dark, settings))),
+                RadioButtons(
+                    [
+                        AppStrings.Get("SettingsThemeAutomatic"),
+                        AppStrings.Get("SettingsThemeLight"),
+                        AppStrings.Get("SettingsThemeDark")
+                    ],
+                    (int)settings.Theme,
+                    index => { if (index >= 0) settings.SetTheme((AppTheme)index); })
+                    .AutomationName(AppStrings.Get("SettingsThemeLabel"))),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsLanguageLabel")),
-                HStack(6,
-                    LanguageButton("SettingsLanguageEnglish", "SettingsLanguageEnglishSelected", AppLanguage.English, settings),
-                    LanguageButton("SettingsLanguageSpanish", "SettingsLanguageSpanishSelected", AppLanguage.Spanish, settings))),
-            VStack(4,
-                TextBlock(AppStrings.Get("SettingsStartupLabel")),
-                Button(
-                    AppStrings.Get(settings.StartWithWindows ? "SettingsStartupEnabled" : "SettingsStartupDisabled"),
-                    () => settings.SetStartWithWindows(!settings.StartWithWindows))),
+                ComboBox(
+                    [
+                        AppStrings.Get("SettingsLanguageEnglish"),
+                        AppStrings.Get("SettingsLanguageSpanish")
+                    ],
+                    (int)settings.Language,
+                    index => { if (index >= 0) settings.SetLanguage((AppLanguage)index); })
+                    .AutomationName(AppStrings.Get("SettingsLanguageLabel"))),
+            ToggleSwitch(
+                settings.StartWithWindows,
+                enabled => settings.SetStartWithWindows(enabled),
+                header: AppStrings.Get("SettingsStartupLabel"),
+                onContent: AppStrings.Get("SettingsStartupEnabled"),
+                offContent: AppStrings.Get("SettingsStartupDisabled")),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsRefreshIntervalLabel")),
-                HStack(6,
-                    RefreshIntervalButton(5, settings),
-                    RefreshIntervalButton(10, settings),
-                    RefreshIntervalButton(30, settings),
-                    RefreshIntervalButton(60, settings))),
+                RadioButtons(
+                    [
+                        AppStrings.Get("SettingsRefreshInterval5"),
+                        AppStrings.Get("SettingsRefreshInterval10"),
+                        AppStrings.Get("SettingsRefreshInterval30"),
+                        AppStrings.Get("SettingsRefreshInterval60")
+                    ],
+                    RefreshIntervalIndex(settings.RefreshIntervalSeconds),
+                    index => { if (index >= 0) settings.SetRefreshIntervalSeconds(new[] { 5, 10, 30, 60 }[index]); })
+                    .AutomationName(AppStrings.Get("SettingsRefreshIntervalLabel"))),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsDefaultTerminalLabel")),
-                VStack(2,
-                    TerminalButton("SettingsTerminalWindowsTerminal", "SettingsTerminalWindowsTerminalSelected", ContainerTerminal.WindowsTerminal, settings),
-                    TerminalButton("SettingsTerminalPowerShell", "SettingsTerminalPowerShellSelected", ContainerTerminal.PowerShell, settings),
-                    TerminalButton("SettingsTerminalCommandPrompt", "SettingsTerminalCommandPromptSelected", ContainerTerminal.CommandPrompt, settings))),
+                RadioButtons(
+                    [
+                        AppStrings.Get("SettingsTerminalWindowsTerminal"),
+                        AppStrings.Get("SettingsTerminalPowerShell"),
+                        AppStrings.Get("SettingsTerminalCommandPrompt")
+                    ],
+                    (int)settings.DefaultTerminal,
+                    index => { if (index >= 0) settings.SetDefaultTerminal((ContainerTerminal)index); })
+                    .AutomationName(AppStrings.Get("SettingsDefaultTerminalLabel"))),
             VStack(4,
                 TextBlock(AppStrings.Get("SettingsContainerClientLabel")),
                 TextBlock(AppStrings.Get("SettingsContainerClientValue"))),
             Button(AppStrings.Get("SettingsBackButton"), navigateBack)
         ).Padding(20));
 
-    private static Element ThemeButton(string labelKey, string selectedLabelKey, AppTheme theme, AppSettings settings) =>
-        Button(AppStrings.Get(settings.Theme == theme ? selectedLabelKey : labelKey), () => settings.SetTheme(theme));
-
-    private static Element LanguageButton(string labelKey, string selectedLabelKey, AppLanguage language, AppSettings settings) =>
-        Button(AppStrings.Get(settings.Language == language ? selectedLabelKey : labelKey), () => settings.SetLanguage(language));
-
-    private static Element RefreshIntervalButton(int seconds, AppSettings settings)
+    private static int RefreshIntervalIndex(int seconds) => seconds switch
     {
-        var labelKey = $"SettingsRefreshInterval{seconds}";
-        var selectedLabelKey = $"{labelKey}Selected";
-        return Button(
-            AppStrings.Get(settings.RefreshIntervalSeconds == seconds ? selectedLabelKey : labelKey),
-            () => settings.SetRefreshIntervalSeconds(seconds));
-    }
-
-    private static Element TerminalButton(
-        string labelKey,
-        string selectedLabelKey,
-        ContainerTerminal terminal,
-        AppSettings settings) =>
-        Button(
-            AppStrings.Get(settings.DefaultTerminal == terminal ? selectedLabelKey : labelKey),
-            () => settings.SetDefaultTerminal(terminal));
+        5 => 0,
+        10 => 1,
+        30 => 2,
+        60 => 3,
+        _ => 1
+    };
 }

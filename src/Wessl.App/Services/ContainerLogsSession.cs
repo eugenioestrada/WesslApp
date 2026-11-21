@@ -10,6 +10,7 @@ public sealed class ContainerLogsSession(IContainerLogsClient client, Action<Act
     public string Text { get; private set; } = string.Empty;
     public LocalizedMessage? Error { get; private set; }
     public bool IsFollowing { get; private set; } = true;
+    public bool IsTruncated { get; private set; }
     public event Action? Changed;
 
     public void Start(ContainerInfo container)
@@ -39,7 +40,15 @@ public sealed class ContainerLogsSession(IContainerLogsClient client, Action<Act
                     if (!_stop.IsCancellationRequested)
                     {
                         var text = Text + line + Environment.NewLine;
-                        Text = text.Length > MaxCharacters ? text[^MaxCharacters..] : text;
+                        if (text.Length > MaxCharacters)
+                        {
+                            Text = text[^MaxCharacters..];
+                            IsTruncated = true;
+                        }
+                        else
+                        {
+                            Text = text;
+                        }
                         Changed?.Invoke();
                     }
                     delivered.TrySetResult();

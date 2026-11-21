@@ -13,12 +13,19 @@ public static class ImagePage
                 TextBlock(AppStrings.Get("ImagesHeading")).FontSize(24),
                 Button(AppStrings.Get("SettingsBackButton"), () => { cancelPrune(); back(); })),
             service.Error is { } error
-                ? TextBlock(AppStrings.Format(error)).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap)
+                ? InfoBar(AppStrings.Format(error)).Error() with { IsOpen = true, IsClosable = false }
                 : TextBlock(string.Empty),
             service.Status is { } status
-                ? TextBlock(AppStrings.Format(status)).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap)
+                ? (status.ResourceKey.EndsWith("Pending", System.StringComparison.Ordinal)
+                    ? InfoBar(AppStrings.Format(status)).Informational()
+                    : InfoBar(AppStrings.Format(status)).Success())
+                    with { IsOpen = true, IsClosable = false }
                 : TextBlock(string.Empty),
-            service.HasLoaded && service.Images.Count == 0
+            !service.HasLoaded && service.IsBusy
+                ? VStack(8,
+                    TextBlock(AppStrings.Get("ImagesLoading")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                    ProgressRing())
+                : service.HasLoaded && service.Images.Count == 0
                 ? TextBlock(AppStrings.Get("ImagesEmpty"))
                 : VStack(8, service.Images.Select(image =>
                     VStack(2,

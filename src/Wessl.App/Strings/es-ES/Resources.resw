@@ -29,6 +29,9 @@
   <data name="EmptyContainers" xml:space="preserve">
     <value>No se encontraron contenedores.</value>
   </data>
+  <data name="ContainersLoading" xml:space="preserve">
+    <value>Cargando contenedores…</value>
+  </data>
   <data name="WslcUnavailable" xml:space="preserve">
     <value>WSL Container no está disponible. Actualiza WSL a la última versión estable ejecutando wsl --update en Windows Terminal.</value>
   </data>
@@ -71,8 +74,14 @@
   <data name="LogsFollowing" xml:space="preserve">
     <value>Siguiendo los registros. Cierra esta ventana para detener el seguimiento.</value>
   </data>
+  <data name="LogsFollowingTruncated" xml:space="preserve">
+    <value>Siguiendo los registros; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB. Cierra esta ventana para detener el seguimiento.</value>
+  </data>
   <data name="LogsEnded" xml:space="preserve">
     <value>Finalizó el flujo de registros.</value>
+  </data>
+  <data name="LogsEndedTruncated" xml:space="preserve">
+    <value>Finalizó el flujo de registros; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB.</value>
   </data>
   <data name="LogsNotRunning" xml:space="preserve">
     <value>Solo se pueden seguir los registros de un contenedor en ejecución.</value>
@@ -97,6 +106,9 @@
   </data>
   <data name="CopyUrlButton" xml:space="preserve">
     <value>Copiar URL</value>
+  </data>
+  <data name="PortOpenButton" xml:space="preserve">
+    <value>Abrir URL</value>
   </data>
   <data name="PortOpenSuccess" xml:space="preserve">
     <value>Se abrió {0}</value>
@@ -261,7 +273,7 @@
     <value>Iniciar con Windows</value>
   </data>
   <data name="SettingsStartupEnabled" xml:space="preserve">
-    <value>✓ Activado</value>
+    <value>Activado</value>
   </data>
   <data name="SettingsStartupDisabled" xml:space="preserve">
     <value>Desactivado</value>
