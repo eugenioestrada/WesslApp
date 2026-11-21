@@ -2,5 +2,5 @@ namespace Wessl.Domain;
 
 public interface IContainerShellLauncher
 {
-    void OpenShell(string containerId);
+    void OpenShell(string containerId, ContainerTerminal terminal);
 }

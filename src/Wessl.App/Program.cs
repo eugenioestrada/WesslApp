@@ -5,8 +5,11 @@ using Wessl.Domain;
 using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
-    .AddWslcClient()
+    .AddWslcClient(useRealClient: Environment.GetEnvironmentVariable("WESSL_USE_REAL_WSLC") == "1")
+    .AddSingleton<IContainerLogsClient>(provider =>
+        (IContainerLogsClient)provider.GetRequiredService<IWslcClient>())
     .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
+    .AddSingleton<IStartupManager, WindowsStartupManager>()
     .AddSingleton<ContainerService>(provider => new ContainerService(
         provider.GetRequiredService<IWslcClient>(),
         action =>
@@ -18,8 +21,20 @@ using var services = new ServiceCollection()
                 throw new InvalidOperationException("Could not dispatch the container refresh result.");
             }
         },
-        provider.GetRequiredService<IContainerShellLauncher>()))
+        provider.GetRequiredService<IContainerShellLauncher>(),
+        provider.GetRequiredService<AppSettings>()))
     .AddSingleton<ContainerPolling>()
+    .AddSingleton<ImageService>(provider => new ImageService(
+        provider.GetRequiredService<IImageClient>(),
+        action =>
+        {
+            var dispatcher = ReactorApp.UIDispatcher
+                ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+            if (!dispatcher.TryEnqueue(() => action()))
+            {
+                throw new InvalidOperationException("Could not dispatch the image result.");
+            }
+        }))
     .AddSingleton<AppSettings>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();

@@ -5,14 +5,16 @@ namespace Wessl.Infrastructure;
 
 public sealed class WindowsTerminalShellLauncher : IContainerShellLauncher
 {
-    public void OpenShell(string containerId)
+    public void OpenShell(string containerId, ContainerTerminal terminal)
     {
-        var startInfo = CreateStartInfo(containerId);
+        var startInfo = CreateStartInfo(containerId, terminal);
         using var process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException("Could not start Windows Terminal.");
+            ?? throw new InvalidOperationException($"Could not start {terminal}.");
     }
 
-    internal static ProcessStartInfo CreateStartInfo(string containerId)
+    internal static ProcessStartInfo CreateStartInfo(
+        string containerId,
+        ContainerTerminal terminal = ContainerTerminal.WindowsTerminal)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
         if (!char.IsAsciiLetterOrDigit(containerId[0])
@@ -22,11 +24,30 @@ public sealed class WindowsTerminalShellLauncher : IContainerShellLauncher
             throw new ArgumentException("The container ID contains unsupported characters.", nameof(containerId));
         }
 
-        var startInfo = new ProcessStartInfo("wt.exe")
+        var command = new[] { "wslc", "exec", "-it", containerId, "/bin/sh" };
+        var startInfo = terminal switch
+        {
+            ContainerTerminal.WindowsTerminal => CreateStartInfo("wt.exe", ["new-tab", .. command]),
+            ContainerTerminal.PowerShell => CreateStartInfo(
+                "powershell.exe",
+                ["-NoExit", "-Command", string.Join(" ", command)]),
+            ContainerTerminal.CommandPrompt => CreateStartInfo(
+                "cmd.exe",
+                ["/K", string.Join(" ", command)]),
+            _ => throw new ArgumentOutOfRangeException(nameof(terminal))
+        };
+
+        return startInfo;
+    }
+
+    private static ProcessStartInfo CreateStartInfo(string fileName, IEnumerable<string> arguments)
+    {
+        var startInfo = new ProcessStartInfo(fileName)
         {
             UseShellExecute = false
         };
-        foreach (var argument in new[] { "new-tab", "wslc", "exec", "-it", containerId, "/bin/sh" })
+
+        foreach (var argument in arguments)
         {
             startInfo.ArgumentList.Add(argument);
         }

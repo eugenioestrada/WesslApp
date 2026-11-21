@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="ImagesHeading" xml:space="preserve"><value>Images</value></data>
+  <data name="ImagesOpenButton" xml:space="preserve"><value>Images</value></data>
+  <data name="ImagesEmpty" xml:space="preserve"><value>No images found.</value></data>
+  <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
+  <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Size: {1}</value></data>
+  <data name="ImagesLoading" xml:space="preserve"><value>Loading images…</value></data>
+  <data name="ImagesRefreshError" xml:space="preserve"><value>Unable to refresh images: {0}</value></data>
+  <data name="ImagesPruneButton" xml:space="preserve"><value>Prune unused images</value></data>
+  <data name="ImagesPruneConfirmation" xml:space="preserve"><value>Remove all images not used by any container, including tagged images? This cannot be undone.</value></data>
+  <data name="ImagesPruneConfirm" xml:space="preserve"><value>Confirm prune</value></data>
+  <data name="ImagesPrunePending" xml:space="preserve"><value>Pruning unused images…</value></data>
+  <data name="ImagesPruneError" xml:space="preserve"><value>Unable to prune images: {0}</value></data>
+  <data name="ImagesPruneSuccess" xml:space="preserve"><value>Image prune completed: {0}</value></data>
+  <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc returned no details.</value></data>
   <data name="ContainersHeading" xml:space="preserve">
     <value>Containers</value>
+  </data>
+  <data name="ContainerSummary" xml:space="preserve">
+    <value>Containers: {0} · Running: {1}</value>
   </data>
   <data name="RefreshError" xml:space="preserve">
     <value>Unable to refresh: {0}</value>
@@ -44,6 +61,24 @@
   </data>
   <data name="OpenShellButton" xml:space="preserve">
     <value>Open shell</value>
+  </data>
+  <data name="OpenLogsButton" xml:space="preserve">
+    <value>View logs</value>
+  </data>
+  <data name="LogsTitle" xml:space="preserve">
+    <value>Logs: {0}</value>
+  </data>
+  <data name="LogsFollowing" xml:space="preserve">
+    <value>Following logs. Close this window to stop.</value>
+  </data>
+  <data name="LogsEnded" xml:space="preserve">
+    <value>Log stream ended.</value>
+  </data>
+  <data name="LogsNotRunning" xml:space="preserve">
+    <value>Logs can only be followed for a running container.</value>
+  </data>
+  <data name="LogsError" xml:space="preserve">
+    <value>Unable to follow logs: {0}</value>
   </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Remove</value>
@@ -147,6 +182,36 @@
   <data name="TrayExit" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="TrayStopAll" xml:space="preserve">
+    <value>Stop all containers</value>
+  </data>
+  <data name="TrayStopAllConfirmationTitle" xml:space="preserve">
+    <value>Stop all containers?</value>
+  </data>
+  <data name="TrayStopAllConfirmation" xml:space="preserve">
+    <value>This will stop {0} running containers.</value>
+  </data>
+  <data name="TrayStopAllConfirm" xml:space="preserve">
+    <value>Stop all</value>
+  </data>
+  <data name="TrayStopAllPending" xml:space="preserve">
+    <value>Stopping {0} running containers…</value>
+  </data>
+  <data name="TrayStopAllCompleted" xml:space="preserve">
+    <value>Stopped {0} of {1} running containers.</value>
+  </data>
+  <data name="TrayStopAllPartialFailure" xml:space="preserve">
+    <value>Some containers could not be stopped: {0}</value>
+  </data>
+  <data name="TrayStopAllResultTitle" xml:space="preserve">
+    <value>Stop all containers</value>
+  </data>
+  <data name="TrayStopAllResult" xml:space="preserve">
+    <value>{0}&#10;{1}</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
   <data name="SettingsHeading" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -191,6 +256,63 @@
   </data>
   <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
     <value>✓ Español</value>
+  </data>
+  <data name="SettingsStartupLabel" xml:space="preserve">
+    <value>Launch at Windows startup</value>
+  </data>
+  <data name="SettingsStartupEnabled" xml:space="preserve">
+    <value>✓ Enabled</value>
+  </data>
+  <data name="SettingsStartupDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="SettingsRefreshIntervalLabel" xml:space="preserve">
+    <value>Active refresh interval</value>
+  </data>
+  <data name="SettingsRefreshInterval5" xml:space="preserve">
+    <value>5 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval5Selected" xml:space="preserve">
+    <value>✓ 5 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval10" xml:space="preserve">
+    <value>10 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval10Selected" xml:space="preserve">
+    <value>✓ 10 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval30" xml:space="preserve">
+    <value>30 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval30Selected" xml:space="preserve">
+    <value>✓ 30 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval60" xml:space="preserve">
+    <value>60 seconds</value>
+  </data>
+  <data name="SettingsRefreshInterval60Selected" xml:space="preserve">
+    <value>✓ 60 seconds</value>
+  </data>
+  <data name="SettingsDefaultTerminalLabel" xml:space="preserve">
+    <value>Default terminal</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminal" xml:space="preserve">
+    <value>Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve">
+    <value>✓ Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalPowerShell" xml:space="preserve">
+    <value>PowerShell</value>
+  </data>
+  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve">
+    <value>✓ PowerShell</value>
+  </data>
+  <data name="SettingsTerminalCommandPrompt" xml:space="preserve">
+    <value>Command Prompt</value>
+  </data>
+  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve">
+    <value>✓ Command Prompt</value>
   </data>
   <data name="SettingsContainerClientLabel" xml:space="preserve">
     <value>Container client</value>

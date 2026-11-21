@@ -6,6 +6,39 @@ namespace Wessl.Infrastructure;
 
 public static class WslcOutputParser
 {
+    public static IReadOnlyList<ImageInfo> ParseImages(string output)
+    {
+        var images = new List<ImageInfo>();
+        using var reader = new StringReader(output);
+        while (reader.ReadLine() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            using var document = JsonDocument.Parse(line);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc output contains an invalid image.");
+            }
+
+            var id = GetString(root, "ID");
+            var repository = GetString(root, "Repository");
+            var tag = GetString(root, "Tag");
+            var size = GetString(root, "Size");
+            if (id.Length == 0 || repository.Length == 0 || tag.Length == 0 || size.Length == 0)
+            {
+                throw new FormatException("WSLc output is missing image information.");
+            }
+
+            images.Add(new ImageInfo(id, repository, tag, size));
+        }
+
+        return images;
+    }
+
     public static IReadOnlyList<ContainerInfo> Parse(string output)
     {
         var containers = new List<ContainerInfo>();
