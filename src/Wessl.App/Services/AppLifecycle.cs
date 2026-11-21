@@ -8,7 +8,7 @@ using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling)
+public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling, AppSettings settings)
 {
     private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
@@ -20,6 +20,8 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
 
     public void Start()
     {
+        AppStrings.SetLanguage(settings.LanguageTag);
+        settings.Changed += OnSettingsChanged;
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
         _tray = ReactorApp.OpenTrayIcon(CreateTrayIconSpec());
         _tray.Click += (_, _) => OpenWindow();
@@ -45,7 +47,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         target.Height = 1;
         target.HorizontalAlignment = HorizontalAlignment.Left;
         target.VerticalAlignment = VerticalAlignment.Top;
-        var menu = TrayMenu.Create(OpenWindow, Exit);
+        var menu = TrayMenu.Create(OpenWindow, OpenSettings, Exit);
         _trayMenu = menu;
         menu.Closed += (_, _) =>
         {
@@ -95,6 +97,46 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         UpdatePolling(window);
     }
 
+    private void OpenSettings()
+    {
+        CancelPendingMenu();
+        _trayMenu?.Hide();
+        _trayMenu = null;
+        _menuHostWindow?.Hide();
+
+        var cursorPosition = TrayPlacement.GetCursorPosition();
+        var window = EnsureMainWindow();
+        _mainComponent?.ShowSettings();
+        TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
+        window.Show();
+        window.Activate();
+        UpdatePolling(window);
+    }
+
+    private MainWindow? _mainComponent;
+
+    private void OnSettingsChanged()
+    {
+        AppStrings.SetLanguage(settings.LanguageTag);
+        if (_window is { } window)
+        {
+            ApplyTheme(window);
+        }
+    }
+
+    private void ApplyTheme(ReactorWindow window)
+    {
+        var root = window.NativeWindow.Content as FrameworkElement
+            ?? throw new InvalidOperationException("The main window has no framework root element.");
+        root.RequestedTheme = settings.Theme switch
+        {
+            AppTheme.Automatic => ElementTheme.Default,
+            AppTheme.Light => ElementTheme.Light,
+            AppTheme.Dark => ElementTheme.Dark,
+            _ => throw new InvalidOperationException("The selected theme is not supported.")
+        };
+    }
+
     private TrayIconSpec CreateTrayIconSpec()
     {
         var running = containers.HasRunningContainers;
@@ -117,7 +159,12 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         {
             _window = ReactorApp.OpenWindow(
                 new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
-                () => new MainWindow(containers, polling));
+                () =>
+                {
+                    _mainComponent = new MainWindow(containers, polling, settings);
+                    return _mainComponent;
+                });
+            ApplyTheme(_window);
             var window = _window;
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
             _pollTimer.Interval = TimeSpan.FromSeconds(10);
@@ -140,6 +187,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
                 _pollTimer = null;
                 polling.Stop();
                 _window = null;
+                _mainComponent = null;
             };
         }
 
@@ -200,6 +248,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         _pollTimer?.Stop();
         polling.Stop();
         containers.Changed -= UpdateTrayIcon;
+        settings.Changed -= OnSettingsChanged;
         _trayMenu?.Hide();
         _trayMenu = null;
         _tray?.Close();

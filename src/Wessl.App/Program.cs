@@ -20,6 +20,7 @@ using var services = new ServiceCollection()
         },
         provider.GetRequiredService<IContainerShellLauncher>()))
     .AddSingleton<ContainerPolling>()
+    .AddSingleton<AppSettings>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();
 
