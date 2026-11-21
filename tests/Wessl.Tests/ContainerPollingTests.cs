@@ -91,6 +91,20 @@ public sealed class ContainerPollingTests
         polling.Stop();
     }
 
+    [Fact]
+    public void ActiveRefreshIntervalTracksSavedSetting()
+    {
+        using var directory = new TemporaryDirectory();
+        var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+        var polling = new ContainerPolling(
+            new ContainerService(new RecordingClient(), action => action(), new UnusedShellLauncher()),
+            settings);
+
+        Assert.Equal(TimeSpan.FromSeconds(10), polling.ActiveRefreshInterval);
+        settings.SetRefreshIntervalSeconds(30);
+        Assert.Equal(TimeSpan.FromSeconds(30), polling.ActiveRefreshInterval);
+    }
+
     private sealed class RecordingClient : IWslcClient
     {
         public int Calls { get; private set; }
@@ -117,7 +131,7 @@ public sealed class ContainerPollingTests
 
     private sealed class UnusedShellLauncher : IContainerShellLauncher
     {
-        public void OpenShell(string containerId) =>
+        public void OpenShell(string containerId, ContainerTerminal terminal) =>
             throw new InvalidOperationException("Shell launch is not expected in polling tests.");
     }
 
@@ -181,5 +195,21 @@ public sealed class ContainerPollingTests
             throw new NotSupportedException();
 
         public void CompleteFirst() => _first.SetResult([]);
+    }
+
+    private sealed class TemporaryDirectory : IDisposable
+    {
+        public string Path { get; } = System.IO.Path.Combine(
+            System.IO.Path.GetTempPath(),
+            "WesslPollingTests",
+            Guid.NewGuid().ToString("N"));
+
+        public void Dispose()
+        {
+            if (Directory.Exists(Path))
+            {
+                Directory.Delete(Path, recursive: true);
+            }
+        }
     }
 }

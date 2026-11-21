@@ -206,6 +206,63 @@
   <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
     <value>✓ Español</value>
   </data>
+  <data name="SettingsStartupLabel" xml:space="preserve">
+    <value>Iniciar con Windows</value>
+  </data>
+  <data name="SettingsStartupEnabled" xml:space="preserve">
+    <value>✓ Activado</value>
+  </data>
+  <data name="SettingsStartupDisabled" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="SettingsRefreshIntervalLabel" xml:space="preserve">
+    <value>Intervalo de actualización activa</value>
+  </data>
+  <data name="SettingsRefreshInterval5" xml:space="preserve">
+    <value>5 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval5Selected" xml:space="preserve">
+    <value>✓ 5 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval10" xml:space="preserve">
+    <value>10 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval10Selected" xml:space="preserve">
+    <value>✓ 10 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval30" xml:space="preserve">
+    <value>30 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval30Selected" xml:space="preserve">
+    <value>✓ 30 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval60" xml:space="preserve">
+    <value>60 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval60Selected" xml:space="preserve">
+    <value>✓ 60 segundos</value>
+  </data>
+  <data name="SettingsDefaultTerminalLabel" xml:space="preserve">
+    <value>Terminal predeterminado</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminal" xml:space="preserve">
+    <value>Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve">
+    <value>✓ Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalPowerShell" xml:space="preserve">
+    <value>PowerShell</value>
+  </data>
+  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve">
+    <value>✓ PowerShell</value>
+  </data>
+  <data name="SettingsTerminalCommandPrompt" xml:space="preserve">
+    <value>Símbolo del sistema</value>
+  </data>
+  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve">
+    <value>✓ Símbolo del sistema</value>
+  </data>
   <data name="SettingsContainerClientLabel" xml:space="preserve">
     <value>Cliente de contenedores</value>
   </data>
