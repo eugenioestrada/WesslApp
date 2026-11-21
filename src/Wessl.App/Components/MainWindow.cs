@@ -5,22 +5,38 @@ using static Microsoft.UI.Reactor.Factories;
 
 namespace Wessl.App.Components;
 
-public sealed class MainWindow(ContainerService containers, ContainerPolling polling) : Component
+public sealed class MainWindow(ContainerService containers, ContainerPolling polling, AppSettings settings) : Component
 {
+    private Action<int>? _setRevision;
+    private int _revision;
+    private bool _showSettings;
+
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
+        _setRevision = setRevision;
         var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         UseEffect(() =>
         {
-            var revision = 0;
-            void OnChanged() => setRevision(++revision);
+            void OnChanged() => RequestRender();
             containers.Changed += OnChanged;
-            return () => containers.Changed -= OnChanged;
-        }, containers);
+            settings.Changed += OnChanged;
+            return () =>
+            {
+                containers.Changed -= OnChanged;
+                settings.Changed -= OnChanged;
+            };
+        }, containers, settings);
+
+        if (_showSettings)
+        {
+            return SettingsPage.Create(settings, ShowContainers);
+        }
 
         return VStack(12,
-            TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
+            HStack(12,
+                TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
+                Button(AppStrings.Get("SettingsOpenButton"), ShowSettings)),
             containers.Error is { } error
                 ? TextBlock(AppStrings.Format(error))
                 : TextBlock(string.Empty),
@@ -40,4 +56,16 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
             Button(AppStrings.Get("RefreshButton"), () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
+
+    public void ShowSettings() => Navigate(true);
+
+    private void ShowContainers() => Navigate(false);
+
+    private void Navigate(bool showSettings)
+    {
+        _showSettings = showSettings;
+        RequestRender();
+    }
+
+    private void RequestRender() => _setRevision?.Invoke(++_revision);
 }

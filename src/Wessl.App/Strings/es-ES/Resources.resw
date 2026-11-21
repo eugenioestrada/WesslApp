@@ -147,4 +147,55 @@
   <data name="TrayExit" xml:space="preserve">
     <value>Salir</value>
   </data>
+  <data name="SettingsHeading" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="SettingsOpenButton" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="SettingsBackButton" xml:space="preserve">
+    <value>Volver a contenedores</value>
+  </data>
+  <data name="SettingsThemeLabel" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="SettingsThemeAutomatic" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="SettingsThemeAutomaticSelected" xml:space="preserve">
+    <value>✓ Automático</value>
+  </data>
+  <data name="SettingsThemeLight" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="SettingsThemeLightSelected" xml:space="preserve">
+    <value>✓ Claro</value>
+  </data>
+  <data name="SettingsThemeDark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+  <data name="SettingsThemeDarkSelected" xml:space="preserve">
+    <value>✓ Oscuro</value>
+  </data>
+  <data name="SettingsLanguageLabel" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="SettingsLanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="SettingsLanguageEnglishSelected" xml:space="preserve">
+    <value>✓ English</value>
+  </data>
+  <data name="SettingsLanguageSpanish" xml:space="preserve">
+    <value>Español</value>
+  </data>
+  <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
+    <value>✓ Español</value>
+  </data>
+  <data name="SettingsContainerClientLabel" xml:space="preserve">
+    <value>Cliente de contenedores</value>
+  </data>
+  <data name="SettingsContainerClientValue" xml:space="preserve">
+    <value>WSLc</value>
+  </data>
 </root>

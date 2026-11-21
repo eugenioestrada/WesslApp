@@ -1,12 +1,13 @@
 using System.Globalization;
 using Microsoft.Windows.ApplicationModel.Resources;
 using Wessl.Domain;
+using Windows.Globalization;
 
 namespace Wessl.App.Services;
 
 public static class AppStrings
 {
-    private static readonly ResourceMap Resources = CreateResources();
+    private static ResourceMap _resources = CreateResources();
 
     private static ResourceMap CreateResources()
     {
@@ -18,7 +19,18 @@ public static class AppStrings
     }
 
     public static string Get(string name) =>
-        Resources.GetValue(name).ValueAsString;
+        _resources.GetValue(name).ValueAsString;
+
+    public static void SetLanguage(string languageTag)
+    {
+        ApplicationLanguages.PrimaryLanguageOverride = languageTag;
+        var culture = CultureInfo.GetCultureInfo(languageTag);
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+        _resources = CreateResources();
+    }
 
     public static string Format(string name, params object?[] args) =>
         string.Format(CultureInfo.CurrentCulture, Get(name), args);
