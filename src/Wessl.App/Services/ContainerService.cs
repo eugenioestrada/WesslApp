@@ -1,11 +1,19 @@
-using Microsoft.UI.Reactor;
 using Wessl.Domain;
 
 namespace Wessl.App.Services;
 
-public sealed class ContainerService(IWslcClient client, IContainerShellLauncher shellLauncher)
+public sealed class ContainerService(
+    IWslcClient client,
+    Action<Action> dispatch,
+    IContainerShellLauncher shellLauncher)
 {
+    private readonly SemaphoreSlim _refreshLock = new(1, 1);
+
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
+
+    public bool HasRunningContainers => Containers.Any(container => container.State == ContainerState.Running);
+
+    public bool HasRefreshed { get; private set; }
 
     public string? Error { get; private set; }
 
@@ -33,26 +41,58 @@ public sealed class ContainerService(IWslcClient client, IContainerShellLauncher
         Changed?.Invoke();
     }
 
-    public async Task RefreshAsync()
+    public async Task RefreshAsync(CancellationToken cancellationToken = default, bool skipIfBusy = false)
     {
-        var dispatcher = ReactorApp.UIDispatcher
-            ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+        try
+        {
+            if (skipIfBusy)
+            {
+                if (!await _refreshLock.WaitAsync(0, cancellationToken))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                await _refreshLock.WaitAsync(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         IReadOnlyList<ContainerInfo>? result = null;
         string? error = null;
         try
         {
-            result = await client.ListContainersAsync().ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            result = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
         }
         catch (Exception exception)
         {
             error = exception.Message;
         }
-
-        dispatcher.TryEnqueue(() =>
+        finally
         {
+            _refreshLock.Release();
+        }
+
+        dispatch(() =>
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             if (result is not null)
             {
                 Containers = result;
+                HasRefreshed = true;
             }
 
             Error = error;

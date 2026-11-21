@@ -9,8 +9,14 @@ public sealed class SampleWslcClient : IWslcClient
         cancellationToken.ThrowIfCancellationRequested();
         IReadOnlyList<ContainerInfo> containers =
         [
-            new("sample-1", "web", "nginx:latest", ContainerState.Running),
-            new("sample-2", "database", "postgres:latest", ContainerState.Stopped)
+            new ContainerInfo("sample-1", "web", "nginx:latest", ContainerState.Running)
+            {
+                Ports = ["0.0.0.0:8080->80/tcp"]
+            },
+            new ContainerInfo("sample-2", "database", "postgres:latest", ContainerState.Stopped)
+            {
+                Ports = ["5432/tcp"]
+            }
         ];
         return Task.FromResult(containers);
     }

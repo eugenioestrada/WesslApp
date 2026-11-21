@@ -5,7 +5,7 @@ using static Microsoft.UI.Reactor.Factories;
 
 namespace Wessl.App.Components;
 
-public sealed class MainWindow(ContainerService containers) : Component
+public sealed class MainWindow(ContainerService containers, ContainerPolling polling) : Component
 {
     public override Element Render()
     {
@@ -26,7 +26,7 @@ public sealed class MainWindow(ContainerService containers) : Component
             containers.ShellError is { } shellError
                 ? TextBlock($"Unable to open shell: {shellError}")
                 : TextBlock(string.Empty),
-            Button("Refresh", () => _ = containers.RefreshAsync())
+            Button("Refresh", () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
 }
