@@ -147,6 +147,36 @@
   <data name="TrayExit" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="TrayStopAll" xml:space="preserve">
+    <value>Stop all containers</value>
+  </data>
+  <data name="TrayStopAllConfirmationTitle" xml:space="preserve">
+    <value>Stop all containers?</value>
+  </data>
+  <data name="TrayStopAllConfirmation" xml:space="preserve">
+    <value>This will stop {0} running containers.</value>
+  </data>
+  <data name="TrayStopAllConfirm" xml:space="preserve">
+    <value>Stop all</value>
+  </data>
+  <data name="TrayStopAllPending" xml:space="preserve">
+    <value>Stopping {0} running containers…</value>
+  </data>
+  <data name="TrayStopAllCompleted" xml:space="preserve">
+    <value>Stopped {0} of {1} running containers.</value>
+  </data>
+  <data name="TrayStopAllPartialFailure" xml:space="preserve">
+    <value>Some containers could not be stopped: {0}</value>
+  </data>
+  <data name="TrayStopAllResultTitle" xml:space="preserve">
+    <value>Stop all containers</value>
+  </data>
+  <data name="TrayStopAllResult" xml:space="preserve">
+    <value>{0}&#10;{1}</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
   <data name="SettingsHeading" xml:space="preserve">
     <value>Settings</value>
   </data>
