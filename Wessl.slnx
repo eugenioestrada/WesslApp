@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Wessl.App/Wessl.App.csproj" />
+    <Project Path="src/Wessl.Domain/Wessl.Domain.csproj" />
+    <Project Path="src/Wessl.Infrastructure/Wessl.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Wessl.Tests/Wessl.Tests.csproj" />
+  </Folder>
+</Solution>
