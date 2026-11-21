@@ -12,6 +12,18 @@
   <data name="EmptyContainers" xml:space="preserve">
     <value>No containers found.</value>
   </data>
+  <data name="WslcUnavailable" xml:space="preserve">
+    <value>WSL Container is not available. Update WSL to the latest stable version by running wsl --update in Windows Terminal.</value>
+  </data>
+  <data name="CopyUpdateCommand" xml:space="preserve">
+    <value>Copy update command</value>
+  </data>
+  <data name="UpdateCommandCopied" xml:space="preserve">
+    <value>Copied wsl --update to the clipboard.</value>
+  </data>
+  <data name="UpdateCommandCopyError" xml:space="preserve">
+    <value>Unable to copy the update command: {0}</value>
+  </data>
   <data name="NoPorts" xml:space="preserve">
     <value>None</value>
   </data>

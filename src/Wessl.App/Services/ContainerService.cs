@@ -16,6 +16,8 @@ public sealed class ContainerService(
 
     public bool HasRefreshed { get; private set; }
 
+    public bool IsWslcUnavailable { get; private set; }
+
     public LocalizedMessage? Error { get; private set; }
 
     public LocalizedMessage? Status { get; private set; }
@@ -69,6 +71,7 @@ public sealed class ContainerService(
 
         IReadOnlyList<ContainerInfo>? result = null;
         LocalizedMessage? error = null;
+        var unavailable = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -80,6 +83,7 @@ public sealed class ContainerService(
         }
         catch (Exception exception)
         {
+            unavailable = exception is WslcUnavailableException;
             error = new("RefreshError", [exception.Message]);
         }
         finally
@@ -99,7 +103,13 @@ public sealed class ContainerService(
                 Containers = result;
                 HasRefreshed = true;
             }
+            else if (unavailable)
+            {
+                Containers = [];
+                HasRefreshed = false;
+            }
 
+            IsWslcUnavailable = unavailable;
             Error = error;
             Changed?.Invoke();
         });
@@ -177,6 +187,13 @@ public sealed class ContainerService(
                     Containers = result;
                     HasRefreshed = true;
                 }
+                else if (refreshError is WslcUnavailableException)
+                {
+                    Containers = [];
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = refreshError is WslcUnavailableException;
 
                 if (actionError is not null)
                 {

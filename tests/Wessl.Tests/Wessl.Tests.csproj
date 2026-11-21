@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
@@ -25,6 +26,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\Wessl.App\Services\ContainerService.cs" Link="ContainerService.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\ContainerPolling.cs" Link="ContainerPolling.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ServiceRegistration.cs" Link="ServiceRegistration.cs" />
   </ItemGroup>
 
 </Project>
