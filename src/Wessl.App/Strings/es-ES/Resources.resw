@@ -62,9 +62,6 @@
   <data name="OpenLogsButton" xml:space="preserve">
     <value>Ver registros</value>
   </data>
-  <data name="ContainerUsageButton" xml:space="preserve">
-    <value>Mostrar uso de CPU y RAM</value>
-  </data>
   <data name="ContainerUsageLoading" xml:space="preserve">
     <value>Cargando uso de CPU y RAM…</value>
   </data>
@@ -323,4 +320,8 @@
   <data name="SettingsContainerClientValue" xml:space="preserve">
     <value>WSLc</value>
   </data>
+  <data name="SettingsStatsIntervalLabel" xml:space="preserve"><value>Intervalo de actualización de estadísticas</value></data>
+  <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 segundo</value></data>
+  <data name="ContainerUsageDetails" xml:space="preserve"><value>Red: {0} · E/S de bloque: {1} · PID: {2}</value></data>
+  <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Las estadísticas de este contenedor no están disponibles.</value></data>
 </root>

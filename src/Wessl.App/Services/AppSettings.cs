@@ -48,6 +48,7 @@ public sealed class AppSettings
             _ => AppLanguage.English
         };
         RefreshIntervalSeconds = 10;
+        StatsIntervalSeconds = 1;
         DefaultTerminal = ContainerTerminal.WindowsTerminal;
 
         if (!File.Exists(_filePath))
@@ -62,7 +63,8 @@ public sealed class AppSettings
         if (!Enum.IsDefined(stored.Theme)
             || !Enum.IsDefined(stored.Language)
             || !Enum.IsDefined(stored.DefaultTerminal)
-            || !IsSupportedRefreshInterval(stored.RefreshIntervalSeconds))
+            || !IsSupportedRefreshInterval(stored.RefreshIntervalSeconds)
+            || !IsSupportedStatsInterval(stored.StatsIntervalSeconds))
         {
             throw new InvalidDataException("The Wessl settings file contains an unsupported setting.");
         }
@@ -71,6 +73,7 @@ public sealed class AppSettings
         Language = stored.Language;
         StartWithWindows = stored.StartWithWindows;
         RefreshIntervalSeconds = stored.RefreshIntervalSeconds;
+        StatsIntervalSeconds = stored.StatsIntervalSeconds;
         DefaultTerminal = stored.DefaultTerminal;
     }
 
@@ -83,6 +86,8 @@ public sealed class AppSettings
     public bool StartWithWindows { get; private set; }
 
     public int RefreshIntervalSeconds { get; private set; }
+
+    public int StatsIntervalSeconds { get; private set; }
 
     public ContainerTerminal DefaultTerminal { get; private set; }
 
@@ -177,15 +182,34 @@ public sealed class AppSettings
         Changed?.Invoke();
     }
 
+    public void SetStatsIntervalSeconds(int seconds)
+    {
+        if (!IsSupportedStatsInterval(seconds))
+        {
+            throw new ArgumentOutOfRangeException(nameof(seconds));
+        }
+        if (StatsIntervalSeconds == seconds)
+        {
+            return;
+        }
+        Save(Theme, Language, StartWithWindows, RefreshIntervalSeconds, DefaultTerminal, seconds);
+        StatsIntervalSeconds = seconds;
+        Changed?.Invoke();
+    }
+
     public static bool IsSupportedRefreshInterval(int seconds) =>
         seconds is 5 or 10 or 30 or 60;
+
+    public static bool IsSupportedStatsInterval(int seconds) =>
+        seconds is 1 or 5 or 10 or 30 or 60;
 
     private void Save(
         AppTheme theme,
         AppLanguage language,
         bool startWithWindows,
         int refreshIntervalSeconds,
-        ContainerTerminal defaultTerminal)
+        ContainerTerminal defaultTerminal,
+        int? statsIntervalSeconds = null)
     {
         var directory = Path.GetDirectoryName(_filePath)
             ?? throw new InvalidOperationException("The settings file path has no parent directory.");
@@ -198,7 +222,8 @@ public sealed class AppSettings
                     language,
                     startWithWindows,
                     refreshIntervalSeconds,
-                    defaultTerminal),
+                    defaultTerminal,
+                    statsIntervalSeconds ?? StatsIntervalSeconds),
                 AppSettingsJsonContext.Default.StoredSettings));
     }
 
@@ -207,7 +232,8 @@ public sealed class AppSettings
         AppLanguage Language,
         bool StartWithWindows = false,
         int RefreshIntervalSeconds = 10,
-        ContainerTerminal DefaultTerminal = ContainerTerminal.WindowsTerminal);
+        ContainerTerminal DefaultTerminal = ContainerTerminal.WindowsTerminal,
+        int StatsIntervalSeconds = 1);
 }
 
 [JsonSerializable(typeof(AppSettings.StoredSettings))]

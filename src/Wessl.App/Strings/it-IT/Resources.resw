@@ -30,7 +30,6 @@
   <data name="RestartButton" xml:space="preserve"><value>Riavvia</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>Apri terminale</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>Visualizza log</value></data>
-  <data name="ContainerUsageButton" xml:space="preserve"><value>Mostra l’utilizzo di CPU e RAM</value></data>
   <data name="ContainerUsageLoading" xml:space="preserve"><value>Caricamento dell’utilizzo di CPU e RAM…</value></data>
   <data name="ContainerUsage" xml:space="preserve"><value>CPU: {0} · RAM: {1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>Impossibile caricare l’utilizzo di CPU e RAM: {0}</value></data>
@@ -117,4 +116,8 @@
   <data name="SettingsTerminalCommandPrompt" xml:space="preserve"><value>Prompt dei comandi</value></data>
   <data name="SettingsContainerClientLabel" xml:space="preserve"><value>Client per contenitori</value></data>
   <data name="SettingsContainerClientValue" xml:space="preserve"><value>WSLc</value></data>
+  <data name="SettingsStatsIntervalLabel" xml:space="preserve"><value>Intervallo di aggiornamento delle statistiche</value></data>
+  <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 secondo</value></data>
+  <data name="ContainerUsageDetails" xml:space="preserve"><value>Rete: {0} · I/O blocchi: {1} · PID: {2}</value></data>
+  <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Le statistiche per questo contenitore non sono disponibili.</value></data>
 </root>

@@ -22,7 +22,7 @@ Para un contenedor en ejecución, **Abrir consola** inicia Windows Terminal con 
 
 **Ver registros** abre una ventana independiente que sigue `wslc container logs -f <container-id>`. Al cerrar la ventana se detiene el proceso de seguimiento. La vista conserva los 128 Ki más recientes.
 
-Para un contenedor en ejecución, **Mostrar uso de CPU y RAM** solicita una instantánea con `wslc stats --format json <container-id>`. El uso no se sondea automáticamente.
+Los contenedores en ejecución muestran CPU, memoria, E/S de red y de bloque, y número de PID mediante `wslc stats --format json`. Las estadísticas se actualizan cada segundo de forma predeterminada; el intervalo se puede cambiar en Configuración. El sondeo se detiene al ocultar el panel.
 
 El estado de los contenedores se actualiza al abrir la ventana y cada 10 segundos mientras permanece visible. El botón Actualizar también solicita una actualización inmediata. El sondeo se detiene cuando la ventana se oculta, minimiza o cierra; iniciar la aplicación en la bandeja no invoca WSLc. El indicador de la bandeja muestra un estado desconocido hasta la primera actualización correcta y, después, refleja el último estado conocido mientras la ventana está cerrada.
 

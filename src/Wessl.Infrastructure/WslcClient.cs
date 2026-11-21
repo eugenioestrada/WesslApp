@@ -33,6 +33,27 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         return WslcOutputParser.ParseUsage(output);
     }
 
+    public async Task<IReadOnlyDictionary<string, ContainerUsage>> GetContainerUsagesAsync(
+        IReadOnlyCollection<string> ids, CancellationToken cancellationToken = default)
+    {
+        var output = await RunCommandAsync(cancellationToken, "stats", "--format", "json");
+        var usages = WslcOutputParser.ParseUsages(output);
+        var result = new Dictionary<string, ContainerUsage>(StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            var matches = usages.Where(pair => pair.Key.StartsWith(id, StringComparison.Ordinal)).ToArray();
+            if (matches.Length > 1)
+            {
+                throw new FormatException("WSLc output contains ambiguous container IDs.");
+            }
+            if (matches.Length == 1)
+            {
+                result.Add(id, matches[0].Value);
+            }
+        }
+        return result;
+    }
+
     public async Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
     {
         var output = await RunCommandAsync(cancellationToken, "image", "list", "--format", "json");
@@ -203,6 +224,7 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
 
     private async Task<string> RunCommandAsync(ProcessStartInfo startInfo, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         Process? startedProcess;
         try
         {
@@ -232,9 +254,16 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         {
             if (!process.HasExited)
             {
-                process.Kill(entireProcessTree: true);
+                try
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+                catch (InvalidOperationException) when (process.HasExited)
+                {
+                }
             }
 
+            await process.WaitForExitAsync(CancellationToken.None);
             throw;
         }
     }

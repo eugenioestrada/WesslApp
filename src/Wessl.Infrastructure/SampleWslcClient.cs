@@ -38,7 +38,8 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
             throw new InvalidOperationException("Usage is only available for a running container.");
         }
 
-        return Task.FromResult(new ContainerUsage("0.00%", "12.4 MiB / 7.6 GiB"));
+        return Task.FromResult(new ContainerUsage(
+            "0.00%", "12.4 MiB / 7.6 GiB", "1.2 kB / 3.4 kB", "0 B / 4 kB", "3", "0.16%"));
     }
 
     public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>

@@ -25,6 +25,45 @@ public sealed class WslcOutputParserTests
     }
 
     [Fact]
+    public void ParseUsagesReadsFullIdsAndRealStatsFieldsFromJsonLines()
+    {
+        const string firstId = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        const string secondId = "abcdef012345fedcba9876543210fedcba9876543210fedcba9876543210fedc";
+        const string output = """
+
+            {"ID":"abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789","Name":"web","CPUPerc":"0.16%","MemUsage":"47.21MiB / 15.62GiB","MemPerc":"0.30%","NetIO":"1.2kB / 4.5kB","BlockIO":"0B / 12kB","PIDs":"9"}
+            {"id":"abcdef012345fedcba9876543210fedcba9876543210fedcba9876543210fedc","cpuperc":"2.50%","memusage":"2GiB / 8GiB","memperc":"25.00%","netio":"5MB / 6MB","blockio":"7MB / 8MB","pids":12}
+            """;
+
+        var usages = WslcOutputParser.ParseUsages(output);
+
+        Assert.Equal(2, usages.Count);
+        Assert.Equal(new ContainerUsage("0.16%", "47.21MiB / 15.62GiB", "1.2kB / 4.5kB", "0B / 12kB", "9", "0.30%"), usages[firstId]);
+        Assert.Equal(new ContainerUsage("2.50%", "2GiB / 8GiB", "5MB / 6MB", "7MB / 8MB", "12", "25.00%"), usages[secondId]);
+        Assert.DoesNotContain("abcdef012345", usages.Keys);
+    }
+
+    [Fact]
+    public void ParseUsagesAllowsEmptyOutputAndOptionalFields()
+    {
+        Assert.Empty(WslcOutputParser.ParseUsages(" \r\n\n"));
+        var usages = WslcOutputParser.ParseUsages("""{"ID":"abc","CPUPerc":"0.00%","MemUsage":"0B / 1GiB"}""");
+        Assert.Equal(new ContainerUsage("0.00%", "0B / 1GiB"), usages["abc"]);
+    }
+
+    [Theory]
+    [InlineData("""{"CPUPerc":"1%","MemUsage":"2MiB"}""")]
+    [InlineData("""{"ID":"","CPUPerc":"1%","MemUsage":"2MiB"}""")]
+    [InlineData("""{"ID":"abc","MemUsage":"2MiB"}""")]
+    [InlineData("""{"ID":"abc","CPUPerc":"1%"}""")]
+    [InlineData("""[]""")]
+    [InlineData("{\"ID\":\"abc\",\"CPUPerc\":\"1%\",\"MemUsage\":\"2MiB\"}\n{\"ID\":\"abc\",\"CPUPerc\":\"3%\",\"MemUsage\":\"4MiB\"}")]
+    public void ParseUsagesRejectsInvalidOrDuplicateEntries(string output)
+    {
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseUsages(output));
+    }
+
+    [Fact]
     public void ParseReadsJsonLinesAndStates()
     {
         const string output = """
@@ -89,7 +128,7 @@ public sealed class WslcOutputParserTests
     {
         var client = new SampleWslcClient();
         Assert.Equal(2, (await client.ListContainersAsync()).Count);
-        Assert.Equal(new ContainerUsage("0.00%", "12.4 MiB / 7.6 GiB"),
+        Assert.Equal(new ContainerUsage("0.00%", "12.4 MiB / 7.6 GiB", "1.2 kB / 3.4 kB", "0 B / 4 kB", "3", "0.16%"),
             await client.GetContainerUsageAsync("sample-1"));
         using var source = new CancellationTokenSource();
         source.Cancel();

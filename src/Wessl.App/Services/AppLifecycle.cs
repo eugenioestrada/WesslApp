@@ -23,6 +23,7 @@ public sealed partial class AppLifecycle(
     IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
+    private DispatcherQueueTimer? _statsTimer;
     private ReactorWindow? _window;
     private ReactorWindow? _menuHostWindow;
     private ReactorTrayIcon? _tray;
@@ -45,7 +46,6 @@ public sealed partial class AppLifecycle(
         _tray.Click += (_, _) => OpenWindow();
         _tray.RightClick += (_, _) => ShowTrayMenu();
         containers.Changed += UpdateTrayIcon;
-        _ = containers.RefreshAsync();
     }
 
     private void ShowTrayMenu()
@@ -329,12 +329,24 @@ public sealed partial class AppLifecycle(
                 }
             };
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _statsTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
             ApplyRefreshInterval();
             _pollTimer.Tick += (_, _) =>
             {
                 if (IsVisible(window))
                 {
                     polling.Tick();
+                }
+                else
+                {
+                    UpdatePolling(window);
+                }
+            };
+            _statsTimer.Tick += (_, _) =>
+            {
+                if (IsVisible(window))
+                {
+                    polling.TickStats();
                 }
                 else
                 {
@@ -352,6 +364,8 @@ public sealed partial class AppLifecycle(
                 _panelClosing = false;
                 _pollTimer?.Stop();
                 _pollTimer = null;
+                _statsTimer?.Stop();
+                _statsTimer = null;
                 polling.Stop();
                 _window = null;
                 _mainComponent = null;
@@ -398,6 +412,10 @@ public sealed partial class AppLifecycle(
         {
             timer.Interval = polling.ActiveRefreshInterval;
         }
+        if (_statsTimer is { } statsTimer)
+        {
+            statsTimer.Interval = polling.StatsRefreshInterval;
+        }
     }
 
     private void UpdatePolling(ReactorWindow window)
@@ -414,10 +432,16 @@ public sealed partial class AppLifecycle(
             {
                 timer.Start();
             }
+            if (_statsTimer is { IsRunning: false } statsTimer)
+            {
+                polling.TickStats();
+                statsTimer.Start();
+            }
         }
         else
         {
             _pollTimer?.Stop();
+            _statsTimer?.Stop();
             polling.Stop();
         }
     }
@@ -447,6 +471,7 @@ public sealed partial class AppLifecycle(
     {
         CancelPendingMenu();
         _pollTimer?.Stop();
+        _statsTimer?.Stop();
         polling.Stop();
         containers.Changed -= UpdateTrayIcon;
         settings.Changed -= OnSettingsChanged;
