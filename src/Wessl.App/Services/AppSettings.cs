@@ -15,7 +15,11 @@ public enum AppTheme
 public enum AppLanguage
 {
     English,
-    Spanish
+    Spanish,
+    ChineseSimplified,
+    French,
+    Italian,
+    German
 }
 
 public sealed class AppSettings
@@ -30,9 +34,19 @@ public sealed class AppSettings
             "settings.json");
 
         Theme = AppTheme.Automatic;
-        Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("es", StringComparison.OrdinalIgnoreCase)
-            ? AppLanguage.Spanish
-            : AppLanguage.English;
+        var systemCulture = CultureInfo.CurrentUICulture;
+        Language = systemCulture.TwoLetterISOLanguageName switch
+        {
+            "es" => AppLanguage.Spanish,
+            "fr" => AppLanguage.French,
+            "it" => AppLanguage.Italian,
+            "de" => AppLanguage.German,
+            "zh" when systemCulture.Name.Equals("zh-Hans", StringComparison.OrdinalIgnoreCase)
+                || systemCulture.Name.StartsWith("zh-CN", StringComparison.OrdinalIgnoreCase)
+                || systemCulture.Name.StartsWith("zh-SG", StringComparison.OrdinalIgnoreCase)
+                => AppLanguage.ChineseSimplified,
+            _ => AppLanguage.English
+        };
         RefreshIntervalSeconds = 10;
         DefaultTerminal = ContainerTerminal.WindowsTerminal;
 
@@ -76,6 +90,10 @@ public sealed class AppSettings
     {
         AppLanguage.English => "en-US",
         AppLanguage.Spanish => "es-ES",
+        AppLanguage.ChineseSimplified => "zh-CN",
+        AppLanguage.French => "fr-FR",
+        AppLanguage.Italian => "it-IT",
+        AppLanguage.German => "de-DE",
         _ => throw new InvalidOperationException("The selected language is not supported.")
     };
 

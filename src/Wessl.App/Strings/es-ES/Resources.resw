@@ -269,6 +269,30 @@
   <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
     <value>✓ Español</value>
   </data>
+  <data name="SettingsLanguageChineseSimplified" xml:space="preserve">
+    <value>Chino simplificado</value>
+  </data>
+  <data name="SettingsLanguageChineseSimplifiedSelected" xml:space="preserve">
+    <value>✓ Chino simplificado</value>
+  </data>
+  <data name="SettingsLanguageFrench" xml:space="preserve">
+    <value>Francés</value>
+  </data>
+  <data name="SettingsLanguageFrenchSelected" xml:space="preserve">
+    <value>✓ Francés</value>
+  </data>
+  <data name="SettingsLanguageItalian" xml:space="preserve">
+    <value>Italiano</value>
+  </data>
+  <data name="SettingsLanguageItalianSelected" xml:space="preserve">
+    <value>✓ Italiano</value>
+  </data>
+  <data name="SettingsLanguageGerman" xml:space="preserve">
+    <value>Alemán</value>
+  </data>
+  <data name="SettingsLanguageGermanSelected" xml:space="preserve">
+    <value>✓ Alemán</value>
+  </data>
   <data name="SettingsStartupLabel" xml:space="preserve">
     <value>Iniciar con Windows</value>
   </data>

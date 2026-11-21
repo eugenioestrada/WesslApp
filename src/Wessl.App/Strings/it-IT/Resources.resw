@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ImagesHeading" xml:space="preserve"><value>Immagini</value></data>
+  <data name="ImagesOpenButton" xml:space="preserve"><value>Immagini</value></data>
+  <data name="ImagesEmpty" xml:space="preserve"><value>Nessuna immagine trovata.</value></data>
+  <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
+  <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Dimensione: {1}</value></data>
+  <data name="ImagesLoading" xml:space="preserve"><value>Caricamento delle immagini…</value></data>
+  <data name="ImagesRefreshError" xml:space="preserve"><value>Impossibile aggiornare le immagini: {0}</value></data>
+  <data name="ImagesPruneButton" xml:space="preserve"><value>Rimuovi le immagini inutilizzate</value></data>
+  <data name="ImagesPruneConfirmation" xml:space="preserve"><value>Eliminare tutte le immagini non utilizzate da alcun contenitore, incluse quelle con tag? L’operazione è irreversibile.</value></data>
+  <data name="ImagesPruneConfirm" xml:space="preserve"><value>Conferma rimozione</value></data>
+  <data name="ImagesPrunePending" xml:space="preserve"><value>Rimozione delle immagini inutilizzate…</value></data>
+  <data name="ImagesPruneError" xml:space="preserve"><value>Impossibile rimuovere le immagini: {0}</value></data>
+  <data name="ImagesPruneSuccess" xml:space="preserve"><value>Rimozione delle immagini completata: {0}</value></data>
+  <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc non ha restituito dettagli.</value></data>
+  <data name="ContainersHeading" xml:space="preserve"><value>Contenitori</value></data>
+  <data name="ContainerSummary" xml:space="preserve"><value>Contenitori: {0} · In esecuzione: {1}</value></data>
+  <data name="RefreshError" xml:space="preserve"><value>Impossibile aggiornare: {0}</value></data>
+  <data name="RefreshButton" xml:space="preserve"><value>Aggiorna</value></data>
+  <data name="EmptyContainers" xml:space="preserve"><value>Nessun contenitore trovato.</value></data>
+  <data name="ContainersLoading" xml:space="preserve"><value>Caricamento dei contenitori…</value></data>
+  <data name="WslcUnavailable" xml:space="preserve"><value>WSL Container non è disponibile. Aggiorna WSL all’ultima versione stabile eseguendo wsl --update in Windows Terminal.</value></data>
+  <data name="CopyUpdateCommand" xml:space="preserve"><value>Copia comando di aggiornamento</value></data>
+  <data name="UpdateCommandCopied" xml:space="preserve"><value>Il comando wsl --update è stato copiato negli appunti.</value></data>
+  <data name="UpdateCommandCopyError" xml:space="preserve"><value>Impossibile copiare il comando di aggiornamento: {0}</value></data>
+  <data name="NoPorts" xml:space="preserve"><value>Nessuno</value></data>
+  <data name="ContainerDetails" xml:space="preserve"><value>{0} · {1}</value></data>
+  <data name="PortsLabel" xml:space="preserve"><value>Porte: {0}</value></data>
+  <data name="StartButton" xml:space="preserve"><value>Avvia</value></data>
+  <data name="StopButton" xml:space="preserve"><value>Arresta</value></data>
+  <data name="RestartButton" xml:space="preserve"><value>Riavvia</value></data>
+  <data name="OpenShellButton" xml:space="preserve"><value>Apri terminale</value></data>
+  <data name="OpenLogsButton" xml:space="preserve"><value>Visualizza log</value></data>
+  <data name="LogsTitle" xml:space="preserve"><value>Log: {0}</value></data>
+  <data name="LogsFollowing" xml:space="preserve"><value>Visualizzazione continua dei log. Chiudi questa finestra per interromperla.</value></data>
+  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Visualizzazione continua dei log; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB. Chiudi questa finestra per interromperla.</value></data>
+  <data name="LogsEnded" xml:space="preserve"><value>Il flusso dei log è terminato.</value></data>
+  <data name="LogsEndedTruncated" xml:space="preserve"><value>Il flusso dei log è terminato; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB.</value></data>
+  <data name="LogsNotRunning" xml:space="preserve"><value>È possibile visualizzare i log solo per un contenitore in esecuzione.</value></data>
+  <data name="LogsError" xml:space="preserve"><value>Impossibile seguire i log: {0}</value></data>
+  <data name="RemoveButton" xml:space="preserve"><value>Rimuovi</value></data>
+  <data name="ConfirmRemoveButton" xml:space="preserve"><value>Conferma rimozione</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Annulla</value></data>
+  <data name="RemoveConfirmation" xml:space="preserve"><value>Rimuovere {0}? Il contenitore verrà eliminato definitivamente e arrestato se è in esecuzione.</value></data>
+  <data name="OpenShellError" xml:space="preserve"><value>Impossibile aprire il terminale: {0}</value></data>
+  <data name="CopyUrlButton" xml:space="preserve"><value>Copia URL</value></data>
+  <data name="PortOpenButton" xml:space="preserve"><value>Apri URL</value></data>
+  <data name="PortOpenSuccess" xml:space="preserve"><value>{0} è stato aperto</value></data>
+  <data name="PortOpenFailure" xml:space="preserve"><value>Windows non è riuscito ad aprire {0}.</value></data>
+  <data name="PortOpenError" xml:space="preserve"><value>Impossibile aprire {0}: {1}</value></data>
+  <data name="PortCopySuccess" xml:space="preserve"><value>{0} è stato copiato negli appunti.</value></data>
+  <data name="PortCopyError" xml:space="preserve"><value>Impossibile copiare {0}: {1}</value></data>
+  <data name="WaitForCurrentAction" xml:space="preserve"><value>Attendi il completamento dell’azione corrente sul contenitore.</value></data>
+  <data name="ActionAndRefreshError" xml:space="preserve"><value>{0} {1}</value></data>
+  <data name="ActionStartPending" xml:space="preserve"><value>Avvio di {0}…</value></data>
+  <data name="ActionStartSucceeded" xml:space="preserve"><value>{0} è stato avviato correttamente.</value></data>
+  <data name="ActionStartFailed" xml:space="preserve"><value>Impossibile avviare {0}: {1}</value></data>
+  <data name="ActionStopPending" xml:space="preserve"><value>Arresto di {0}…</value></data>
+  <data name="ActionStopSucceeded" xml:space="preserve"><value>{0} è stato arrestato correttamente.</value></data>
+  <data name="ActionStopFailed" xml:space="preserve"><value>Impossibile arrestare {0}: {1}</value></data>
+  <data name="ActionRestartPending" xml:space="preserve"><value>Riavvio di {0}…</value></data>
+  <data name="ActionRestartSucceeded" xml:space="preserve"><value>{0} è stato riavviato correttamente.</value></data>
+  <data name="ActionRestartFailed" xml:space="preserve"><value>Impossibile riavviare {0}: {1}</value></data>
+  <data name="ActionRemovePending" xml:space="preserve"><value>Rimozione di {0}…</value></data>
+  <data name="ActionRemoveSucceeded" xml:space="preserve"><value>{0} è stato rimosso correttamente.</value></data>
+  <data name="ActionRemoveFailed" xml:space="preserve"><value>Impossibile rimuovere {0}: {1}</value></data>
+  <data name="ContainerStateUnknown" xml:space="preserve"><value>Sconosciuto</value></data>
+  <data name="ContainerStateRunning" xml:space="preserve"><value>In esecuzione</value></data>
+  <data name="ContainerStateStopped" xml:space="preserve"><value>Arrestato</value></data>
+  <data name="TrayStatusUnknown" xml:space="preserve"><value>Sconosciuto</value></data>
+  <data name="TrayStatusRunning" xml:space="preserve"><value>In esecuzione</value></data>
+  <data name="TrayStatusIdle" xml:space="preserve"><value>Inattivo</value></data>
+  <data name="TrayTooltip" xml:space="preserve"><value>Wessl - {0}</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Apri</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Esci</value></data>
+  <data name="TrayStopAll" xml:space="preserve"><value>Arresta tutti i contenitori</value></data>
+  <data name="TrayStopAllConfirmationTitle" xml:space="preserve"><value>Arrestare tutti i contenitori?</value></data>
+  <data name="TrayStopAllConfirmation" xml:space="preserve"><value>Verranno arrestati {0} contenitori in esecuzione.</value></data>
+  <data name="TrayStopAllConfirm" xml:space="preserve"><value>Arresta tutti</value></data>
+  <data name="TrayStopAllPending" xml:space="preserve"><value>Arresto di {0} contenitori in esecuzione…</value></data>
+  <data name="TrayStopAllCompleted" xml:space="preserve"><value>Sono stati arrestati {0} dei {1} contenitori in esecuzione.</value></data>
+  <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>Impossibile arrestare alcuni contenitori: {0}</value></data>
+  <data name="TrayStopAllResultTitle" xml:space="preserve"><value>Arresta tutti i contenitori</value></data>
+  <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
+  <data name="CloseButton" xml:space="preserve"><value>Chiudi</value></data>
+  <data name="SettingsHeading" xml:space="preserve"><value>Impostazioni</value></data>
+  <data name="SettingsOpenButton" xml:space="preserve"><value>Impostazioni</value></data>
+  <data name="SettingsBackButton" xml:space="preserve"><value>Torna ai contenitori</value></data>
+  <data name="SettingsThemeLabel" xml:space="preserve"><value>Tema</value></data>
+  <data name="SettingsThemeAutomatic" xml:space="preserve"><value>Automatico</value></data>
+  <data name="SettingsThemeAutomaticSelected" xml:space="preserve"><value>✓ Automatico</value></data>
+  <data name="SettingsThemeLight" xml:space="preserve"><value>Chiaro</value></data>
+  <data name="SettingsThemeLightSelected" xml:space="preserve"><value>✓ Chiaro</value></data>
+  <data name="SettingsThemeDark" xml:space="preserve"><value>Scuro</value></data>
+  <data name="SettingsThemeDarkSelected" xml:space="preserve"><value>✓ Scuro</value></data>
+  <data name="SettingsLanguageLabel" xml:space="preserve"><value>Lingua</value></data>
+  <data name="SettingsLanguageEnglish" xml:space="preserve"><value>English</value></data>
+  <data name="SettingsLanguageEnglishSelected" xml:space="preserve"><value>✓ English</value></data>
+  <data name="SettingsLanguageSpanish" xml:space="preserve"><value>Español</value></data>
+  <data name="SettingsLanguageSpanishSelected" xml:space="preserve"><value>✓ Español</value></data>
+  <data name="SettingsLanguageChineseSimplified" xml:space="preserve"><value>Cinese semplificato</value></data>
+  <data name="SettingsLanguageChineseSimplifiedSelected" xml:space="preserve"><value>✓ Cinese semplificato</value></data>
+  <data name="SettingsLanguageFrench" xml:space="preserve"><value>Français</value></data>
+  <data name="SettingsLanguageFrenchSelected" xml:space="preserve"><value>✓ Français</value></data>
+  <data name="SettingsLanguageItalian" xml:space="preserve"><value>Italiano</value></data>
+  <data name="SettingsLanguageItalianSelected" xml:space="preserve"><value>✓ Italiano</value></data>
+  <data name="SettingsLanguageGerman" xml:space="preserve"><value>Deutsch</value></data>
+  <data name="SettingsLanguageGermanSelected" xml:space="preserve"><value>✓ Deutsch</value></data>
+  <data name="SettingsStartupLabel" xml:space="preserve"><value>Avvia all’accesso a Windows</value></data>
+  <data name="SettingsStartupEnabled" xml:space="preserve"><value>Abilitato</value></data>
+  <data name="SettingsStartupDisabled" xml:space="preserve"><value>Disabilitato</value></data>
+  <data name="SettingsRefreshIntervalLabel" xml:space="preserve"><value>Intervallo di aggiornamento attivo</value></data>
+  <data name="SettingsRefreshInterval5" xml:space="preserve"><value>5 secondi</value></data>
+  <data name="SettingsRefreshInterval5Selected" xml:space="preserve"><value>✓ 5 secondi</value></data>
+  <data name="SettingsRefreshInterval10" xml:space="preserve"><value>10 secondi</value></data>
+  <data name="SettingsRefreshInterval10Selected" xml:space="preserve"><value>✓ 10 secondi</value></data>
+  <data name="SettingsRefreshInterval30" xml:space="preserve"><value>30 secondi</value></data>
+  <data name="SettingsRefreshInterval30Selected" xml:space="preserve"><value>✓ 30 secondi</value></data>
+  <data name="SettingsRefreshInterval60" xml:space="preserve"><value>60 secondi</value></data>
+  <data name="SettingsRefreshInterval60Selected" xml:space="preserve"><value>✓ 60 secondi</value></data>
+  <data name="SettingsDefaultTerminalLabel" xml:space="preserve"><value>Terminale predefinito</value></data>
+  <data name="SettingsTerminalWindowsTerminal" xml:space="preserve"><value>Windows Terminal</value></data>
+  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve"><value>✓ Windows Terminal</value></data>
+  <data name="SettingsTerminalPowerShell" xml:space="preserve"><value>PowerShell</value></data>
+  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve"><value>✓ PowerShell</value></data>
+  <data name="SettingsTerminalCommandPrompt" xml:space="preserve"><value>Prompt dei comandi</value></data>
+  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve"><value>✓ Prompt dei comandi</value></data>
+  <data name="SettingsContainerClientLabel" xml:space="preserve"><value>Client per contenitori</value></data>
+  <data name="SettingsContainerClientValue" xml:space="preserve"><value>WSLc</value></data>
+</root>
