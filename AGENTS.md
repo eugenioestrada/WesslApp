@@ -8,6 +8,19 @@
 - Build the UI declaratively in C# with Microsoft.UI.Reactor and WinUI 3. Do not introduce XAML or MVVM/ViewModels.
 - Prefer built-in .NET and Windows App SDK APIs; add third-party dependencies only when they are necessary.
 
+## Design and UX
+
+- Treat the main window as a compact system-tray panel, not a conventional desktop window. Position it beside the tray when opened; do not allow title-bar dragging.
+- Do not show a native title bar or Close, Minimize, or Maximize buttons on the main panel. Hide it when it loses activation, without exiting the tray app; allow reopening from the tray. Keep separate tool windows, such as logs, independently usable.
+- Follow native WinUI 3 control styles and semantic theme resources. Use Mica for the main panel, and acrylic only where appropriate for transient surfaces. Preserve readability, high-contrast support, and light/dark adaptation; avoid expensive effects and decorative transparency.
+- Keep the header compact: a prominent Wessl title and aligned icon-only actions with consistent sizing and styling. Use Segoe Fluent Icons, with localized tooltips and accessible names. Keep images and settings navigation discoverable without expanding the header unnecessarily.
+- Place the container and running counts immediately below the header. Let the container list scroll within the remaining window space instead of pushing the header out of view.
+- Group each container in a card. Put its state indicator and name on the left and its image reference at the top right. Do not repeat the state as a visible label; retain a localized tooltip and accessible name for the indicator.
+- Establish hierarchy with semibold names, secondary metadata, and consistent spacing. Use a 4-DIP spacing scale, typically 8 DIP between related elements and 16 DIP for panel and card padding. Wrap actions and long text without horizontal scrolling.
+- Distinguish primary actions from secondary actions using native accent, standard, and subtle button styles. Require confirmation for destructive actions and disable conflicting actions while an operation is pending.
+- Show pending, success, and error feedback with semantic InfoBars. Keep empty and unavailable states explicit and actionable; never rely on color alone to communicate state.
+- Keep focus and keyboard navigation usable. Interactions within the panel must not dismiss it accidentally, and opening an external tool may dismiss the panel without interrupting the requested action.
+
 ## Localization
 
 - Use Windows App SDK MRT Core resources (`.resw`) for user-visible strings; do not introduce a separate localization package or `.resx` pipeline.
