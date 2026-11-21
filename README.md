@@ -7,7 +7,7 @@ This is an initial scaffold. The app uses sample containers by default and does 
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.
-- .NET 10 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
+- .NET 11 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
 - WSL with WSL Containers and `wslc` on `PATH` only when using the real client. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
 
 ## Build and run
@@ -15,13 +15,13 @@ This is an initial scaffold. The app uses sample containers by default and does 
 From a Windows developer terminal at the repository root:
 
 ```powershell
-dotnet restore Wessl.slnx -p:Platform=x64
-dotnet build Wessl.slnx -p:Platform=x64
-dotnet run --project src/Wessl.App/Wessl.App.csproj -p:Platform=x64
+dotnet restore Wessl.slnx
+dotnet build Wessl.slnx
+dotnet run --project src/Wessl.App/Wessl.App.csproj
 dotnet test tests/Wessl.Tests/Wessl.Tests.csproj
 ```
 
-For ARM64, use `-p:Platform=ARM64` instead. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 10.
+For ARM64, pass `-p:RuntimeIdentifier=win-arm64` to the restore, build, and run commands instead of the default `win-x64`. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 11.
 
 ## Layout
 
