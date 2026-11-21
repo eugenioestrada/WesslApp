@@ -2,6 +2,8 @@
 
 Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc), built with Microsoft.UI.Reactor and WinUI 3. It starts in the tray: left-click the icon to open the container window beside the tray, or right-click for the native WinUI Open and Exit menu.
 
+Opening from the tray brings the container panel into view and focus with a short fade-in. When focus moves to another application or tool window, the panel fades out and hides while the app stays in the tray. Reopening cancels any pending fade-out. The panel is not always-on-top, and transitions respect the Windows animation setting.
+
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
 The app uses sample container and image data by default. To manage real containers, set `WESSL_USE_REAL_WSLC=1` before launching it. The `wslc` executable must be on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. If WSLc cannot be started, the app offers instructions to update WSL and a button to copy `wsl --update`. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.

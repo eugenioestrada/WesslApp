@@ -11,7 +11,7 @@
 ## Design and UX
 
 - Treat the main window as a compact system-tray panel, not a conventional desktop window. Position it beside the tray when opened; do not allow title-bar dragging.
-- Do not show a native title bar or Close, Minimize, or Maximize buttons on the main panel. Hide it when it loses activation, without exiting the tray app; allow reopening from the tray. Keep separate tool windows, such as logs, independently usable.
+- Do not show a native title bar or Close, Minimize, or Maximize buttons on the main panel. Open it visibly and focused beside the tray, without making it always-on-top. Hide it when it loses activation, keeping the tray app running. Use short entry/exit animations that respect Windows animation settings; allow reopening from the tray. Keep separate tool windows, such as logs, independently usable.
 - Follow native WinUI 3 control styles and semantic theme resources. Use Mica for the main panel, and acrylic only where appropriate for transient surfaces. Preserve readability, high-contrast support, and light/dark adaptation; avoid expensive effects and decorative transparency.
 - Keep the header compact: a prominent Wessl title and aligned icon-only actions with consistent sizing and styling. Use Segoe Fluent Icons, with localized tooltips and accessible names. Keep images and settings navigation discoverable without expanding the header unnecessarily.
 - Place the container and running counts immediately below the header. Let the container list scroll within the remaining window space instead of pushing the header out of view.
@@ -19,7 +19,7 @@
 - Establish hierarchy with semibold names, secondary metadata, and consistent spacing. Use a 4-DIP spacing scale, typically 8 DIP between related elements and 16 DIP for panel and card padding. Wrap actions and long text without horizontal scrolling.
 - Distinguish primary actions from secondary actions using native accent, standard, and subtle button styles. Require confirmation for destructive actions and disable conflicting actions while an operation is pending.
 - Show pending, success, and error feedback with semantic InfoBars. Keep empty and unavailable states explicit and actionable; never rely on color alone to communicate state.
-- Keep focus and keyboard navigation usable. Interactions within the panel must not dismiss it accidentally, and opening an external tool may dismiss the panel without interrupting the requested action.
+- Keep focus and keyboard navigation usable. Interactions within the panel must not dismiss it accidentally. Opening external tools may dismiss the panel when focus moves to them, without interrupting the requested action.
 
 ## Localization
 

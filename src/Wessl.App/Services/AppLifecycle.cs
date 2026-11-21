@@ -1,16 +1,20 @@
 using Microsoft.UI.Reactor;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Wessl.App.Components;
 using Wessl.Domain;
 using Windows.Foundation;
+using Windows.UI.ViewManagement;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(
+public sealed partial class AppLifecycle(
     ContainerService containers,
     ContainerPolling polling,
     AppSettings settings,
@@ -25,6 +29,10 @@ public sealed class AppLifecycle(
     private MenuFlyout? _trayMenu;
     private FrameworkElement? _pendingMenuTarget;
     private RoutedEventHandler? _pendingMenuLoaded;
+    private Storyboard? _panelAnimation;
+    private bool _panelOpening;
+    private bool _panelClosing;
+    private int _panelOpeningRevision;
     private readonly List<ReactorWindow> _logsWindows = [];
 
     public void Start()
@@ -108,8 +116,7 @@ public sealed class AppLifecycle(
         var cursorPosition = TrayPlacement.GetCursorPosition();
         var window = EnsureMainWindow();
         TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
-        window.Show();
-        window.Activate();
+        ShowMainWindow(window);
         UpdatePolling(window);
     }
 
@@ -124,8 +131,7 @@ public sealed class AppLifecycle(
         var window = EnsureMainWindow();
         _mainComponent?.ShowSettings();
         TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
-        window.Show();
-        window.Activate();
+        ShowMainWindow(window);
         UpdatePolling(window);
     }
 
@@ -137,13 +143,110 @@ public sealed class AppLifecycle(
         _menuHostWindow?.Hide();
 
         var window = EnsureMainWindow();
-        window.Show();
-        window.Activate();
+        ShowMainWindow(window);
         UpdatePolling(window);
         _mainComponent?.RequestStopAll();
     }
 
     private MainWindow? _mainComponent;
+
+    private void ShowMainWindow(ReactorWindow window)
+    {
+        _panelOpening = true;
+        _panelClosing = false;
+        var revision = ++_panelOpeningRevision;
+        window.Show();
+        window.AppWindow.MoveInZOrderAtTop();
+        ActivateMainWindow(window);
+        AnimatePanel(window, entering: true);
+
+        // Let the tray/menu finish releasing activation before focusing the panel again.
+        if (!window.NativeWindow.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
+        {
+            if (revision != _panelOpeningRevision || !ReferenceEquals(_window, window))
+            {
+                return;
+            }
+
+            if (window.AppWindow.IsVisible)
+            {
+                ActivateMainWindow(window);
+            }
+            _panelOpening = false;
+        }))
+        {
+            throw new InvalidOperationException("The tray panel activation could not be dispatched.");
+        }
+    }
+
+    private static void ActivateMainWindow(ReactorWindow window)
+    {
+        window.Activate();
+        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window.NativeWindow);
+        if (SetForegroundWindow(handle) == 0 && GetForegroundWindow() != handle)
+        {
+            Trace.TraceWarning("Windows denied foreground activation of the tray panel.");
+        }
+    }
+
+    [LibraryImport("user32.dll")]
+    private static partial int SetForegroundWindow(nint window);
+
+    [LibraryImport("user32.dll")]
+    private static partial nint GetForegroundWindow();
+
+    private void AnimatePanel(ReactorWindow window, bool entering)
+    {
+        var root = window.NativeWindow.Content as FrameworkElement
+            ?? throw new InvalidOperationException("The main window has no framework root element.");
+        var previousAnimation = _panelAnimation;
+        _panelAnimation = null;
+        previousAnimation?.Stop();
+        root.Opacity = 1;
+
+        if (!new UISettings().AnimationsEnabled)
+        {
+            if (!entering)
+            {
+                window.Hide();
+            }
+            return;
+        }
+
+        if (entering)
+        {
+            root.Opacity = 0;
+        }
+        var animation = new DoubleAnimation
+        {
+            To = entering ? 1 : 0,
+            Duration = new Duration(TimeSpan.FromMilliseconds(entering ? 160 : 100)),
+            EasingFunction = new CubicEase
+            {
+                EasingMode = entering ? EasingMode.EaseOut : EasingMode.EaseIn
+            }
+        };
+        Storyboard.SetTarget(animation, root);
+        Storyboard.SetTargetProperty(animation, nameof(UIElement.Opacity));
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(animation);
+        storyboard.Completed += (_, _) =>
+        {
+            if (!ReferenceEquals(_panelAnimation, storyboard))
+            {
+                return;
+            }
+            if (!entering)
+            {
+                window.Hide();
+            }
+            root.Opacity = 1;
+            _panelAnimation = null;
+            storyboard.Stop();
+        };
+        _panelAnimation = storyboard;
+        storyboard.Begin();
+    }
 
     private void OnSettingsChanged()
     {
@@ -213,9 +316,15 @@ public sealed class AppLifecycle(
             var window = _window;
             window.NativeWindow.Activated += (_, args) =>
             {
-                if (args.WindowActivationState == WindowActivationState.Deactivated && window.AppWindow.IsVisible)
+                if (args.WindowActivationState == WindowActivationState.Deactivated
+                    && !_panelOpening && !_panelClosing && window.AppWindow.IsVisible)
                 {
-                    window.Hide();
+                    _panelClosing = true;
+                    AnimatePanel(window, entering: false);
+                }
+                else if (args.WindowActivationState != WindowActivationState.Deactivated && _panelClosing)
+                {
+                    ShowMainWindow(window);
                 }
             };
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
@@ -235,6 +344,11 @@ public sealed class AppLifecycle(
             window.AppWindow.Changed += (_, _) => UpdatePolling(window);
             window.Closed += (_, _) =>
             {
+                var animation = _panelAnimation;
+                _panelAnimation = null;
+                animation?.Stop();
+                _panelOpening = false;
+                _panelClosing = false;
                 _pollTimer?.Stop();
                 _pollTimer = null;
                 polling.Stop();
