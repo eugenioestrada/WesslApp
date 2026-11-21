@@ -8,7 +8,7 @@ using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling, AppSettings settings)
+public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling, AppSettings settings, ImageService images)
 {
     private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
@@ -161,7 +161,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
                 new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings);
+                    _mainComponent = new MainWindow(containers, polling, settings, images);
                     return _mainComponent;
                 });
             ApplyTheme(_window);
