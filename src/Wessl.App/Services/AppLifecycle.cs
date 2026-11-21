@@ -3,12 +3,20 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Wessl.App.Components;
+using Wessl.Domain;
 using Windows.Foundation;
 
 namespace Wessl.App.Services;
 
-public sealed class AppLifecycle(ContainerService containers, ContainerPolling polling, AppSettings settings)
+public sealed class AppLifecycle(
+    ContainerService containers,
+    ContainerPolling polling,
+    AppSettings settings,
+    IStartupManager startupManager,
+    ImageService images,
+    IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
@@ -17,11 +25,13 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     private MenuFlyout? _trayMenu;
     private FrameworkElement? _pendingMenuTarget;
     private RoutedEventHandler? _pendingMenuLoaded;
+    private readonly List<ReactorWindow> _logsWindows = [];
 
     public void Start()
     {
         AppStrings.SetLanguage(settings.LanguageTag);
         settings.Changed += OnSettingsChanged;
+        startupManager.SetEnabled(settings.StartWithWindows);
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
         _tray = ReactorApp.OpenTrayIcon(CreateTrayIconSpec());
         _tray.Click += (_, _) => OpenWindow();
@@ -138,9 +148,11 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     private void OnSettingsChanged()
     {
         AppStrings.SetLanguage(settings.LanguageTag);
+        startupManager.SetEnabled(settings.StartWithWindows);
         if (_window is { } window)
         {
             ApplyTheme(window);
+            ApplyRefreshInterval();
         }
     }
 
@@ -178,16 +190,36 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         if (_window is null)
         {
             _window = ReactorApp.OpenWindow(
-                new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
+                new WindowSpec
+                {
+                    Title = "Wessl",
+                    Width = 440,
+                    Height = 460,
+                    IsMinimizable = false,
+                    IsMaximizable = false
+                },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings);
+                    _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
                     return _mainComponent;
                 });
+            if (_window.AppWindow.Presenter is not OverlappedPresenter presenter)
+            {
+                throw new InvalidOperationException("The main window requires an overlapped presenter.");
+            }
+            presenter.SetBorderAndTitleBar(true, false);
+            _window.NativeWindow.SystemBackdrop = new MicaBackdrop();
             ApplyTheme(_window);
             var window = _window;
+            window.NativeWindow.Activated += (_, args) =>
+            {
+                if (args.WindowActivationState == WindowActivationState.Deactivated && window.AppWindow.IsVisible)
+                {
+                    window.Hide();
+                }
+            };
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-            _pollTimer.Interval = TimeSpan.FromSeconds(10);
+            ApplyRefreshInterval();
             _pollTimer.Tick += (_, _) =>
             {
                 if (IsVisible(window))
@@ -214,10 +246,44 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         return _window;
     }
 
+    private void OpenLogs(ContainerInfo container)
+    {
+        var session = new ContainerLogsSession(logsClient, action =>
+        {
+            var dispatcher = ReactorApp.UIDispatcher
+                ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+            if (!dispatcher.TryEnqueue(() => action()))
+            {
+                throw new InvalidOperationException("Could not dispatch the log update.");
+            }
+        });
+        var window = ReactorApp.OpenWindow(
+            new WindowSpec { Title = AppStrings.Format("LogsTitle", container.Name), Width = 720, Height = 480 },
+            () => new LogsWindow(session));
+        _logsWindows.Add(window);
+        window.Closed += (_, _) =>
+        {
+            session.Stop();
+            _logsWindows.Remove(window);
+        };
+        window.Show();
+        window.Activate();
+        session.Start(containers.Containers.FirstOrDefault(item => item.Id == container.Id)
+            ?? container with { State = ContainerState.Unknown });
+    }
+
     private static bool IsVisible(ReactorWindow window) =>
         window.AppWindow.IsVisible &&
         (window.AppWindow.Presenter is not OverlappedPresenter presenter ||
          presenter.State != OverlappedPresenterState.Minimized);
+
+    private void ApplyRefreshInterval()
+    {
+        if (_pollTimer is { } timer)
+        {
+            timer.Interval = polling.ActiveRefreshInterval;
+        }
+    }
 
     private void UpdatePolling(ReactorWindow window)
     {
@@ -275,6 +341,10 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         _tray = null;
         _menuHostWindow?.Close();
         _menuHostWindow = null;
+        foreach (var window in _logsWindows.ToArray())
+        {
+            window.Close();
+        }
         _window?.Close();
         _window = null;
         ReactorApp.Exit();

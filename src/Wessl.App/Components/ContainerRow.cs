@@ -1,5 +1,7 @@
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
+using Microsoft.UI.Reactor.Layout;
+using Microsoft.UI.Xaml;
 using Wessl.App.Services;
 using Wessl.Domain;
 using Windows.ApplicationModel.DataTransfer;
@@ -12,6 +14,7 @@ public sealed record ContainerRowProps(
     ContainerInfo Container,
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
+    Action<ContainerInfo> OnOpenLogs,
     bool ConfirmRemove,
     Action RequestRemove,
     Action CancelRemove);
@@ -22,11 +25,12 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         ContainerInfo container,
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
+        Action<ContainerInfo> onOpenLogs,
         bool confirmRemove,
         Action requestRemove,
         Action cancelRemove) =>
         Component<ContainerRow, ContainerRowProps>(
-            new(container, service, onOpenShell, confirmRemove, requestRemove, cancelRemove));
+            new(container, service, onOpenShell, onOpenLogs, confirmRemove, requestRemove, cancelRemove));
 
     public override Element Render()
     {
@@ -35,42 +39,80 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         var ports = container.Ports.Count == 0
             ? AppStrings.Get("NoPorts")
             : string.Join(", ", container.Ports);
+        var stateGlyph = container.State switch
+        {
+            ContainerState.Running => "●",
+            ContainerState.Stopped => "○",
+            _ => "?"
+        };
+        var stateColor = container.State switch
+        {
+            ContainerState.Running => Theme.SystemSuccess,
+            ContainerState.Stopped => Theme.SystemNeutral,
+            _ => Theme.SystemCaution
+        };
+        var actionPending = Props.Service.Status?.ResourceKey.EndsWith("Pending", StringComparison.Ordinal) == true;
         var row = new List<Element>
         {
-            TextBlock(container.Name).SemiBold(),
-            TextBlock(AppStrings.Format("ContainerDetails", container.Image, AppStrings.GetContainerState(container.State))),
-            TextBlock(AppStrings.Format("PortsLabel", ports)),
+            Grid([GridSize.Auto, GridSize.Star(), GridSize.Star()], [GridSize.Auto],
+                TextBlock(stateGlyph).FontSize(14)
+                    .Foreground(stateColor)
+                    .ToolTip(AppStrings.GetContainerState(container.State))
+                    .AutomationName(AppStrings.GetContainerState(container.State))
+                    .Margin(0, 0, 8, 0).Grid(column: 0),
+                TextBlock(container.Name).FontSize(16).SemiBold().TextWrapping().Grid(column: 1),
+                Caption(container.Image)
+                    .Foreground(Theme.SecondaryText)
+                    .TextTrimming(TextTrimming.CharacterEllipsis)
+                    .ToolTip(container.Image)
+                    .HorizontalAlignment(HorizontalAlignment.Right)
+                    .TextAlignment(TextAlignment.Right)
+                    .Margin(8, 0, 0, 0).Grid(column: 2)),
+            Caption(AppStrings.Format("PortsLabel", ports)).Foreground(Theme.SecondaryText).TextWrapping(),
         };
         row.AddRange(container.PublishedPorts
             .Where(port => port.Protocol.Equals("tcp", StringComparison.OrdinalIgnoreCase))
             .Select(port =>
             {
                 var url = $"http://localhost:{port.HostPort}";
-                return HStack(8,
+                return FlexRow(
                     Button(url, () => _ = OpenUrlAsync(url, setStatus)),
-                    Button(AppStrings.Get("CopyUrlButton"), () => CopyUrl(url, setStatus)));
+                    Button(AppStrings.Get("CopyUrlButton"), () => CopyUrl(url, setStatus))) with
+                    { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 };
             }));
         if (status.Length > 0)
         {
-            row.Add(TextBlock(status));
+            row.Add(TextBlock(status).TextWrapping());
         }
 
-        row.Add(container.State == ContainerState.Running
-            ? Button(AppStrings.Get("StopButton"), () => _ = Props.Service.StopAsync(container))
-            : Button(AppStrings.Get("StartButton"), () => _ = Props.Service.StartAsync(container)));
-        row.Add(container.State == ContainerState.Running
-            ? Button(AppStrings.Get("RestartButton"), () => _ = Props.Service.RestartAsync(container))
-            : TextBlock(string.Empty));
-        row.Add(container.State == ContainerState.Running
-            ? Button(AppStrings.Get("OpenShellButton"), () => Props.OnOpenShell(container))
-            : TextBlock(string.Empty));
-        row.Add(Props.ConfirmRemove
-            ? VStack(2,
-                TextBlock(AppStrings.Format("RemoveConfirmation", container.Name)),
-                Button(AppStrings.Get("ConfirmRemoveButton"), () => _ = Props.Service.RemoveAsync(container)),
-                Button(AppStrings.Get("CancelButton"), Props.CancelRemove))
-            : Button(AppStrings.Get("RemoveButton"), Props.RequestRemove));
-        return VStack(2, row.ToArray());
+        var actions = new List<Element>
+        {
+            container.State == ContainerState.Running
+                ? Button(AppStrings.Get("StopButton"), () => _ = Props.Service.StopAsync(container)).IsEnabled(!actionPending)
+                : Button(AppStrings.Get("StartButton"), () => _ = Props.Service.StartAsync(container)).AccentButton().IsEnabled(!actionPending),
+        };
+        if (container.State == ContainerState.Running)
+        {
+            actions.Add(Button(AppStrings.Get("RestartButton"), () => _ = Props.Service.RestartAsync(container)).SubtleButton().IsEnabled(!actionPending));
+            actions.Add(Button(AppStrings.Get("OpenShellButton"), () => Props.OnOpenShell(container)).SubtleButton().IsEnabled(!actionPending));
+            actions.Add(Button(AppStrings.Get("OpenLogsButton"), () => Props.OnOpenLogs(container)).SubtleButton().IsEnabled(!actionPending));
+        }
+
+        if (Props.ConfirmRemove)
+        {
+            row.Add(TextBlock(AppStrings.Format("RemoveConfirmation", container.Name)).TextWrapping());
+            row.Add(FlexRow(
+                Button(AppStrings.Get("ConfirmRemoveButton"), () => _ = Props.Service.RemoveAsync(container)).IsEnabled(!actionPending),
+                Button(AppStrings.Get("CancelButton"), Props.CancelRemove)) with
+                { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 });
+        }
+        else
+        {
+            actions.Add(Button(AppStrings.Get("RemoveButton"), Props.RequestRemove).SubtleButton().IsEnabled(!actionPending));
+        }
+
+        row.Add(FlexRow(actions.ToArray()) with { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 });
+        return Card(VStack(8, row.ToArray())).Padding(16);
     }
 
     private static async Task OpenUrlAsync(string url, Action<string> setStatus)

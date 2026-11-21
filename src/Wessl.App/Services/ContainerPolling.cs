@@ -1,8 +1,11 @@
 namespace Wessl.App.Services;
 
-public sealed class ContainerPolling(ContainerService containers)
+public sealed class ContainerPolling(ContainerService containers, AppSettings? settings = null)
 {
     private CancellationTokenSource? _visibleSession;
+
+    public TimeSpan ActiveRefreshInterval =>
+        TimeSpan.FromSeconds(settings?.RefreshIntervalSeconds ?? 10);
 
     public void Start()
     {
