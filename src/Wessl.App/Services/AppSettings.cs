@@ -34,6 +34,7 @@ public sealed class AppSettings
             ? AppLanguage.Spanish
             : AppLanguage.English;
         RefreshIntervalSeconds = 10;
+        DefaultTerminal = ContainerTerminal.WindowsTerminal;
 
         if (!File.Exists(_filePath))
         {

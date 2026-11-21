@@ -40,6 +40,23 @@ public sealed class AppSettingsTests
         Assert.Equal(ContainerTerminal.PowerShell, reloaded.DefaultTerminal);
     }
 
+    [Theory]
+    [InlineData(ContainerTerminal.WindowsTerminal)]
+    [InlineData(ContainerTerminal.PowerShell)]
+    [InlineData(ContainerTerminal.CommandPrompt)]
+    public void DefaultTerminalPreferencePersistsAcrossInstances(ContainerTerminal terminal)
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+
+        var settings = new AppSettings(path);
+        settings.SetDefaultTerminal(terminal);
+
+        var reloaded = new AppSettings(path);
+
+        Assert.Equal(terminal, reloaded.DefaultTerminal);
+    }
+
     [Fact]
     public void MissingFileUsesAutomaticThemeAndSupportedSystemLanguage()
     {

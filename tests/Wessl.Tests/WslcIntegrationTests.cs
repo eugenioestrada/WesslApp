@@ -142,6 +142,22 @@ public sealed class WslcIntegrationTests
         Assert.Null(service.ShellError);
     }
 
+    [Fact]
+    public async Task OpeningShellDefaultsToWindowsTerminalWithoutSavedPreference()
+    {
+        var client = new ChangingClient();
+        using var directory = new TemporaryDirectory();
+        var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+        var launcher = new RecordingShellLauncher();
+        var service = new ContainerService(client, action => action(), launcher, settings);
+
+        await service.RefreshAsync();
+        service.OpenShell(service.Containers[0]);
+
+        Assert.Equal(ContainerTerminal.WindowsTerminal, launcher.Terminal);
+        Assert.Null(service.ShellError);
+    }
+
     private sealed class ChangingClient : IWslcClient
     {
         public Exception? Failure { get; set; }
