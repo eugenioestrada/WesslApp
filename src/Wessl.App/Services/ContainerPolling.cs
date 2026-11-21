@@ -7,6 +7,9 @@ public sealed class ContainerPolling(ContainerService containers, AppSettings? s
     public TimeSpan ActiveRefreshInterval =>
         TimeSpan.FromSeconds(settings?.RefreshIntervalSeconds ?? 10);
 
+    public TimeSpan StatsRefreshInterval =>
+        TimeSpan.FromSeconds(settings?.StatsIntervalSeconds ?? 1);
+
     public void Start()
     {
         if (_visibleSession is not null)
@@ -26,6 +29,15 @@ public sealed class ContainerPolling(ContainerService containers, AppSettings? s
         {
             session.Cancel();
             session.Dispose();
+            containers.StopUsagePolling();
+        }
+    }
+
+    public void TickStats()
+    {
+        if (_visibleSession is { } session)
+        {
+            _ = containers.RefreshUsagesAsync(session.Token);
         }
     }
 

@@ -62,9 +62,6 @@
   <data name="OpenLogsButton" xml:space="preserve">
     <value>View logs</value>
   </data>
-  <data name="ContainerUsageButton" xml:space="preserve">
-    <value>Show CPU and RAM usage</value>
-  </data>
   <data name="ContainerUsageLoading" xml:space="preserve">
     <value>Loading CPU and RAM usage…</value>
   </data>
@@ -323,4 +320,8 @@
   <data name="SettingsContainerClientValue" xml:space="preserve">
     <value>WSLc</value>
   </data>
+  <data name="SettingsStatsIntervalLabel" xml:space="preserve"><value>Statistics refresh interval</value></data>
+  <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 second</value></data>
+  <data name="ContainerUsageDetails" xml:space="preserve"><value>Network: {0} · Block I/O: {1} · PIDs: {2}</value></data>
+  <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Statistics are unavailable for this container.</value></data>
 </root>

@@ -105,6 +105,21 @@ public sealed class ContainerPollingTests
         Assert.Equal(TimeSpan.FromSeconds(30), polling.ActiveRefreshInterval);
     }
 
+    [Fact]
+    public void StatsRefreshIntervalTracksSavedSettingIndependently()
+    {
+        using var directory = new TemporaryDirectory();
+        var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+        var polling = new ContainerPolling(
+            new ContainerService(new RecordingClient(), action => action(), new UnusedShellLauncher()),
+            settings);
+
+        Assert.Equal(TimeSpan.FromSeconds(1), polling.StatsRefreshInterval);
+        settings.SetStatsIntervalSeconds(30);
+        Assert.Equal(TimeSpan.FromSeconds(30), polling.StatsRefreshInterval);
+        Assert.Equal(TimeSpan.FromSeconds(10), polling.ActiveRefreshInterval);
+    }
+
     private sealed class RecordingClient : IWslcClient
     {
         public int Calls { get; private set; }

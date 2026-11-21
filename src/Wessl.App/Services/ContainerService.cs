@@ -15,6 +15,8 @@ public sealed class ContainerService(
     private readonly Dictionary<string, ContainerUsage> _usage = [];
     private readonly Dictionary<string, LocalizedMessage> _usageErrors = [];
     private int _actionInProgress;
+    private int _statsInProgress;
+    private int _statsRevision;
 
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
 
@@ -39,6 +41,92 @@ public sealed class ContainerService(
     public IReadOnlyDictionary<string, LocalizedMessage> UsageErrors => _usageErrors;
 
     public event Action? Changed;
+
+    public async Task RefreshUsagesAsync(CancellationToken cancellationToken)
+    {
+        if (cancellationToken.IsCancellationRequested
+            || Interlocked.CompareExchange(ref _statsInProgress, 1, 0) != 0)
+        {
+            return;
+        }
+
+        var ids = Containers.Where(container => container.State == ContainerState.Running)
+            .Select(container => container.Id).ToArray();
+        if (ids.Length == 0)
+        {
+            Interlocked.Exchange(ref _statsInProgress, 0);
+            return;
+        }
+        var revision = Interlocked.Increment(ref _statsRevision);
+        foreach (var id in ids.Where(id => !_usage.ContainsKey(id)))
+        {
+            _usageLoading.Add(id);
+        }
+        Changed?.Invoke();
+
+        IReadOnlyDictionary<string, ContainerUsage>? result = null;
+        Exception? error = null;
+        try
+        {
+            result = await client.GetContainerUsagesAsync(ids, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+        catch (Exception exception)
+        {
+            error = exception;
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _statsInProgress, 0);
+        }
+
+        dispatch(() =>
+        {
+            if (cancellationToken.IsCancellationRequested || revision != Volatile.Read(ref _statsRevision))
+            {
+                return;
+            }
+            foreach (var id in ids)
+            {
+                _usageLoading.Remove(id);
+                if (!Containers.Any(container => container.Id == id && container.State == ContainerState.Running))
+                {
+                    continue;
+                }
+                if (error is not null)
+                {
+                    _usageErrors[id] = new("ContainerUsageError", [error.Message]);
+                }
+                else if (result is not null && result.TryGetValue(id, out var usage))
+                {
+                    _usage[id] = usage;
+                    _usageErrors.Remove(id);
+                }
+                else
+                {
+                    _usage.Remove(id);
+                    _usageErrors[id] = new("ContainerUsageUnavailable", []);
+                }
+            }
+            Changed?.Invoke();
+        });
+    }
+
+    public void StopUsagePolling()
+    {
+        Interlocked.Increment(ref _statsRevision);
+        var changed = _usageLoading.Count > 0 || _usage.Count > 0 || _usageErrors.Count > 0;
+        _usageLoading.Clear();
+        _usage.Clear();
+        _usageErrors.Clear();
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
+    }
 
     public async Task RefreshUsageAsync(ContainerInfo container)
     {

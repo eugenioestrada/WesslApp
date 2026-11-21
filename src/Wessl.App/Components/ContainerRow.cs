@@ -87,18 +87,27 @@ public sealed class ContainerRow : Component<ContainerRowProps>
                         () => CopyUrl(url, setStatus))) with
                     { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 };
             }));
-        if (Props.Service.UsageLoading.Contains(container.Id))
+        if (Props.Service.UsageErrors.TryGetValue(container.Id, out var usageError))
         {
-            row.Add(Caption(AppStrings.Get("ContainerUsageLoading")).Foreground(Theme.SecondaryText));
-        }
-        else if (Props.Service.UsageErrors.TryGetValue(container.Id, out var usageError))
-        {
-            row.Add(Caption(AppStrings.Format(usageError)).TextWrapping());
+            row.Add(InfoBar(message: AppStrings.Format(usageError)).Error()
+                with { IsOpen = true, IsClosable = false });
         }
         else if (Props.Service.Usage.TryGetValue(container.Id, out var usage))
         {
-            row.Add(Caption(AppStrings.Format("ContainerUsage", usage.CpuPercent, usage.MemoryUsage))
+            var memory = usage.MemoryPercent.Length > 0
+                ? $"{usage.MemoryUsage} ({usage.MemoryPercent})"
+                : usage.MemoryUsage;
+            row.Add(Caption(AppStrings.Format("ContainerUsage", usage.CpuPercent, memory))
                 .Foreground(Theme.SecondaryText).TextWrapping());
+            if (usage.NetworkIo.Length > 0 && usage.BlockIo.Length > 0 && usage.Processes.Length > 0)
+            {
+                row.Add(Caption(AppStrings.Format("ContainerUsageDetails", usage.NetworkIo, usage.BlockIo, usage.Processes))
+                    .Foreground(Theme.SecondaryText).TextWrapping());
+            }
+        }
+        else if (container.State == ContainerState.Running)
+        {
+            row.Add(Caption(AppStrings.Get("ContainerUsageLoading")).Foreground(Theme.SecondaryText));
         }
 
         if (status.Length > 0)
@@ -122,9 +131,6 @@ public sealed class ContainerRow : Component<ContainerRowProps>
                 .IsEnabled(!actionPending));
             actions.Add(IconButton("\uE8A5", AppStrings.Get("OpenLogsButton"), () => Props.OnOpenLogs(container))
                 .IsEnabled(!actionPending));
-            actions.Add(IconButton("\uE9D9", AppStrings.Get("ContainerUsageButton"),
-                () => _ = Props.Service.RefreshUsageAsync(container))
-                .IsEnabled(!actionPending && !Props.Service.UsageLoading.Contains(container.Id)));
         }
 
         if (Props.ConfirmRemove)

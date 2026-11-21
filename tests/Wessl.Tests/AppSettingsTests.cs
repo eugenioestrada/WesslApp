@@ -186,6 +186,87 @@ public sealed class AppSettingsTests
         Assert.Equal(ContainerTerminal.WindowsTerminal, settings.DefaultTerminal);
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(10)]
+    [InlineData(30)]
+    [InlineData(60)]
+    public void StatsIntervalPersistsAndSurvivesChangesToOtherOptions(int seconds)
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+        var settings = new AppSettings(path);
+        var changes = 0;
+        settings.Changed += () => changes++;
+
+        Assert.Equal(1, settings.StatsIntervalSeconds);
+        settings.SetStatsIntervalSeconds(seconds);
+        settings.SetStatsIntervalSeconds(seconds);
+        Assert.Equal(seconds == 1 ? 0 : 1, changes);
+        settings.SetTheme(AppTheme.Dark);
+        settings.SetRefreshIntervalSeconds(30);
+
+        var reloaded = new AppSettings(path);
+        Assert.Equal(seconds, reloaded.StatsIntervalSeconds);
+        Assert.Equal(AppTheme.Dark, reloaded.Theme);
+        Assert.Equal(30, reloaded.RefreshIntervalSeconds);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(2)]
+    [InlineData(61)]
+    public void UnsupportedStatsIntervalIsRejectedWithoutChangingSavedSettings(int seconds)
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+        var settings = new AppSettings(path);
+        settings.SetStatsIntervalSeconds(5);
+        var changes = 0;
+        settings.Changed += () => changes++;
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => settings.SetStatsIntervalSeconds(seconds));
+        Assert.Equal(5, settings.StatsIntervalSeconds);
+        Assert.Equal(5, new AppSettings(path).StatsIntervalSeconds);
+        Assert.Equal(0, changes);
+    }
+
+    [Fact]
+    public void OldSettingsWithoutStatsIntervalKeepTheirValuesAndDefaultToOneSecond()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+        Directory.CreateDirectory(directory.Path);
+        File.WriteAllText(path, """{"Theme":2,"Language":1,"StartWithWindows":true,"RefreshIntervalSeconds":30,"DefaultTerminal":1}""");
+
+        var settings = new AppSettings(path);
+        Assert.Equal(1, settings.StatsIntervalSeconds);
+        Assert.Equal(AppTheme.Dark, settings.Theme);
+        Assert.Equal(AppLanguage.Spanish, settings.Language);
+        Assert.True(settings.StartWithWindows);
+        Assert.Equal(30, settings.RefreshIntervalSeconds);
+        Assert.Equal(ContainerTerminal.PowerShell, settings.DefaultTerminal);
+        settings.SetStatsIntervalSeconds(10);
+
+        var reloaded = new AppSettings(path);
+        Assert.Equal(10, reloaded.StatsIntervalSeconds);
+        Assert.Equal(AppTheme.Dark, reloaded.Theme);
+        Assert.Equal(ContainerTerminal.PowerShell, reloaded.DefaultTerminal);
+    }
+
+    [Fact]
+    public void UnsupportedStoredStatsIntervalIsRejected()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+        Directory.CreateDirectory(directory.Path);
+        File.WriteAllText(path, """{"Theme":0,"Language":0,"StatsIntervalSeconds":15}""");
+
+        Assert.Throws<InvalidDataException>(() => new AppSettings(path));
+    }
+
     private sealed class TemporaryDirectory : IDisposable
     {
         public string Path { get; } = System.IO.Path.Combine(

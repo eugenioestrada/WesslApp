@@ -30,7 +30,6 @@
   <data name="RestartButton" xml:space="preserve"><value>重启</value></data>
   <data name="OpenShellButton" xml:space="preserve"><value>打开终端</value></data>
   <data name="OpenLogsButton" xml:space="preserve"><value>查看日志</value></data>
-  <data name="ContainerUsageButton" xml:space="preserve"><value>显示 CPU 和 RAM 使用情况</value></data>
   <data name="ContainerUsageLoading" xml:space="preserve"><value>正在加载 CPU 和 RAM 使用情况…</value></data>
   <data name="ContainerUsage" xml:space="preserve"><value>CPU：{0} · RAM：{1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>无法加载 CPU 和 RAM 使用情况：{0}</value></data>
@@ -117,4 +116,8 @@
   <data name="SettingsTerminalCommandPrompt" xml:space="preserve"><value>命令提示符</value></data>
   <data name="SettingsContainerClientLabel" xml:space="preserve"><value>容器客户端</value></data>
   <data name="SettingsContainerClientValue" xml:space="preserve"><value>WSLc</value></data>
+  <data name="SettingsStatsIntervalLabel" xml:space="preserve"><value>统计信息刷新间隔</value></data>
+  <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 秒</value></data>
+  <data name="ContainerUsageDetails" xml:space="preserve"><value>网络：{0} · 块 I/O：{1} · PID：{2}</value></data>
+  <data name="ContainerUsageUnavailable" xml:space="preserve"><value>此容器的统计信息不可用。</value></data>
 </root>

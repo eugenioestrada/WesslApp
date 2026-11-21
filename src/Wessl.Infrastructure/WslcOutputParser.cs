@@ -30,10 +30,48 @@ public static class WslcOutputParser
                 throw new FormatException("WSLc output is missing container usage information.");
             }
 
-            return new ContainerUsage(cpuPercent, memoryUsage);
+            return ReadUsage(root);
         }
 
         throw new FormatException("WSLc output contains no container usage.");
+    }
+
+    public static IReadOnlyDictionary<string, ContainerUsage> ParseUsages(string output)
+    {
+        var usages = new Dictionary<string, ContainerUsage>(StringComparer.Ordinal);
+        using var reader = new StringReader(output);
+        while (reader.ReadLine() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            using var document = JsonDocument.Parse(line);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc output contains invalid container usage.");
+            }
+            var id = GetString(root, "ID");
+            if (id.Length == 0 || !usages.TryAdd(id, ReadUsage(root)))
+            {
+                throw new FormatException("WSLc output contains a missing or duplicate container ID.");
+            }
+        }
+        return usages;
+    }
+
+    private static ContainerUsage ReadUsage(JsonElement root)
+    {
+        var cpu = GetString(root, "CPUPerc");
+        var memory = GetString(root, "MemUsage");
+        if (cpu.Length == 0 || memory.Length == 0)
+        {
+            throw new FormatException("WSLc output is missing container usage information.");
+        }
+        return new(cpu, memory, GetString(root, "NetIO"), GetString(root, "BlockIO"),
+            GetString(root, "PIDs"), GetString(root, "MemPerc"));
     }
 
     public static IReadOnlyList<ImageInfo> ParseImages(string output)

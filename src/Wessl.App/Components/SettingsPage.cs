@@ -59,6 +59,20 @@ public static class SettingsPage
                     .AutomationName(AppStrings.Get("SettingsRefreshIntervalLabel"))
                     .WithKey($"settings-refresh-{settings.LanguageTag}")),
             VStack(4,
+                TextBlock(AppStrings.Get("SettingsStatsIntervalLabel")),
+                RadioButtons(
+                    [
+                        AppStrings.Get("SettingsStatsInterval1"),
+                        AppStrings.Get("SettingsRefreshInterval5"),
+                        AppStrings.Get("SettingsRefreshInterval10"),
+                        AppStrings.Get("SettingsRefreshInterval30"),
+                        AppStrings.Get("SettingsRefreshInterval60")
+                    ],
+                    StatsIntervalIndex(settings.StatsIntervalSeconds),
+                    index => { if (index >= 0) settings.SetStatsIntervalSeconds(new[] { 1, 5, 10, 30, 60 }[index]); })
+                    .AutomationName(AppStrings.Get("SettingsStatsIntervalLabel"))
+                    .WithKey($"settings-stats-{settings.LanguageTag}")),
+            VStack(4,
                 TextBlock(AppStrings.Get("SettingsDefaultTerminalLabel")),
                 RadioButtons(
                     [
@@ -83,5 +97,15 @@ public static class SettingsPage
         30 => 2,
         60 => 3,
         _ => 1
+    };
+
+    private static int StatsIntervalIndex(int seconds) => seconds switch
+    {
+        1 => 0,
+        5 => 1,
+        10 => 2,
+        30 => 3,
+        60 => 4,
+        _ => throw new InvalidOperationException("The selected stats interval is not supported.")
     };
 }
