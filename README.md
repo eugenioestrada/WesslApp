@@ -6,7 +6,7 @@ Opening from the tray brings the container panel into view and focus with a shor
 
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
-The app uses sample container and image data by default. To manage real containers, set `WESSL_USE_REAL_WSLC=1` before launching it. The `wslc` executable must be on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. If WSLc cannot be started, the app offers instructions to update WSL and a button to copy `wsl --update`. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.
+The app uses the real WSLc client by default. The `wslc` executable must be on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. If WSLc cannot be started, the app shows instructions to update WSL and a button to copy `wsl --update`; it does not fall back to sample data. To use sample container and image data for a demo, set `WESSL_USE_SAMPLE_WSLC=1` before launching the app. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.
 
 Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
 

@@ -6,9 +6,9 @@ namespace Wessl.App.Services;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddWslcClient(this IServiceCollection services, bool useRealClient = false)
+    public static IServiceCollection AddWslcClient(this IServiceCollection services, bool useSampleClient = false)
     {
-        if (useRealClient)
+        if (!useSampleClient)
         {
             return services.AddSingleton<WslcClient>()
                 .AddSingleton<IWslcClient>(provider => provider.GetRequiredService<WslcClient>())

@@ -5,7 +5,7 @@ using Wessl.Domain;
 using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
-    .AddWslcClient(useRealClient: Environment.GetEnvironmentVariable("WESSL_USE_REAL_WSLC") == "1")
+    .AddWslcClient(useSampleClient: Environment.GetEnvironmentVariable("WESSL_USE_SAMPLE_WSLC") == "1")
     .AddSingleton<IContainerLogsClient>(provider =>
         (IContainerLogsClient)provider.GetRequiredService<IWslcClient>())
     .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
