@@ -8,12 +8,12 @@
 
 ## v0.1 — MVP (Immediate Control)
 
-- [ ] [Show a system tray icon with a subtle running/idle indicator](https://github.com/eugenioestrada/WesslApp/issues/5).
-- [ ] [Provide a quick flyout or minimal window listing container name, image, state, and exposed ports](https://github.com/eugenioestrada/WesslApp/issues/6).
-- [ ] [Support one-click Start, Stop, Restart, and Remove, with quick confirmation for Remove](https://github.com/eugenioestrada/WesslApp/issues/7).
-- [ ] [Open an interactive container shell in Windows Terminal using `exec`](https://github.com/eugenioestrada/WesslApp/issues/8).
-- [ ] [Let users click exposed ports to open them in a browser or copy their URL](https://github.com/eugenioestrada/WesslApp/issues/9).
-- [ ] [Poll on demand only while the window is open or when manually triggered; never wake WSL in the background](https://github.com/eugenioestrada/WesslApp/issues/10).
+- [x] [Show a system tray icon with a subtle running/idle indicator](https://github.com/eugenioestrada/WesslApp/issues/5).
+- [x] [Provide a quick flyout or minimal window listing container name, image, state, and exposed ports](https://github.com/eugenioestrada/WesslApp/issues/6).
+- [x] [Support one-click Start, Stop, Restart, and Remove, with quick confirmation for Remove](https://github.com/eugenioestrada/WesslApp/issues/7).
+- [x] [Open an interactive container shell in Windows Terminal using `exec`](https://github.com/eugenioestrada/WesslApp/issues/8).
+- [x] [Let users click exposed ports to open them in a browser or copy their URL](https://github.com/eugenioestrada/WesslApp/issues/9).
+- [x] [Poll on demand only while the window is open or when manually triggered; never wake WSL in the background](https://github.com/eugenioestrada/WesslApp/issues/10).
 
 ## v1.0 — Daily Comfort & Maintenance
 
