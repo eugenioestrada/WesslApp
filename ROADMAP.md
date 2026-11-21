@@ -17,11 +17,11 @@
 
 ## v1.0 — Daily Comfort & Maintenance
 
-- [ ] [View container logs with `-f` in a minimal built-in window or a Windows Terminal tab](https://github.com/eugenioestrada/WesslApp/issues/11).
-- [ ] [List images, show disk size, and prune unused images](https://github.com/eugenioestrada/WesslApp/issues/12).
-- [ ] [Add batch tray actions such as Stop All](https://github.com/eugenioestrada/WesslApp/issues/13).
-- [ ] [Add minimal settings for startup, active refresh interval, and default terminal](https://github.com/eugenioestrada/WesslApp/issues/14).
-- [ ] [Distribute through winget and GitHub Releases for `win-x64` and `win-arm64`](https://github.com/eugenioestrada/WesslApp/issues/15).
+- [x] [View container logs with `-f` in a minimal built-in window or a Windows Terminal tab](https://github.com/eugenioestrada/WesslApp/issues/11).
+- [x] [List images, show disk size, and prune unused images](https://github.com/eugenioestrada/WesslApp/issues/12).
+- [x] [Add batch tray actions such as Stop All](https://github.com/eugenioestrada/WesslApp/issues/13).
+- [x] [Add minimal settings for startup, active refresh interval, and default terminal](https://github.com/eugenioestrada/WesslApp/issues/14).
+- [x] [Distribute through winget and GitHub Releases for `win-x64` and `win-arm64`](https://github.com/eugenioestrada/WesslApp/issues/15).
 
 ## v1.x — Future / Under Consideration
 
