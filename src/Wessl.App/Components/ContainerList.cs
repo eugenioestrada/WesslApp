@@ -31,7 +31,8 @@ public static class ContainerList
                         onOpenLogs,
                         pendingRemoval == container.Id,
                         () => requestRemove(container.Id),
-                        cancelRemove).WithKey(container.Id)).ToArray()));
+                        cancelRemove).WithKey(container.Id)).ToArray()))
+                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
 }
 
 public sealed class UnavailableWslc : Component

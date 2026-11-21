@@ -17,6 +17,9 @@
   <data name="ContainersHeading" xml:space="preserve">
     <value>Containers</value>
   </data>
+  <data name="ContainerSummary" xml:space="preserve">
+    <value>Containers: {0} · Running: {1}</value>
+  </data>
   <data name="RefreshError" xml:space="preserve">
     <value>Unable to refresh: {0}</value>
   </data>

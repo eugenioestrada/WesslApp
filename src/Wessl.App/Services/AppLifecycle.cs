@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Wessl.App.Components;
 using Wessl.Domain;
 using Windows.Foundation;
@@ -169,14 +170,34 @@ public sealed class AppLifecycle(
         if (_window is null)
         {
             _window = ReactorApp.OpenWindow(
-                new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
+                new WindowSpec
+                {
+                    Title = "Wessl",
+                    Width = 440,
+                    Height = 460,
+                    IsMinimizable = false,
+                    IsMaximizable = false
+                },
                 () =>
                 {
                     _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
                     return _mainComponent;
                 });
+            if (_window.AppWindow.Presenter is not OverlappedPresenter presenter)
+            {
+                throw new InvalidOperationException("The main window requires an overlapped presenter.");
+            }
+            presenter.SetBorderAndTitleBar(true, false);
+            _window.NativeWindow.SystemBackdrop = new MicaBackdrop();
             ApplyTheme(_window);
             var window = _window;
+            window.NativeWindow.Activated += (_, args) =>
+            {
+                if (args.WindowActivationState == WindowActivationState.Deactivated && window.AppWindow.IsVisible)
+                {
+                    window.Hide();
+                }
+            };
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
             ApplyRefreshInterval();
             _pollTimer.Tick += (_, _) =>
