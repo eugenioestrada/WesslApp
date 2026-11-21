@@ -55,6 +55,18 @@ Each artifact contains `wessl.exe`. NativeAOT builds disable globalization data 
 
 NativeAOT publication requires targeting the matching Windows architecture. Cross-publishing ARM64 from x64 Windows requires the corresponding Visual C++ cross-compilation tools and is not expected to run on the publishing machine.
 
+## Release distribution
+
+The GitHub Actions workflows build and test pull requests and pushes to `main`. Pushing a version tag such as `v1.2.3` starts the release workflow, which publishes NativeAOT archives for `win-x64` and `win-arm64` and creates a GitHub Release with generated notes. The workflow rejects tags that do not use `vMAJOR.MINOR.PATCH` (an optional prerelease suffix is supported), refuses to replace an existing release, and uses the repository-provided `GITHUB_TOKEN` with write access only in the release job.
+
+The release also includes a generated set of winget manifests with the exact archive SHA-256 values. The workflow does not submit packages or manifests to the winget community repository; that submission is a separate maintainer action after reviewing the release assets. Once the package has been accepted into winget, users can install it with:
+
+```powershell
+winget install --id eugenioestrada.Wessl --exact
+```
+
+Each archive contains the full unpackaged publish output. The winget manifest registers `wessl.exe` as a portable command alias; Wessl can also be started directly from its extracted folder.
+
 ## Layout
 
 - `src/Wessl.Domain`: dependency-free container types and client interface.

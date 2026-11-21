@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Wessl.App.Services;
 
@@ -37,7 +38,9 @@ public sealed class AppSettings
             return;
         }
 
-        var stored = JsonSerializer.Deserialize<StoredSettings>(File.ReadAllText(_filePath))
+        var stored = JsonSerializer.Deserialize<StoredSettings>(
+            File.ReadAllText(_filePath),
+            AppSettingsJsonContext.Default.StoredSettings)
             ?? throw new InvalidDataException("The Wessl settings file is empty.");
         if (!Enum.IsDefined(stored.Theme) || !Enum.IsDefined(stored.Language))
         {
@@ -100,8 +103,17 @@ public sealed class AppSettings
         var directory = Path.GetDirectoryName(_filePath)
             ?? throw new InvalidOperationException("The settings file path has no parent directory.");
         Directory.CreateDirectory(directory);
-        File.WriteAllText(_filePath, JsonSerializer.Serialize(new StoredSettings(theme, language)));
+        File.WriteAllText(
+            _filePath,
+            JsonSerializer.Serialize(
+                new StoredSettings(theme, language),
+                AppSettingsJsonContext.Default.StoredSettings));
     }
 
-    private sealed record StoredSettings(AppTheme Theme, AppLanguage Language);
+    internal sealed record StoredSettings(AppTheme Theme, AppLanguage Language);
+}
+
+[JsonSerializable(typeof(AppSettings.StoredSettings))]
+internal partial class AppSettingsJsonContext : JsonSerializerContext
+{
 }
