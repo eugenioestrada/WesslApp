@@ -136,19 +136,19 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         bool subtle = true)
     {
         var button = Button(
-            Icon(FontIcon(glyph, "Segoe Fluent Icons, Segoe MDL2 Assets", 14)),
+            Icon(FontIcon(glyph, fontSize: 16)),
             action)
-            .Width(32)
-            .Height(32)
+            .Width(40)
+            .Height(40)
             .ToolTip(label)
             .AutomationName(label);
 
         if (accent)
         {
-            return button.AccentButton();
+            return button.AccentButton().Padding(0);
         }
 
-        return subtle ? button.SubtleButton() : button;
+        return (subtle ? button.SubtleButton() : button).Padding(0);
     }
 
     private static async Task OpenUrlAsync(string url, Action<string> setStatus)

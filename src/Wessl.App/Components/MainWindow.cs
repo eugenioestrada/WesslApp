@@ -83,19 +83,19 @@ public sealed class MainWindow(
                     TextBlock("Wessl").FontSize(16).SemiBold()
                         .VerticalAlignment(VerticalAlignment.Center)
                         .Grid(column: 0),
-                    Button(Icon(FontIcon("\uE8B9", "Segoe Fluent Icons, Segoe MDL2 Assets", 14)), ShowImages)
+                    Button(Icon(FontIcon("\uE8B9", fontSize: 16)), ShowImages)
                         .SubtleButton()
                         .ToolTip(imagesLabel)
                         .AutomationName(imagesLabel)
                         .VerticalAlignment(VerticalAlignment.Center)
                         .Grid(column: 1),
-                    Button(Icon(FontIcon("\uE713", "Segoe Fluent Icons, Segoe MDL2 Assets", 14)), ShowSettings)
+                    Button(Icon(FontIcon("\uE713", fontSize: 16)), ShowSettings)
                         .SubtleButton()
                         .ToolTip(settingsLabel)
                         .AutomationName(settingsLabel)
                         .VerticalAlignment(VerticalAlignment.Center)
                         .Grid(column: 2),
-                    Button(Icon(FontIcon("\uE72C", "Segoe Fluent Icons, Segoe MDL2 Assets", 14)), () => _ = polling.RefreshAsync())
+                    Button(Icon(FontIcon("\uE72C", fontSize: 16)), () => _ = polling.RefreshAsync())
                         .SubtleButton()
                         .ToolTip(refreshLabel)
                         .AutomationName(refreshLabel)
