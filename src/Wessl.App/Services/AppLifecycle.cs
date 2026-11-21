@@ -1,4 +1,5 @@
 using Microsoft.UI.Reactor;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
@@ -14,6 +15,8 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     private ReactorWindow? _menuHostWindow;
     private ReactorTrayIcon? _tray;
     private MenuFlyout? _trayMenu;
+    private FrameworkElement? _pendingMenuTarget;
+    private RoutedEventHandler? _pendingMenuLoaded;
 
     public void Start()
     {
@@ -26,16 +29,22 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
 
     private void ShowTrayMenu()
     {
+        CancelPendingMenu();
         _trayMenu?.Hide();
         _trayMenu = null;
 
         var cursorPosition = TrayPlacement.GetCursorPosition();
         var host = EnsureMenuHostWindow();
+        host.Activate();
         TrayPlacement.MoveMenuHost(host.AppWindow, cursorPosition);
-        host.Show();
 
-        var target = host.NativeWindow.Content
+        var target = host.NativeWindow.Content as FrameworkElement
             ?? throw new InvalidOperationException("The tray menu host has no content element.");
+        // The Reactor root can retain its initial large layout despite the tiny native window.
+        target.Width = 1;
+        target.Height = 1;
+        target.HorizontalAlignment = HorizontalAlignment.Left;
+        target.VerticalAlignment = VerticalAlignment.Top;
         var menu = TrayMenu.Create(OpenWindow, Exit);
         _trayMenu = menu;
         menu.Closed += (_, _) =>
@@ -43,15 +52,37 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
             if (ReferenceEquals(_trayMenu, menu))
             {
                 _trayMenu = null;
+                host.Hide();
             }
-
-            host.Hide();
         };
-        menu.ShowAt(target, new Point(0, 0));
+        void ShowMenu()
+        {
+            if (ReferenceEquals(_trayMenu, menu))
+            {
+                CancelPendingMenu();
+                target.UpdateLayout();
+                menu.ShowAt(target, new Point(0, 0));
+            }
+        }
+
+        if (target.IsLoaded)
+        {
+            if (!target.DispatcherQueue.TryEnqueue(ShowMenu))
+            {
+                throw new InvalidOperationException("The tray menu could not be dispatched.");
+            }
+        }
+        else
+        {
+            _pendingMenuTarget = target;
+            _pendingMenuLoaded = (_, _) => ShowMenu();
+            target.Loaded += _pendingMenuLoaded;
+        }
     }
 
     private void OpenWindow()
     {
+        CancelPendingMenu();
         _trayMenu?.Hide();
         _trayMenu = null;
         _menuHostWindow?.Hide();
@@ -161,6 +192,7 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
 
     private void Exit()
     {
+        CancelPendingMenu();
         _pollTimer?.Stop();
         polling.Stop();
         containers.Changed -= UpdateTrayIcon;
@@ -173,5 +205,15 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
         _window?.Close();
         _window = null;
         ReactorApp.Exit();
+    }
+
+    private void CancelPendingMenu()
+    {
+        if (_pendingMenuTarget is not null && _pendingMenuLoaded is not null)
+        {
+            _pendingMenuTarget.Loaded -= _pendingMenuLoaded;
+            _pendingMenuTarget = null;
+            _pendingMenuLoaded = null;
+        }
     }
 }

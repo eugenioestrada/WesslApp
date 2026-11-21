@@ -20,8 +20,15 @@ internal static class TrayPlacement
         return new PointInt32(point.X, point.Y);
     }
 
-    public static void MoveMenuHost(AppWindow window, PointInt32 cursorPosition) =>
-        window.Move(cursorPosition);
+    public static void MoveMenuHost(AppWindow window, PointInt32 cursorPosition)
+    {
+        var area = DisplayArea.GetFromPoint(cursorPosition, DisplayAreaFallback.Nearest)
+            ?? throw new InvalidOperationException("The monitor for the tray menu is not available.");
+        var workArea = area.WorkArea;
+        window.Move(new PointInt32(
+            Math.Clamp(cursorPosition.X, workArea.X, workArea.X + workArea.Width - 1),
+            Math.Clamp(cursorPosition.Y, workArea.Y, workArea.Y + workArea.Height - 1)));
+    }
 
     public static void MoveWindowNearTray(AppWindow window, PointInt32 cursorPosition)
     {

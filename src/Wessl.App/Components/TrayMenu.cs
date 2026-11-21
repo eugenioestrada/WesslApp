@@ -6,7 +6,7 @@ public static class TrayMenu
 {
     public static MenuFlyout Create(Action open, Action exit)
     {
-        var menu = new MenuFlyout();
+        var menu = new MenuFlyout { ShouldConstrainToRootBounds = false };
         var openItem = new MenuFlyoutItem { Text = "Open" };
         var exitItem = new MenuFlyoutItem { Text = "Exit" };
 
