@@ -5,7 +5,12 @@ using static Microsoft.UI.Reactor.Factories;
 
 namespace Wessl.App.Components;
 
-public sealed class MainWindow(ContainerService containers, ContainerPolling polling, AppSettings settings, ImageService images) : Component
+public sealed class MainWindow(
+    ContainerService containers,
+    ContainerPolling polling,
+    AppSettings settings,
+    ImageService images,
+    Action<Wessl.Domain.ContainerInfo> openLogs) : Component
 {
     private Action<int>? _setRevision;
     private int _revision;
@@ -58,6 +63,7 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
                 containers.Containers,
                 containers,
                 containers.OpenShell,
+                openLogs,
                 pendingRemoval,
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null)),

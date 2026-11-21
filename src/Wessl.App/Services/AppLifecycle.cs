@@ -14,7 +14,8 @@ public sealed class AppLifecycle(
     ContainerPolling polling,
     AppSettings settings,
     IStartupManager startupManager,
-    ImageService images)
+    ImageService images,
+    IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
     private ReactorWindow? _window;
@@ -23,6 +24,7 @@ public sealed class AppLifecycle(
     private MenuFlyout? _trayMenu;
     private FrameworkElement? _pendingMenuTarget;
     private RoutedEventHandler? _pendingMenuLoaded;
+    private readonly List<ReactorWindow> _logsWindows = [];
 
     public void Start()
     {
@@ -170,7 +172,7 @@ public sealed class AppLifecycle(
                 new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings, images);
+                    _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
                     return _mainComponent;
                 });
             ApplyTheme(_window);
@@ -201,6 +203,32 @@ public sealed class AppLifecycle(
         }
 
         return _window;
+    }
+
+    private void OpenLogs(ContainerInfo container)
+    {
+        var session = new ContainerLogsSession(logsClient, action =>
+        {
+            var dispatcher = ReactorApp.UIDispatcher
+                ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+            if (!dispatcher.TryEnqueue(() => action()))
+            {
+                throw new InvalidOperationException("Could not dispatch the log update.");
+            }
+        });
+        var window = ReactorApp.OpenWindow(
+            new WindowSpec { Title = AppStrings.Format("LogsTitle", container.Name), Width = 720, Height = 480 },
+            () => new LogsWindow(session));
+        _logsWindows.Add(window);
+        window.Closed += (_, _) =>
+        {
+            session.Stop();
+            _logsWindows.Remove(window);
+        };
+        window.Show();
+        window.Activate();
+        session.Start(containers.Containers.FirstOrDefault(item => item.Id == container.Id)
+            ?? container with { State = ContainerState.Unknown });
     }
 
     private static bool IsVisible(ReactorWindow window) =>
@@ -272,6 +300,10 @@ public sealed class AppLifecycle(
         _tray = null;
         _menuHostWindow?.Close();
         _menuHostWindow = null;
+        foreach (var window in _logsWindows.ToArray())
+        {
+            window.Close();
+        }
         _window?.Close();
         _window = null;
         ReactorApp.Exit();

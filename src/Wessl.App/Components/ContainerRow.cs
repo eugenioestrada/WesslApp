@@ -12,6 +12,7 @@ public sealed record ContainerRowProps(
     ContainerInfo Container,
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
+    Action<ContainerInfo> OnOpenLogs,
     bool ConfirmRemove,
     Action RequestRemove,
     Action CancelRemove);
@@ -22,11 +23,12 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         ContainerInfo container,
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
+        Action<ContainerInfo> onOpenLogs,
         bool confirmRemove,
         Action requestRemove,
         Action cancelRemove) =>
         Component<ContainerRow, ContainerRowProps>(
-            new(container, service, onOpenShell, confirmRemove, requestRemove, cancelRemove));
+            new(container, service, onOpenShell, onOpenLogs, confirmRemove, requestRemove, cancelRemove));
 
     public override Element Render()
     {
@@ -63,6 +65,9 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             : TextBlock(string.Empty));
         row.Add(container.State == ContainerState.Running
             ? Button(AppStrings.Get("OpenShellButton"), () => Props.OnOpenShell(container))
+            : TextBlock(string.Empty));
+        row.Add(container.State == ContainerState.Running
+            ? Button(AppStrings.Get("OpenLogsButton"), () => Props.OnOpenLogs(container))
             : TextBlock(string.Empty));
         row.Add(Props.ConfirmRemove
             ? VStack(2,
