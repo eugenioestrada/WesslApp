@@ -9,37 +9,49 @@ public sealed class MainWindow(
     ContainerService containers,
     ContainerPolling polling,
     AppSettings settings,
+    ImageService images,
     Action<Wessl.Domain.ContainerInfo> openLogs) : Component
 {
     private Action<int>? _setRevision;
     private int _revision;
     private bool _showSettings;
+    private bool _showImages;
 
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
         _setRevision = setRevision;
         var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
+        var (confirmPrune, setConfirmPrune) = UseState(false);
         UseEffect(() =>
         {
             void OnChanged() => RequestRender();
             containers.Changed += OnChanged;
             settings.Changed += OnChanged;
+            images.Changed += OnChanged;
             return () =>
             {
                 containers.Changed -= OnChanged;
                 settings.Changed -= OnChanged;
+                images.Changed -= OnChanged;
             };
-        }, containers, settings);
+        }, containers, settings, images);
 
         if (_showSettings)
         {
             return SettingsPage.Create(settings, ShowContainers);
         }
 
+        if (_showImages)
+        {
+            return ImagePage.Create(images, confirmPrune, () => setConfirmPrune(true),
+                () => setConfirmPrune(false), ShowContainers);
+        }
+
         return VStack(12,
             HStack(12,
                 TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
+                Button(AppStrings.Get("ImagesOpenButton"), ShowImages),
                 Button(AppStrings.Get("SettingsOpenButton"), ShowSettings)),
             containers.Error is { } error
                 ? TextBlock(AppStrings.Format(error))
@@ -62,9 +74,25 @@ public sealed class MainWindow(
         ).Padding(20);
     }
 
-    public void ShowSettings() => Navigate(true);
+    public void ShowSettings()
+    {
+        _showImages = false;
+        Navigate(true);
+    }
 
-    private void ShowContainers() => Navigate(false);
+    private void ShowImages()
+    {
+        _showSettings = false;
+        _showImages = true;
+        RequestRender();
+        _ = images.RefreshAsync();
+    }
+
+    private void ShowContainers()
+    {
+        _showImages = false;
+        Navigate(false);
+    }
 
     private void Navigate(bool showSettings)
     {

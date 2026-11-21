@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="ImagesHeading" xml:space="preserve"><value>Imágenes</value></data>
+  <data name="ImagesOpenButton" xml:space="preserve"><value>Imágenes</value></data>
+  <data name="ImagesEmpty" xml:space="preserve"><value>No se encontraron imágenes.</value></data>
+  <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
+  <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Tamaño: {1}</value></data>
+  <data name="ImagesLoading" xml:space="preserve"><value>Cargando imágenes…</value></data>
+  <data name="ImagesRefreshError" xml:space="preserve"><value>No se pudieron actualizar las imágenes: {0}</value></data>
+  <data name="ImagesPruneButton" xml:space="preserve"><value>Podar imágenes sin usar</value></data>
+  <data name="ImagesPruneConfirmation" xml:space="preserve"><value>¿Eliminar todas las imágenes que no usa ningún contenedor, incluidas las etiquetadas? Esta acción no se puede deshacer.</value></data>
+  <data name="ImagesPruneConfirm" xml:space="preserve"><value>Confirmar poda</value></data>
+  <data name="ImagesPrunePending" xml:space="preserve"><value>Podando imágenes sin usar…</value></data>
+  <data name="ImagesPruneError" xml:space="preserve"><value>No se pudieron podar las imágenes: {0}</value></data>
+  <data name="ImagesPruneSuccess" xml:space="preserve"><value>Poda de imágenes completada: {0}</value></data>
+  <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc no devolvió detalles.</value></data>
   <data name="ContainersHeading" xml:space="preserve">
     <value>Contenedores</value>
   </data>

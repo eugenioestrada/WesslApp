@@ -13,6 +13,7 @@ public sealed class AppLifecycle(
     ContainerService containers,
     ContainerPolling polling,
     AppSettings settings,
+    ImageService images,
     IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
@@ -167,7 +168,7 @@ public sealed class AppLifecycle(
                 new WindowSpec { Title = "Wessl", Width = 420, Height = 360 },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings, OpenLogs);
+                    _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
                     return _mainComponent;
                 });
             ApplyTheme(_window);
