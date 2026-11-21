@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="ImagesHeading" xml:space="preserve"><value>Imágenes</value></data>
+  <data name="ImagesOpenButton" xml:space="preserve"><value>Imágenes</value></data>
+  <data name="ImagesEmpty" xml:space="preserve"><value>No se encontraron imágenes.</value></data>
+  <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
+  <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Tamaño: {1}</value></data>
+  <data name="ImagesLoading" xml:space="preserve"><value>Cargando imágenes…</value></data>
+  <data name="ImagesRefreshError" xml:space="preserve"><value>No se pudieron actualizar las imágenes: {0}</value></data>
+  <data name="ImagesPruneButton" xml:space="preserve"><value>Podar imágenes sin usar</value></data>
+  <data name="ImagesPruneConfirmation" xml:space="preserve"><value>¿Eliminar todas las imágenes que no usa ningún contenedor, incluidas las etiquetadas? Esta acción no se puede deshacer.</value></data>
+  <data name="ImagesPruneConfirm" xml:space="preserve"><value>Confirmar poda</value></data>
+  <data name="ImagesPrunePending" xml:space="preserve"><value>Podando imágenes sin usar…</value></data>
+  <data name="ImagesPruneError" xml:space="preserve"><value>No se pudieron podar las imágenes: {0}</value></data>
+  <data name="ImagesPruneSuccess" xml:space="preserve"><value>Poda de imágenes completada: {0}</value></data>
+  <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc no devolvió detalles.</value></data>
   <data name="ContainersHeading" xml:space="preserve">
     <value>Contenedores</value>
   </data>
@@ -14,6 +28,18 @@
   </data>
   <data name="EmptyContainers" xml:space="preserve">
     <value>No se encontraron contenedores.</value>
+  </data>
+  <data name="WslcUnavailable" xml:space="preserve">
+    <value>WSL Container no está disponible. Actualiza WSL a la última versión estable ejecutando wsl --update en Windows Terminal.</value>
+  </data>
+  <data name="CopyUpdateCommand" xml:space="preserve">
+    <value>Copiar comando de actualización</value>
+  </data>
+  <data name="UpdateCommandCopied" xml:space="preserve">
+    <value>Se copió wsl --update al portapapeles.</value>
+  </data>
+  <data name="UpdateCommandCopyError" xml:space="preserve">
+    <value>No se pudo copiar el comando de actualización: {0}</value>
   </data>
   <data name="NoPorts" xml:space="preserve">
     <value>Ninguno</value>
@@ -35,6 +61,24 @@
   </data>
   <data name="OpenShellButton" xml:space="preserve">
     <value>Abrir consola</value>
+  </data>
+  <data name="OpenLogsButton" xml:space="preserve">
+    <value>Ver registros</value>
+  </data>
+  <data name="LogsTitle" xml:space="preserve">
+    <value>Registros: {0}</value>
+  </data>
+  <data name="LogsFollowing" xml:space="preserve">
+    <value>Siguiendo los registros. Cierra esta ventana para detener el seguimiento.</value>
+  </data>
+  <data name="LogsEnded" xml:space="preserve">
+    <value>Finalizó el flujo de registros.</value>
+  </data>
+  <data name="LogsNotRunning" xml:space="preserve">
+    <value>Solo se pueden seguir los registros de un contenedor en ejecución.</value>
+  </data>
+  <data name="LogsError" xml:space="preserve">
+    <value>No se pudieron seguir los registros: {0}</value>
   </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Eliminar</value>
@@ -137,5 +181,113 @@
   </data>
   <data name="TrayExit" xml:space="preserve">
     <value>Salir</value>
+  </data>
+  <data name="SettingsHeading" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="SettingsOpenButton" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="SettingsBackButton" xml:space="preserve">
+    <value>Volver a contenedores</value>
+  </data>
+  <data name="SettingsThemeLabel" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="SettingsThemeAutomatic" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="SettingsThemeAutomaticSelected" xml:space="preserve">
+    <value>✓ Automático</value>
+  </data>
+  <data name="SettingsThemeLight" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="SettingsThemeLightSelected" xml:space="preserve">
+    <value>✓ Claro</value>
+  </data>
+  <data name="SettingsThemeDark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+  <data name="SettingsThemeDarkSelected" xml:space="preserve">
+    <value>✓ Oscuro</value>
+  </data>
+  <data name="SettingsLanguageLabel" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="SettingsLanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="SettingsLanguageEnglishSelected" xml:space="preserve">
+    <value>✓ English</value>
+  </data>
+  <data name="SettingsLanguageSpanish" xml:space="preserve">
+    <value>Español</value>
+  </data>
+  <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
+    <value>✓ Español</value>
+  </data>
+  <data name="SettingsStartupLabel" xml:space="preserve">
+    <value>Iniciar con Windows</value>
+  </data>
+  <data name="SettingsStartupEnabled" xml:space="preserve">
+    <value>✓ Activado</value>
+  </data>
+  <data name="SettingsStartupDisabled" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="SettingsRefreshIntervalLabel" xml:space="preserve">
+    <value>Intervalo de actualización activa</value>
+  </data>
+  <data name="SettingsRefreshInterval5" xml:space="preserve">
+    <value>5 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval5Selected" xml:space="preserve">
+    <value>✓ 5 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval10" xml:space="preserve">
+    <value>10 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval10Selected" xml:space="preserve">
+    <value>✓ 10 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval30" xml:space="preserve">
+    <value>30 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval30Selected" xml:space="preserve">
+    <value>✓ 30 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval60" xml:space="preserve">
+    <value>60 segundos</value>
+  </data>
+  <data name="SettingsRefreshInterval60Selected" xml:space="preserve">
+    <value>✓ 60 segundos</value>
+  </data>
+  <data name="SettingsDefaultTerminalLabel" xml:space="preserve">
+    <value>Terminal predeterminado</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminal" xml:space="preserve">
+    <value>Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve">
+    <value>✓ Windows Terminal</value>
+  </data>
+  <data name="SettingsTerminalPowerShell" xml:space="preserve">
+    <value>PowerShell</value>
+  </data>
+  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve">
+    <value>✓ PowerShell</value>
+  </data>
+  <data name="SettingsTerminalCommandPrompt" xml:space="preserve">
+    <value>Símbolo del sistema</value>
+  </data>
+  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve">
+    <value>✓ Símbolo del sistema</value>
+  </data>
+  <data name="SettingsContainerClientLabel" xml:space="preserve">
+    <value>Cliente de contenedores</value>
+  </data>
+  <data name="SettingsContainerClientValue" xml:space="preserve">
+    <value>WSLc</value>
   </data>
 </root>

@@ -5,7 +5,8 @@ namespace Wessl.App.Services;
 public sealed class ContainerService(
     IWslcClient client,
     Action<Action> dispatch,
-    IContainerShellLauncher shellLauncher)
+    IContainerShellLauncher shellLauncher,
+    AppSettings? settings = null)
 {
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private int _actionInProgress;
@@ -15,6 +16,8 @@ public sealed class ContainerService(
     public bool HasRunningContainers => Containers.Any(container => container.State == ContainerState.Running);
 
     public bool HasRefreshed { get; private set; }
+
+    public bool IsWslcUnavailable { get; private set; }
 
     public LocalizedMessage? Error { get; private set; }
 
@@ -36,7 +39,9 @@ public sealed class ContainerService(
                 throw new InvalidOperationException("A shell can only be opened for a running container.");
             }
 
-            shellLauncher.OpenShell(container.Id);
+            shellLauncher.OpenShell(
+                container.Id,
+                settings?.DefaultTerminal ?? ContainerTerminal.WindowsTerminal);
         }
         catch (Exception exception)
         {
@@ -69,6 +74,7 @@ public sealed class ContainerService(
 
         IReadOnlyList<ContainerInfo>? result = null;
         LocalizedMessage? error = null;
+        var unavailable = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -80,6 +86,7 @@ public sealed class ContainerService(
         }
         catch (Exception exception)
         {
+            unavailable = exception is WslcUnavailableException;
             error = new("RefreshError", [exception.Message]);
         }
         finally
@@ -99,7 +106,13 @@ public sealed class ContainerService(
                 Containers = result;
                 HasRefreshed = true;
             }
+            else if (unavailable)
+            {
+                Containers = [];
+                HasRefreshed = false;
+            }
 
+            IsWslcUnavailable = unavailable;
             Error = error;
             Changed?.Invoke();
         });
@@ -177,6 +190,13 @@ public sealed class ContainerService(
                     Containers = result;
                     HasRefreshed = true;
                 }
+                else if (refreshError is WslcUnavailableException)
+                {
+                    Containers = [];
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = refreshError is WslcUnavailableException;
 
                 if (actionError is not null)
                 {
