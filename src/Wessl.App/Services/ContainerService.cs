@@ -124,6 +124,107 @@ public sealed class ContainerService(
     public Task StopAsync(ContainerInfo container) =>
         RunActionAsync(container, "Stop", client.StopContainerAsync);
 
+    public Task<StopAllResult> StopAllAsync() => StopAllAsync(Containers);
+
+    public async Task<StopAllResult> StopAllAsync(IReadOnlyCollection<ContainerInfo> containersToStop)
+    {
+        ArgumentNullException.ThrowIfNull(containersToStop);
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
+        {
+            dispatch(() =>
+            {
+                Error = new("WaitForCurrentAction", []);
+                Changed?.Invoke();
+            });
+            return new(null, new("WaitForCurrentAction", []));
+        }
+
+        try
+        {
+            var running = containersToStop
+                .Where(container => container.State == ContainerState.Running)
+                .ToArray();
+            dispatch(() =>
+            {
+                Error = null;
+                Status = new("TrayStopAllPending", [running.Length]);
+                Changed?.Invoke();
+            });
+
+            var failures = new List<(string Name, string Message)>();
+            var stopped = 0;
+            Exception? refreshError = null;
+            IReadOnlyList<ContainerInfo>? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                foreach (var container in running)
+                {
+                    try
+                    {
+                        await client.StopContainerAsync(container.Id).ConfigureAwait(false);
+                        stopped++;
+                    }
+                    catch (Exception exception)
+                    {
+                        failures.Add((container.Name, exception.Message));
+                    }
+                }
+
+                try
+                {
+                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    refreshError = exception;
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
+
+            var completedStatus = new LocalizedMessage("TrayStopAllCompleted", [stopped, running.Length]);
+            LocalizedMessage? completedError = failures.Count > 0
+                ? new("TrayStopAllPartialFailure", [
+                    string.Join("; ", failures.Select(failure => $"{failure.Name}: {failure.Message}"))
+                ])
+                : null;
+            if (refreshError is not null)
+            {
+                var refreshMessage = new LocalizedMessage("RefreshError", [refreshError.Message]);
+                completedError = completedError is null
+                    ? refreshMessage
+                    : new("ActionAndRefreshError", [completedError, refreshMessage]);
+            }
+
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    Containers = result;
+                    HasRefreshed = true;
+                }
+                else if (refreshError is WslcUnavailableException)
+                {
+                    Containers = [];
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = refreshError is WslcUnavailableException;
+                Status = completedStatus;
+                Error = completedError;
+                Changed?.Invoke();
+            });
+            return new(completedStatus, completedError);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _actionInProgress, 0);
+        }
+    }
+
     public Task RestartAsync(ContainerInfo container) =>
         RunActionAsync(container, "Restart", client.RestartContainerAsync);
 
@@ -232,3 +333,5 @@ public sealed class ContainerService(
 }
 
 public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);
+
+public sealed record StopAllResult(LocalizedMessage? Status, LocalizedMessage? Error);

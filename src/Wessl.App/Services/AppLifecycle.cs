@@ -37,6 +37,7 @@ public sealed class AppLifecycle(
         _tray.Click += (_, _) => OpenWindow();
         _tray.RightClick += (_, _) => ShowTrayMenu();
         containers.Changed += UpdateTrayIcon;
+        _ = containers.RefreshAsync();
     }
 
     private void ShowTrayMenu()
@@ -57,7 +58,12 @@ public sealed class AppLifecycle(
         target.Height = 1;
         target.HorizontalAlignment = HorizontalAlignment.Left;
         target.VerticalAlignment = VerticalAlignment.Top;
-        var menu = TrayMenu.Create(OpenWindow, OpenSettings, Exit);
+        var menu = TrayMenu.Create(
+            OpenWindow,
+            OpenSettings,
+            StopAllFromTray,
+            containers.HasRunningContainers,
+            Exit);
         _trayMenu = menu;
         menu.Closed += (_, _) =>
         {
@@ -121,6 +127,20 @@ public sealed class AppLifecycle(
         window.Show();
         window.Activate();
         UpdatePolling(window);
+    }
+
+    private void StopAllFromTray()
+    {
+        CancelPendingMenu();
+        _trayMenu?.Hide();
+        _trayMenu = null;
+        _menuHostWindow?.Hide();
+
+        var window = EnsureMainWindow();
+        window.Show();
+        window.Activate();
+        UpdatePolling(window);
+        _mainComponent?.RequestStopAll();
     }
 
     private MainWindow? _mainComponent;

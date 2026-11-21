@@ -1,5 +1,6 @@
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Wessl.App.Services;
 using Wessl.Domain;
@@ -18,6 +19,10 @@ public sealed class MainWindow(
     private int _revision;
     private bool _showSettings;
     private bool _showImages;
+    private bool _showStopAllConfirmation;
+    private bool _showStopAllResult;
+    private ContainerInfo[] _stopAllContainers = [];
+    private string _stopAllResult = string.Empty;
 
     public override Element Render()
     {
@@ -41,13 +46,13 @@ public sealed class MainWindow(
 
         if (_showSettings)
         {
-            return SettingsPage.Create(settings, ShowContainers);
+            return WithDialogs(SettingsPage.Create(settings, ShowContainers));
         }
 
         if (_showImages)
         {
-            return ImagePage.Create(images, confirmPrune, () => setConfirmPrune(true),
-                () => setConfirmPrune(false), ShowContainers);
+            return WithDialogs(ImagePage.Create(images, confirmPrune, () => setConfirmPrune(true),
+                () => setConfirmPrune(false), ShowContainers));
         }
 
         var runningCount = containers.Containers.Count(container => container.State == ContainerState.Running);
@@ -71,7 +76,7 @@ public sealed class MainWindow(
                 with { IsOpen = true, IsClosable = false });
         }
 
-        return Grid(
+        return WithDialogs(Grid(
             [GridSize.Star()],
             [GridSize.Auto, GridSize.Auto, GridSize.Auto, GridSize.Star()],
             Grid([GridSize.Star(), GridSize.Auto, GridSize.Auto, GridSize.Auto], [GridSize.Auto],
@@ -111,13 +116,57 @@ public sealed class MainWindow(
                 pendingRemoval,
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null)).Margin(16, 0, 16, 16).Grid(row: 3)
-        );
+        ));
     }
+
+    private Element WithDialogs(Element content) =>
+        Grid([GridSize.Star()], [GridSize.Star()],
+            content,
+            (ContentDialog(
+                AppStrings.Get("TrayStopAllConfirmationTitle"),
+                TextBlock(AppStrings.Format("TrayStopAllConfirmation", _stopAllContainers.Length)),
+                AppStrings.Get("TrayStopAllConfirm")) with
+                {
+                    IsOpen = _showStopAllConfirmation,
+                    CloseButtonText = AppStrings.Get("CancelButton"),
+                    DefaultButton = ContentDialogButton.Close
+                })
+                .Closed(OnStopAllConfirmationClosed),
+            (ContentDialog(
+                AppStrings.Get("TrayStopAllResultTitle"),
+                TextBlock(_stopAllResult).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                AppStrings.Get("CloseButton")) with
+                {
+                    IsOpen = _showStopAllResult,
+                    DefaultButton = ContentDialogButton.Close
+                })
+                .Closed(_ =>
+                {
+                    _showStopAllResult = false;
+                    RequestRender();
+                })
+        );
 
     public void ShowSettings()
     {
         _showImages = false;
         Navigate(true);
+    }
+
+    public void RequestStopAll()
+    {
+        _stopAllContainers = containers.Containers
+            .Where(container => container.State == Wessl.Domain.ContainerState.Running)
+            .ToArray();
+        if (_stopAllContainers.Length == 0)
+        {
+            return;
+        }
+
+        _showSettings = false;
+        _showImages = false;
+        _showStopAllConfirmation = true;
+        RequestRender();
     }
 
     private void ShowImages()
@@ -132,6 +181,27 @@ public sealed class MainWindow(
     {
         _showImages = false;
         Navigate(false);
+    }
+
+    private void OnStopAllConfirmationClosed(ContentDialogResult result)
+    {
+        _showStopAllConfirmation = false;
+        RequestRender();
+        if (result == ContentDialogResult.Primary)
+        {
+            _ = StopAllAsync();
+        }
+    }
+
+    private async Task StopAllAsync()
+    {
+        var result = await containers.StopAllAsync(_stopAllContainers);
+        _stopAllResult = AppStrings.Format(
+            "TrayStopAllResult",
+            result.Status is { } status ? AppStrings.Format(status) : string.Empty,
+            result.Error is { } error ? AppStrings.Format(error) : string.Empty);
+        _showStopAllResult = true;
+        RequestRender();
     }
 
     private void Navigate(bool showSettings)
