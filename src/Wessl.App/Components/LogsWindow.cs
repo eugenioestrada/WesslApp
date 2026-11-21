@@ -31,8 +31,13 @@ public sealed class LogsWindow(ContainerLogsSession session) : Component
             columns: [GridSize.Star()],
             rows: [GridSize.Auto, GridSize.Star()],
             (session.Error is { } error
-                ? TextBlock(AppStrings.Format(error)).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap)
-                : TextBlock(AppStrings.Get(session.IsFollowing ? "LogsFollowing" : "LogsEnded"))).Grid(row: 0),
+                ? InfoBar(AppStrings.Format(error)).Error() with { IsOpen = true, IsClosable = false }
+                : InfoBar(AppStrings.Get(
+                    session.IsTruncated
+                        ? session.IsFollowing ? "LogsFollowingTruncated" : "LogsEndedTruncated"
+                        : session.IsFollowing ? "LogsFollowing" : "LogsEnded"))
+                    .Informational() with { IsOpen = true, IsClosable = false })
+                .Grid(row: 0),
             ScrollViewer(TextBlock(session.Text).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap))
                 .Ref(scroll).Grid(row: 1)
         ).Padding(16);

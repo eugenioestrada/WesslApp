@@ -76,8 +76,15 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             {
                 var url = $"http://localhost:{port.HostPort}";
                 return FlexRow(
-                    Button(url, () => _ = OpenUrlAsync(url, setStatus)),
-                    Button(AppStrings.Get("CopyUrlButton"), () => CopyUrl(url, setStatus))) with
+                    TextBlock(url).TextWrapping(),
+                    IconButton(
+                        "\uE8A7",
+                        AppStrings.Get("PortOpenButton"),
+                        () => _ = OpenUrlAsync(url, setStatus)),
+                    IconButton(
+                        "\uE8C8",
+                        AppStrings.Get("CopyUrlButton"),
+                        () => CopyUrl(url, setStatus))) with
                     { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 };
             }));
         if (status.Length > 0)
@@ -88,14 +95,19 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         var actions = new List<Element>
         {
             container.State == ContainerState.Running
-                ? Button(AppStrings.Get("StopButton"), () => _ = Props.Service.StopAsync(container)).IsEnabled(!actionPending)
-                : Button(AppStrings.Get("StartButton"), () => _ = Props.Service.StartAsync(container)).AccentButton().IsEnabled(!actionPending),
+                ? IconButton("\uE71A", AppStrings.Get("StopButton"), () => _ = Props.Service.StopAsync(container), subtle: false)
+                    .IsEnabled(!actionPending)
+                : IconButton("\uE768", AppStrings.Get("StartButton"), () => _ = Props.Service.StartAsync(container), accent: true)
+                    .IsEnabled(!actionPending),
         };
         if (container.State == ContainerState.Running)
         {
-            actions.Add(Button(AppStrings.Get("RestartButton"), () => _ = Props.Service.RestartAsync(container)).SubtleButton().IsEnabled(!actionPending));
-            actions.Add(Button(AppStrings.Get("OpenShellButton"), () => Props.OnOpenShell(container)).SubtleButton().IsEnabled(!actionPending));
-            actions.Add(Button(AppStrings.Get("OpenLogsButton"), () => Props.OnOpenLogs(container)).SubtleButton().IsEnabled(!actionPending));
+            actions.Add(IconButton("\uE72C", AppStrings.Get("RestartButton"), () => _ = Props.Service.RestartAsync(container))
+                .IsEnabled(!actionPending));
+            actions.Add(IconButton("\uE756", AppStrings.Get("OpenShellButton"), () => Props.OnOpenShell(container))
+                .IsEnabled(!actionPending));
+            actions.Add(IconButton("\uE8A5", AppStrings.Get("OpenLogsButton"), () => Props.OnOpenLogs(container))
+                .IsEnabled(!actionPending));
         }
 
         if (Props.ConfirmRemove)
@@ -108,11 +120,35 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         }
         else
         {
-            actions.Add(Button(AppStrings.Get("RemoveButton"), Props.RequestRemove).SubtleButton().IsEnabled(!actionPending));
+            actions.Add(IconButton("\uE74D", AppStrings.Get("RemoveButton"), Props.RequestRemove)
+                .IsEnabled(!actionPending));
         }
 
         row.Add(FlexRow(actions.ToArray()) with { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 });
         return Card(VStack(8, row.ToArray())).Padding(16);
+    }
+
+    private static Element IconButton(
+        string glyph,
+        string label,
+        Action action,
+        bool accent = false,
+        bool subtle = true)
+    {
+        var button = Button(
+            Icon(FontIcon(glyph, "Segoe Fluent Icons, Segoe MDL2 Assets", 14)),
+            action)
+            .Width(32)
+            .Height(32)
+            .ToolTip(label)
+            .AutomationName(label);
+
+        if (accent)
+        {
+            return button.AccentButton();
+        }
+
+        return subtle ? button.SubtleButton() : button;
     }
 
     private static async Task OpenUrlAsync(string url, Action<string> setStatus)

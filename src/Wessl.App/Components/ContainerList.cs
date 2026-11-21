@@ -19,8 +19,14 @@ public static class ContainerList
         Action cancelRemove) =>
         service.IsWslcUnavailable
             ? Component<UnavailableWslc>()
+            : !service.HasRefreshed && service.Error is null
+            ? VStack(8,
+                TextBlock(AppStrings.Get("ContainersLoading")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                ProgressRing())
             : containers.Count == 0
-            ? TextBlock(AppStrings.Get("EmptyContainers"))
+            ? VStack(8,
+                TextBlock(AppStrings.Get("EmptyContainers")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync()))
             : ScrollViewer(VStack(
                 8,
                 containers.Select(container =>

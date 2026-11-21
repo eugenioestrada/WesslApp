@@ -29,6 +29,9 @@
   <data name="EmptyContainers" xml:space="preserve">
     <value>No containers found.</value>
   </data>
+  <data name="ContainersLoading" xml:space="preserve">
+    <value>Loading containers…</value>
+  </data>
   <data name="WslcUnavailable" xml:space="preserve">
     <value>WSL Container is not available. Update WSL to the latest stable version by running wsl --update in Windows Terminal.</value>
   </data>
@@ -71,8 +74,14 @@
   <data name="LogsFollowing" xml:space="preserve">
     <value>Following logs. Close this window to stop.</value>
   </data>
+  <data name="LogsFollowingTruncated" xml:space="preserve">
+    <value>Following logs; older lines were trimmed after the 128 KB limit. Close this window to stop.</value>
+  </data>
   <data name="LogsEnded" xml:space="preserve">
     <value>Log stream ended.</value>
+  </data>
+  <data name="LogsEndedTruncated" xml:space="preserve">
+    <value>Log stream ended; older lines were trimmed after the 128 KB limit.</value>
   </data>
   <data name="LogsNotRunning" xml:space="preserve">
     <value>Logs can only be followed for a running container.</value>
@@ -97,6 +106,9 @@
   </data>
   <data name="CopyUrlButton" xml:space="preserve">
     <value>Copy URL</value>
+  </data>
+  <data name="PortOpenButton" xml:space="preserve">
+    <value>Open URL</value>
   </data>
   <data name="PortOpenSuccess" xml:space="preserve">
     <value>Opened {0}</value>
@@ -261,7 +273,7 @@
     <value>Launch at Windows startup</value>
   </data>
   <data name="SettingsStartupEnabled" xml:space="preserve">
-    <value>✓ Enabled</value>
+    <value>Enabled</value>
   </data>
   <data name="SettingsStartupDisabled" xml:space="preserve">
     <value>Disabled</value>
