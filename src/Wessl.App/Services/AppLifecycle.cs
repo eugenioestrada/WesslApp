@@ -13,6 +13,7 @@ public sealed class AppLifecycle(
     ContainerService containers,
     ContainerPolling polling,
     AppSettings settings,
+    IStartupManager startupManager,
     ImageService images,
     IContainerLogsClient logsClient)
 {
@@ -29,6 +30,7 @@ public sealed class AppLifecycle(
     {
         AppStrings.SetLanguage(settings.LanguageTag);
         settings.Changed += OnSettingsChanged;
+        startupManager.SetEnabled(settings.StartWithWindows);
         ReactorApp.ShutdownPolicy = ShutdownPolicy.Explicit;
         _tray = ReactorApp.OpenTrayIcon(CreateTrayIconSpec());
         _tray.Click += (_, _) => OpenWindow();
@@ -125,9 +127,11 @@ public sealed class AppLifecycle(
     private void OnSettingsChanged()
     {
         AppStrings.SetLanguage(settings.LanguageTag);
+        startupManager.SetEnabled(settings.StartWithWindows);
         if (_window is { } window)
         {
             ApplyTheme(window);
+            ApplyRefreshInterval();
         }
     }
 
@@ -174,7 +178,7 @@ public sealed class AppLifecycle(
             ApplyTheme(_window);
             var window = _window;
             _pollTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-            _pollTimer.Interval = TimeSpan.FromSeconds(10);
+            ApplyRefreshInterval();
             _pollTimer.Tick += (_, _) =>
             {
                 if (IsVisible(window))
@@ -231,6 +235,14 @@ public sealed class AppLifecycle(
         window.AppWindow.IsVisible &&
         (window.AppWindow.Presenter is not OverlappedPresenter presenter ||
          presenter.State != OverlappedPresenterState.Minimized);
+
+    private void ApplyRefreshInterval()
+    {
+        if (_pollTimer is { } timer)
+        {
+            timer.Interval = polling.ActiveRefreshInterval;
+        }
+    }
 
     private void UpdatePolling(ReactorWindow window)
     {

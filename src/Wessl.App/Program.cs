@@ -9,6 +9,7 @@ using var services = new ServiceCollection()
     .AddSingleton<IContainerLogsClient>(provider =>
         (IContainerLogsClient)provider.GetRequiredService<IWslcClient>())
     .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
+    .AddSingleton<IStartupManager, WindowsStartupManager>()
     .AddSingleton<ContainerService>(provider => new ContainerService(
         provider.GetRequiredService<IWslcClient>(),
         action =>
@@ -20,7 +21,8 @@ using var services = new ServiceCollection()
                 throw new InvalidOperationException("Could not dispatch the container refresh result.");
             }
         },
-        provider.GetRequiredService<IContainerShellLauncher>()))
+        provider.GetRequiredService<IContainerShellLauncher>(),
+        provider.GetRequiredService<AppSettings>()))
     .AddSingleton<ContainerPolling>()
     .AddSingleton<ImageService>(provider => new ImageService(
         provider.GetRequiredService<IImageClient>(),

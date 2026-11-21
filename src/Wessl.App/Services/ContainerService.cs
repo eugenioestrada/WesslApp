@@ -5,7 +5,8 @@ namespace Wessl.App.Services;
 public sealed class ContainerService(
     IWslcClient client,
     Action<Action> dispatch,
-    IContainerShellLauncher shellLauncher)
+    IContainerShellLauncher shellLauncher,
+    AppSettings? settings = null)
 {
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private int _actionInProgress;
@@ -38,7 +39,9 @@ public sealed class ContainerService(
                 throw new InvalidOperationException("A shell can only be opened for a running container.");
             }
 
-            shellLauncher.OpenShell(container.Id);
+            shellLauncher.OpenShell(
+                container.Id,
+                settings?.DefaultTerminal ?? ContainerTerminal.WindowsTerminal);
         }
         catch (Exception exception)
         {

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using Wessl.Domain;
 
 namespace Wessl.App.Services;
 
@@ -31,6 +32,7 @@ public sealed class AppSettings
         Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("es", StringComparison.OrdinalIgnoreCase)
             ? AppLanguage.Spanish
             : AppLanguage.English;
+        RefreshIntervalSeconds = 10;
 
         if (!File.Exists(_filePath))
         {
@@ -39,13 +41,19 @@ public sealed class AppSettings
 
         var stored = JsonSerializer.Deserialize<StoredSettings>(File.ReadAllText(_filePath))
             ?? throw new InvalidDataException("The Wessl settings file is empty.");
-        if (!Enum.IsDefined(stored.Theme) || !Enum.IsDefined(stored.Language))
+        if (!Enum.IsDefined(stored.Theme)
+            || !Enum.IsDefined(stored.Language)
+            || !Enum.IsDefined(stored.DefaultTerminal)
+            || !IsSupportedRefreshInterval(stored.RefreshIntervalSeconds))
         {
             throw new InvalidDataException("The Wessl settings file contains an unsupported setting.");
         }
 
         Theme = stored.Theme;
         Language = stored.Language;
+        StartWithWindows = stored.StartWithWindows;
+        RefreshIntervalSeconds = stored.RefreshIntervalSeconds;
+        DefaultTerminal = stored.DefaultTerminal;
     }
 
     public event Action? Changed;
@@ -53,6 +61,12 @@ public sealed class AppSettings
     public AppTheme Theme { get; private set; }
 
     public AppLanguage Language { get; private set; }
+
+    public bool StartWithWindows { get; private set; }
+
+    public int RefreshIntervalSeconds { get; private set; }
+
+    public ContainerTerminal DefaultTerminal { get; private set; }
 
     public string LanguageTag => Language switch
     {
@@ -73,7 +87,7 @@ public sealed class AppSettings
             return;
         }
 
-        Save(theme, Language);
+        Save(theme, Language, StartWithWindows, RefreshIntervalSeconds, DefaultTerminal);
         Theme = theme;
         Changed?.Invoke();
     }
@@ -90,18 +104,84 @@ public sealed class AppSettings
             return;
         }
 
-        Save(Theme, language);
+        Save(Theme, language, StartWithWindows, RefreshIntervalSeconds, DefaultTerminal);
         Language = language;
         Changed?.Invoke();
     }
 
-    private void Save(AppTheme theme, AppLanguage language)
+    public void SetStartWithWindows(bool enabled)
+    {
+        if (StartWithWindows == enabled)
+        {
+            return;
+        }
+
+        Save(Theme, Language, enabled, RefreshIntervalSeconds, DefaultTerminal);
+        StartWithWindows = enabled;
+        Changed?.Invoke();
+    }
+
+    public void SetRefreshIntervalSeconds(int seconds)
+    {
+        if (!IsSupportedRefreshInterval(seconds))
+        {
+            throw new ArgumentOutOfRangeException(nameof(seconds));
+        }
+
+        if (RefreshIntervalSeconds == seconds)
+        {
+            return;
+        }
+
+        Save(Theme, Language, StartWithWindows, seconds, DefaultTerminal);
+        RefreshIntervalSeconds = seconds;
+        Changed?.Invoke();
+    }
+
+    public void SetDefaultTerminal(ContainerTerminal terminal)
+    {
+        if (!Enum.IsDefined(terminal))
+        {
+            throw new ArgumentOutOfRangeException(nameof(terminal));
+        }
+
+        if (DefaultTerminal == terminal)
+        {
+            return;
+        }
+
+        Save(Theme, Language, StartWithWindows, RefreshIntervalSeconds, terminal);
+        DefaultTerminal = terminal;
+        Changed?.Invoke();
+    }
+
+    public static bool IsSupportedRefreshInterval(int seconds) =>
+        seconds is 5 or 10 or 30 or 60;
+
+    private void Save(
+        AppTheme theme,
+        AppLanguage language,
+        bool startWithWindows,
+        int refreshIntervalSeconds,
+        ContainerTerminal defaultTerminal)
     {
         var directory = Path.GetDirectoryName(_filePath)
             ?? throw new InvalidOperationException("The settings file path has no parent directory.");
         Directory.CreateDirectory(directory);
-        File.WriteAllText(_filePath, JsonSerializer.Serialize(new StoredSettings(theme, language)));
+        File.WriteAllText(
+            _filePath,
+            JsonSerializer.Serialize(new StoredSettings(
+                theme,
+                language,
+                startWithWindows,
+                refreshIntervalSeconds,
+                defaultTerminal)));
     }
 
-    private sealed record StoredSettings(AppTheme Theme, AppLanguage Language);
+    private sealed record StoredSettings(
+        AppTheme Theme,
+        AppLanguage Language,
+        bool StartWithWindows = false,
+        int RefreshIntervalSeconds = 10,
+        ContainerTerminal DefaultTerminal = ContainerTerminal.WindowsTerminal);
 }
