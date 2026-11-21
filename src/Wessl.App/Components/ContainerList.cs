@@ -26,5 +26,6 @@ public static class ContainerList
                         onOpenShell,
                         pendingRemoval == container.Id,
                         () => requestRemove(container.Id),
-                        cancelRemove).WithKey(container.Id)).ToArray()));
+                        cancelRemove).WithKey(container.Id)).ToArray()))
+                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
 }
