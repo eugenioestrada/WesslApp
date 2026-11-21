@@ -6,6 +6,7 @@ using Wessl.Infrastructure;
 
 using var services = new ServiceCollection()
     .AddSingleton<IWslcClient, SampleWslcClient>()
+    .AddSingleton<IContainerShellLauncher, WindowsTerminalShellLauncher>()
     .AddSingleton<ContainerService>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();
