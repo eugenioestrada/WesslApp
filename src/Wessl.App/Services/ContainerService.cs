@@ -30,7 +30,7 @@ public sealed class ContainerService(
 
     public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
 
-    public string? ShellError { get; private set; }
+    public LocalizedMessage? ShellError { get; private set; }
 
     public IReadOnlyDictionary<string, ContainerUsage> Usage => _usage;
 
@@ -104,20 +104,22 @@ public sealed class ContainerService(
     public void OpenShell(ContainerInfo container)
     {
         ShellError = null;
+        if (container.State != ContainerState.Running)
+        {
+            ShellError = new("ShellRequiresRunningContainer", []);
+            Changed?.Invoke();
+            return;
+        }
+
         try
         {
-            if (container.State != ContainerState.Running)
-            {
-                throw new InvalidOperationException("A shell can only be opened for a running container.");
-            }
-
             shellLauncher.OpenShell(
                 container.Id,
                 settings?.DefaultTerminal ?? ContainerTerminal.WindowsTerminal);
         }
         catch (Exception exception)
         {
-            ShellError = exception.Message;
+            ShellError = new("OpenShellError", [exception.Message]);
         }
 
         Changed?.Invoke();
@@ -260,7 +262,8 @@ public sealed class ContainerService(
             var completedStatus = new LocalizedMessage("TrayStopAllCompleted", [stopped, running.Length]);
             LocalizedMessage? completedError = failures.Count > 0
                 ? new("TrayStopAllPartialFailure", [
-                    string.Join("; ", failures.Select(failure => $"{failure.Name}: {failure.Message}"))
+                    new LocalizedMessageList(failures.Select(failure =>
+                        new LocalizedMessage("TrayStopAllFailureDetail", [failure.Name, failure.Message])).ToArray())
                 ])
                 : null;
             if (refreshError is not null)
@@ -423,5 +426,7 @@ public sealed class ContainerService(
 }
 
 public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);
+
+public sealed record LocalizedMessageList(IReadOnlyList<LocalizedMessage> Messages);
 
 public sealed record StopAllResult(LocalizedMessage? Status, LocalizedMessage? Error);

@@ -14,9 +14,6 @@
   <data name="ImagesPruneError" xml:space="preserve"><value>No se pudieron podar las imágenes: {0}</value></data>
   <data name="ImagesPruneSuccess" xml:space="preserve"><value>Poda de imágenes completada: {0}</value></data>
   <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc no devolvió detalles.</value></data>
-  <data name="ContainersHeading" xml:space="preserve">
-    <value>Contenedores</value>
-  </data>
   <data name="ContainerSummary" xml:space="preserve">
     <value>Contenedores: {0} · En ejecución: {1}</value>
   </data>
@@ -46,9 +43,6 @@
   </data>
   <data name="NoPorts" xml:space="preserve">
     <value>Ninguno</value>
-  </data>
-  <data name="ContainerDetails" xml:space="preserve">
-    <value>{0} · {1}</value>
   </data>
   <data name="PortsLabel" xml:space="preserve">
     <value>Puertos: {0}</value>
@@ -115,6 +109,9 @@
   </data>
   <data name="OpenShellError" xml:space="preserve">
     <value>No se pudo abrir la consola: {0}</value>
+  </data>
+  <data name="ShellRequiresRunningContainer" xml:space="preserve">
+    <value>Solo se puede abrir una consola para un contenedor en ejecución.</value>
   </data>
   <data name="CopyUrlButton" xml:space="preserve">
     <value>Copiar URL</value>
@@ -227,6 +224,12 @@
   <data name="TrayStopAllPartialFailure" xml:space="preserve">
     <value>No se pudieron detener algunos contenedores: {0}</value>
   </data>
+  <data name="TrayStopAllFailureDetail" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="TrayStopAllFailureSeparator" xml:space="preserve">
+    <value>; </value>
+  </data>
   <data name="TrayStopAllResultTitle" xml:space="preserve">
     <value>Detener todos los contenedores</value>
   </data>
@@ -251,20 +254,11 @@
   <data name="SettingsThemeAutomatic" xml:space="preserve">
     <value>Automático</value>
   </data>
-  <data name="SettingsThemeAutomaticSelected" xml:space="preserve">
-    <value>✓ Automático</value>
-  </data>
   <data name="SettingsThemeLight" xml:space="preserve">
     <value>Claro</value>
   </data>
-  <data name="SettingsThemeLightSelected" xml:space="preserve">
-    <value>✓ Claro</value>
-  </data>
   <data name="SettingsThemeDark" xml:space="preserve">
     <value>Oscuro</value>
-  </data>
-  <data name="SettingsThemeDarkSelected" xml:space="preserve">
-    <value>✓ Oscuro</value>
   </data>
   <data name="SettingsLanguageLabel" xml:space="preserve">
     <value>Idioma</value>
@@ -272,38 +266,20 @@
   <data name="SettingsLanguageEnglish" xml:space="preserve">
     <value>English</value>
   </data>
-  <data name="SettingsLanguageEnglishSelected" xml:space="preserve">
-    <value>✓ English</value>
-  </data>
   <data name="SettingsLanguageSpanish" xml:space="preserve">
     <value>Español</value>
-  </data>
-  <data name="SettingsLanguageSpanishSelected" xml:space="preserve">
-    <value>✓ Español</value>
   </data>
   <data name="SettingsLanguageChineseSimplified" xml:space="preserve">
     <value>Chino simplificado</value>
   </data>
-  <data name="SettingsLanguageChineseSimplifiedSelected" xml:space="preserve">
-    <value>✓ Chino simplificado</value>
-  </data>
   <data name="SettingsLanguageFrench" xml:space="preserve">
     <value>Francés</value>
-  </data>
-  <data name="SettingsLanguageFrenchSelected" xml:space="preserve">
-    <value>✓ Francés</value>
   </data>
   <data name="SettingsLanguageItalian" xml:space="preserve">
     <value>Italiano</value>
   </data>
-  <data name="SettingsLanguageItalianSelected" xml:space="preserve">
-    <value>✓ Italiano</value>
-  </data>
   <data name="SettingsLanguageGerman" xml:space="preserve">
     <value>Alemán</value>
-  </data>
-  <data name="SettingsLanguageGermanSelected" xml:space="preserve">
-    <value>✓ Alemán</value>
   </data>
   <data name="SettingsStartupLabel" xml:space="preserve">
     <value>Iniciar con Windows</value>
@@ -320,26 +296,14 @@
   <data name="SettingsRefreshInterval5" xml:space="preserve">
     <value>5 segundos</value>
   </data>
-  <data name="SettingsRefreshInterval5Selected" xml:space="preserve">
-    <value>✓ 5 segundos</value>
-  </data>
   <data name="SettingsRefreshInterval10" xml:space="preserve">
     <value>10 segundos</value>
-  </data>
-  <data name="SettingsRefreshInterval10Selected" xml:space="preserve">
-    <value>✓ 10 segundos</value>
   </data>
   <data name="SettingsRefreshInterval30" xml:space="preserve">
     <value>30 segundos</value>
   </data>
-  <data name="SettingsRefreshInterval30Selected" xml:space="preserve">
-    <value>✓ 30 segundos</value>
-  </data>
   <data name="SettingsRefreshInterval60" xml:space="preserve">
     <value>60 segundos</value>
-  </data>
-  <data name="SettingsRefreshInterval60Selected" xml:space="preserve">
-    <value>✓ 60 segundos</value>
   </data>
   <data name="SettingsDefaultTerminalLabel" xml:space="preserve">
     <value>Terminal predeterminado</value>
@@ -347,20 +311,11 @@
   <data name="SettingsTerminalWindowsTerminal" xml:space="preserve">
     <value>Windows Terminal</value>
   </data>
-  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve">
-    <value>✓ Windows Terminal</value>
-  </data>
   <data name="SettingsTerminalPowerShell" xml:space="preserve">
     <value>PowerShell</value>
   </data>
-  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve">
-    <value>✓ PowerShell</value>
-  </data>
   <data name="SettingsTerminalCommandPrompt" xml:space="preserve">
     <value>Símbolo del sistema</value>
-  </data>
-  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve">
-    <value>✓ Símbolo del sistema</value>
   </data>
   <data name="SettingsContainerClientLabel" xml:space="preserve">
     <value>Cliente de contenedores</value>

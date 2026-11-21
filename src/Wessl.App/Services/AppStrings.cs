@@ -38,8 +38,17 @@ public static class AppStrings
     public static string Format(LocalizedMessage message) =>
         Format(
             message.ResourceKey,
-            message.Arguments.Select(argument =>
-                argument is LocalizedMessage nested ? Format(nested) : argument).ToArray());
+            message.Arguments.Select(FormatArgument).ToArray());
+
+    private static object? FormatArgument(object? argument) =>
+        argument switch
+        {
+            LocalizedMessage nested => Format(nested),
+            LocalizedMessageList list => string.Join(
+                Get("TrayStopAllFailureSeparator"),
+                list.Messages.Select(Format)),
+            _ => argument
+        };
 
     public static string GetContainerState(ContainerState state) =>
         Get(state switch

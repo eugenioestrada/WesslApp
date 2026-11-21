@@ -32,4 +32,11 @@
     <Compile Include="..\..\src\Wessl.App\Services\AppSettings.cs" Link="AppSettings.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\src\Wessl.App\Strings\**\Resources.resw">
+      <Link>Strings\%(RecursiveDir)Resources.resw</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

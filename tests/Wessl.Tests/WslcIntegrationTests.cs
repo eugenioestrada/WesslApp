@@ -116,7 +116,22 @@ public sealed class WslcIntegrationTests
         Assert.Equal(["one", "two"], client.StopAttempts);
         Assert.Equal([1, 2], result.Status!.Arguments);
         Assert.Equal("TrayStopAllPartialFailure", result.Error!.ResourceKey);
-        Assert.Contains("one: stop failed", (string)result.Error.Arguments[0]!);
+        var failures = Assert.IsType<LocalizedMessageList>(result.Error.Arguments[0]);
+        var failure = Assert.Single(failures.Messages);
+        Assert.Equal("TrayStopAllFailureDetail", failure.ResourceKey);
+        Assert.Equal("one", failure.Arguments[0]);
+        Assert.Equal("stop failed", failure.Arguments[1]);
+    }
+
+    [Fact]
+    public void OpeningShellForStoppedContainerReturnsLocalizedError()
+    {
+        var service = new ContainerService(new ChangingClient(), action => action(), new UnusedShellLauncher());
+
+        service.OpenShell(new("stopped", "stopped", "image", ContainerState.Stopped));
+
+        Assert.Equal("ShellRequiresRunningContainer", service.ShellError!.ResourceKey);
+        Assert.Empty(service.ShellError.Arguments);
     }
 
     [Fact]

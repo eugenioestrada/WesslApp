@@ -14,7 +14,6 @@
   <data name="ImagesPruneError" xml:space="preserve"><value>无法清理镜像：{0}</value></data>
   <data name="ImagesPruneSuccess" xml:space="preserve"><value>镜像清理已完成：{0}</value></data>
   <data name="ImagesPruneNoDetails" xml:space="preserve"><value>WSLc 未返回详细信息。</value></data>
-  <data name="ContainersHeading" xml:space="preserve"><value>容器</value></data>
   <data name="ContainerSummary" xml:space="preserve"><value>容器：{0} · 正在运行：{1}</value></data>
   <data name="RefreshError" xml:space="preserve"><value>无法刷新：{0}</value></data>
   <data name="RefreshButton" xml:space="preserve"><value>刷新</value></data>
@@ -25,7 +24,6 @@
   <data name="UpdateCommandCopied" xml:space="preserve"><value>已将 wsl --update 复制到剪贴板。</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>无法复制更新命令：{0}</value></data>
   <data name="NoPorts" xml:space="preserve"><value>无</value></data>
-  <data name="ContainerDetails" xml:space="preserve"><value>{0} · {1}</value></data>
   <data name="PortsLabel" xml:space="preserve"><value>端口：{0}</value></data>
   <data name="StartButton" xml:space="preserve"><value>启动</value></data>
   <data name="StopButton" xml:space="preserve"><value>停止</value></data>
@@ -48,6 +46,7 @@
   <data name="CancelButton" xml:space="preserve"><value>取消</value></data>
   <data name="RemoveConfirmation" xml:space="preserve"><value>要删除 {0} 吗？这将永久删除该容器，并在其运行时将其停止。</value></data>
   <data name="OpenShellError" xml:space="preserve"><value>无法打开终端：{0}</value></data>
+  <data name="ShellRequiresRunningContainer" xml:space="preserve"><value>只能为正在运行的容器打开终端。</value></data>
   <data name="CopyUrlButton" xml:space="preserve"><value>复制 URL</value></data>
   <data name="PortOpenButton" xml:space="preserve"><value>打开 URL</value></data>
   <data name="PortOpenSuccess" xml:space="preserve"><value>已打开 {0}</value></data>
@@ -85,6 +84,8 @@
   <data name="TrayStopAllPending" xml:space="preserve"><value>正在停止 {0} 个运行中的容器…</value></data>
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>已停止 {1} 个运行中容器中的 {0} 个。</value></data>
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>部分容器无法停止：{0}</value></data>
+  <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
+  <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value>；</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>停止所有容器</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>关闭</value></data>
@@ -93,43 +94,27 @@
   <data name="SettingsBackButton" xml:space="preserve"><value>返回容器列表</value></data>
   <data name="SettingsThemeLabel" xml:space="preserve"><value>主题</value></data>
   <data name="SettingsThemeAutomatic" xml:space="preserve"><value>自动</value></data>
-  <data name="SettingsThemeAutomaticSelected" xml:space="preserve"><value>✓ 自动</value></data>
   <data name="SettingsThemeLight" xml:space="preserve"><value>浅色</value></data>
-  <data name="SettingsThemeLightSelected" xml:space="preserve"><value>✓ 浅色</value></data>
   <data name="SettingsThemeDark" xml:space="preserve"><value>深色</value></data>
-  <data name="SettingsThemeDarkSelected" xml:space="preserve"><value>✓ 深色</value></data>
   <data name="SettingsLanguageLabel" xml:space="preserve"><value>语言</value></data>
   <data name="SettingsLanguageEnglish" xml:space="preserve"><value>English</value></data>
-  <data name="SettingsLanguageEnglishSelected" xml:space="preserve"><value>✓ English</value></data>
   <data name="SettingsLanguageSpanish" xml:space="preserve"><value>Español</value></data>
-  <data name="SettingsLanguageSpanishSelected" xml:space="preserve"><value>✓ Español</value></data>
   <data name="SettingsLanguageChineseSimplified" xml:space="preserve"><value>简体中文</value></data>
-  <data name="SettingsLanguageChineseSimplifiedSelected" xml:space="preserve"><value>✓ 简体中文</value></data>
   <data name="SettingsLanguageFrench" xml:space="preserve"><value>Français</value></data>
-  <data name="SettingsLanguageFrenchSelected" xml:space="preserve"><value>✓ Français</value></data>
   <data name="SettingsLanguageItalian" xml:space="preserve"><value>Italiano</value></data>
-  <data name="SettingsLanguageItalianSelected" xml:space="preserve"><value>✓ Italiano</value></data>
   <data name="SettingsLanguageGerman" xml:space="preserve"><value>Deutsch</value></data>
-  <data name="SettingsLanguageGermanSelected" xml:space="preserve"><value>✓ Deutsch</value></data>
   <data name="SettingsStartupLabel" xml:space="preserve"><value>登录 Windows 时启动</value></data>
   <data name="SettingsStartupEnabled" xml:space="preserve"><value>已启用</value></data>
   <data name="SettingsStartupDisabled" xml:space="preserve"><value>已禁用</value></data>
   <data name="SettingsRefreshIntervalLabel" xml:space="preserve"><value>活动刷新间隔</value></data>
   <data name="SettingsRefreshInterval5" xml:space="preserve"><value>5 秒</value></data>
-  <data name="SettingsRefreshInterval5Selected" xml:space="preserve"><value>✓ 5 秒</value></data>
   <data name="SettingsRefreshInterval10" xml:space="preserve"><value>10 秒</value></data>
-  <data name="SettingsRefreshInterval10Selected" xml:space="preserve"><value>✓ 10 秒</value></data>
   <data name="SettingsRefreshInterval30" xml:space="preserve"><value>30 秒</value></data>
-  <data name="SettingsRefreshInterval30Selected" xml:space="preserve"><value>✓ 30 秒</value></data>
   <data name="SettingsRefreshInterval60" xml:space="preserve"><value>60 秒</value></data>
-  <data name="SettingsRefreshInterval60Selected" xml:space="preserve"><value>✓ 60 秒</value></data>
   <data name="SettingsDefaultTerminalLabel" xml:space="preserve"><value>默认终端</value></data>
   <data name="SettingsTerminalWindowsTerminal" xml:space="preserve"><value>Windows 终端</value></data>
-  <data name="SettingsTerminalWindowsTerminalSelected" xml:space="preserve"><value>✓ Windows 终端</value></data>
   <data name="SettingsTerminalPowerShell" xml:space="preserve"><value>PowerShell</value></data>
-  <data name="SettingsTerminalPowerShellSelected" xml:space="preserve"><value>✓ PowerShell</value></data>
   <data name="SettingsTerminalCommandPrompt" xml:space="preserve"><value>命令提示符</value></data>
-  <data name="SettingsTerminalCommandPromptSelected" xml:space="preserve"><value>✓ 命令提示符</value></data>
   <data name="SettingsContainerClientLabel" xml:space="preserve"><value>容器客户端</value></data>
   <data name="SettingsContainerClientValue" xml:space="preserve"><value>WSLc</value></data>
 </root>
