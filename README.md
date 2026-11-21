@@ -1,5 +1,7 @@
 # Wessl
 
+[English](README.md) · [Español](README.es-ES.md) · [简体中文](README.zh-CN.md) · [Français](README.fr-FR.md) · [Italiano](README.it-IT.md) · [Deutsch](README.de-DE.md)
+
 Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc), built with Microsoft.UI.Reactor and WinUI 3. It starts in the tray: left-click the icon to open the container window beside the tray, or right-click for the native WinUI Open and Exit menu.
 
 Opening from the tray brings the container panel into view and focus with a short fade-in. When focus moves to another application or tool window, the panel fades out and hides while the app stays in the tray. Reopening cancels any pending fade-out. The panel is not always-on-top, and transitions respect the Windows animation setting.
@@ -45,7 +47,7 @@ For ARM64, pass `-p:RuntimeIdentifier=win-arm64` to the restore, build, and run 
 
 ## Localization
 
-The WinUI app uses Windows App SDK MRT Core `.resw` resources in `src/Wessl.App/Strings/<BCP-47>/Resources.resw`. English (`en-US`) and Spanish (`es-ES`) are supported and can be selected in settings. Add translations in a new language folder with the same resource keys; the Windows App SDK build indexes these files into the app's PRI resources.
+The WinUI app uses Windows App SDK MRT Core `.resw` resources in `src/Wessl.App/Strings/<BCP-47>/Resources.resw`. English (`en-US`), Spanish (`es-ES`), Simplified Chinese (`zh-CN`), French (`fr-FR`), Italian (`it-IT`), and German (`de-DE`) are supported and can be selected in settings. Add translations in a new language folder with the same resource keys; the Windows App SDK build indexes these files into the app's PRI resources.
 
 ## NativeAOT publish
 

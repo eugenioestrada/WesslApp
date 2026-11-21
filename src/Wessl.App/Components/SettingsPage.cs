@@ -27,7 +27,11 @@ public static class SettingsPage
                 ComboBox(
                     [
                         AppStrings.Get("SettingsLanguageEnglish"),
-                        AppStrings.Get("SettingsLanguageSpanish")
+                        AppStrings.Get("SettingsLanguageSpanish"),
+                        AppStrings.Get("SettingsLanguageChineseSimplified"),
+                        AppStrings.Get("SettingsLanguageFrench"),
+                        AppStrings.Get("SettingsLanguageItalian"),
+                        AppStrings.Get("SettingsLanguageGerman")
                     ],
                     (int)settings.Language,
                     index => { if (index >= 0) settings.SetLanguage((AppLanguage)index); })

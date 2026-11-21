@@ -1,3 +1,4 @@
+using System.Globalization;
 using Wessl.App.Services;
 using Wessl.Domain;
 
@@ -20,6 +21,72 @@ public sealed class AppSettingsTests
         Assert.Equal(AppTheme.Dark, reloaded.Theme);
         Assert.Equal(AppLanguage.Spanish, reloaded.Language);
         Assert.Equal("es-ES", reloaded.LanguageTag);
+    }
+
+    [Fact]
+    public void SimplifiedChineseLanguagePersistsAcrossInstances()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+
+        var settings = new AppSettings(path);
+        settings.SetLanguage(AppLanguage.ChineseSimplified);
+
+        var reloaded = new AppSettings(path);
+
+        Assert.Equal(AppLanguage.ChineseSimplified, reloaded.Language);
+        Assert.Equal("zh-CN", reloaded.LanguageTag);
+    }
+
+    [Fact]
+    public void SimplifiedChineseSystemCultureSelectsSimplifiedChinese()
+    {
+        using var directory = new TemporaryDirectory();
+        var originalCulture = CultureInfo.CurrentUICulture;
+
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("zh-CN");
+            var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
+
+            Assert.Equal(AppLanguage.ChineseSimplified, settings.Language);
+            Assert.Equal("zh-CN", settings.LanguageTag);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = originalCulture;
+        }
+    }
+
+    [Theory]
+    [InlineData(AppLanguage.French, "fr-FR", "fr-FR")]
+    [InlineData(AppLanguage.Italian, "it-IT", "it-IT")]
+    [InlineData(AppLanguage.German, "de-DE", "de-DE")]
+    public void LanguagePersistsAndIsSelectedForSystemCulture(
+        AppLanguage language,
+        string cultureName,
+        string languageTag)
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "settings.json");
+        var originalCulture = CultureInfo.CurrentUICulture;
+
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+            var settings = new AppSettings(path);
+            Assert.Equal(language, settings.Language);
+
+            settings.SetLanguage(language);
+            var reloaded = new AppSettings(path);
+
+            Assert.Equal(language, reloaded.Language);
+            Assert.Equal(languageTag, reloaded.LanguageTag);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = originalCulture;
+        }
     }
 
     [Fact]
@@ -65,7 +132,12 @@ public sealed class AppSettingsTests
         var settings = new AppSettings(Path.Combine(directory.Path, "settings.json"));
 
         Assert.Equal(AppTheme.Automatic, settings.Theme);
-        Assert.True(settings.Language is AppLanguage.English or AppLanguage.Spanish);
+        Assert.True(settings.Language is AppLanguage.English
+            or AppLanguage.Spanish
+            or AppLanguage.ChineseSimplified
+            or AppLanguage.French
+            or AppLanguage.Italian
+            or AppLanguage.German);
         Assert.False(settings.StartWithWindows);
         Assert.Equal(10, settings.RefreshIntervalSeconds);
         Assert.Equal(ContainerTerminal.WindowsTerminal, settings.DefaultTerminal);
