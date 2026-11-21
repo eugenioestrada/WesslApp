@@ -7,6 +7,8 @@ public sealed class ContainerService(IWslcClient client)
 {
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
 
+    public bool HasRunningContainers => Containers.Any(container => container.State == ContainerState.Running);
+
     public string? Error { get; private set; }
 
     public event Action? Changed;
