@@ -32,7 +32,10 @@ public static class WslcOutputParser
                 throw new FormatException("WSLc output is missing a container ID or name.");
             }
 
-            containers.Add(new ContainerInfo(id, name, image, ParseState(state)));
+            containers.Add(new ContainerInfo(id, name, image, ParseState(state))
+            {
+                Ports = GetPorts(root)
+            });
         }
 
         return containers;
@@ -50,6 +53,52 @@ public static class WslcOutputParser
 
         return string.Empty;
     }
+
+    private static IReadOnlyList<string> GetPorts(JsonElement element)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (!property.Name.Equals("Ports", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.String)
+            {
+                return SplitPorts(property.Value.GetString());
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.Array)
+            {
+                var ports = new List<string>();
+                foreach (var port in property.Value.EnumerateArray())
+                {
+                    if (port.ValueKind != JsonValueKind.String)
+                    {
+                        throw new FormatException("WSLc output contains an invalid container port.");
+                    }
+
+                    ports.AddRange(SplitPorts(port.GetString()));
+                }
+
+                return ports;
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.Null)
+            {
+                throw new FormatException("WSLc output contains an invalid container ports value.");
+            }
+
+            return [];
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyList<string> SplitPorts(string? ports) =>
+        string.IsNullOrWhiteSpace(ports)
+            ? []
+            : ports.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
     private static ContainerState ParseState(string state)
     {

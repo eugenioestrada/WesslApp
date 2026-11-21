@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -20,6 +20,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Wessl.Domain\Wessl.Domain.csproj" />
     <ProjectReference Include="..\..\src\Wessl.Infrastructure\Wessl.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerService.cs" Link="ContainerService.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerPolling.cs" Link="ContainerPolling.cs" />
   </ItemGroup>
 
 </Project>

@@ -2,13 +2,19 @@
 
 Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc), built with Microsoft.UI.Reactor and WinUI 3. It starts in the tray: left-click the icon to open the container window beside the tray, or right-click for the native WinUI Open and Exit menu.
 
-This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Verify that your WSLc version supports this format before enabling it.
+See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
+
+The app uses sample containers by default, so lifecycle actions update demo data. To manage real containers, register `WslcClient` instead of `SampleWslcClient` in `src/Wessl.App/Program.cs`; `wslc` must be available on `PATH`, and its list command must support `wslc container list --all --format json` with one JSON object per line. Start, Stop, and Restart run directly from each row; Remove requires confirmation and can stop a running container as part of deletion.
+
+For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Windows Terminal and a WSLc version supporting `exec -it` must be available; the sample client only displays demo containers, so use `WslcClient` to open a real container shell.
+
+Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
 
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.
-- .NET 10 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
-- WSL with WSL Containers and `wslc` on `PATH` only when using the real client. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
+- .NET 11 SDK and the Windows SDK / WinUI build tools (for example, Visual Studio with the .NET desktop development and Windows application development workloads).
+- WSL with WSL Containers and `wslc` on `PATH`. See the [WSL Containers guide](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers).
 
 ## Build and run
 
@@ -16,18 +22,18 @@ From a Windows developer terminal at the repository root:
 
 ```powershell
 dotnet restore Wessl.slnx
-dotnet build Wessl.slnx -p:Platform=x64
-dotnet run --project src/Wessl.App/Wessl.App.csproj -p:Platform=x64
+dotnet build Wessl.slnx
+dotnet run --project src/Wessl.App/Wessl.App.csproj
 dotnet test tests/Wessl.Tests/Wessl.Tests.csproj
 ```
 
 The repository's `NuGet.Config` restores packages from nuget.org, independently of any additional package sources configured on your machine.
 
-For ARM64, use `-p:Platform=ARM64` instead. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 10.
+For ARM64, pass `-p:RuntimeIdentifier=win-arm64` to the restore, build, and run commands instead of the default `win-x64`. The app is unpackaged and includes the Windows App SDK runtime. Building the WinUI app requires Windows; domain and infrastructure tests can run on any platform supported by .NET 11.
 
 ## NativeAOT publish
 
-NativeAOT publishes are available for unpackaged Windows x64 and ARM64 builds. Run the following commands from Windows with the .NET 10 SDK and Visual C++ Build Tools (Desktop development with C++) installed:
+NativeAOT publishes are available for unpackaged Windows x64 and ARM64 builds. Run the following commands from Windows with the .NET 11 SDK and Visual C++ Build Tools (Desktop development with C++) installed:
 
 ```powershell
 dotnet publish src/Wessl.App/Wessl.App.csproj -p:PublishProfile=win-x64-nativeaot
