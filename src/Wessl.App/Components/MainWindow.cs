@@ -19,11 +19,11 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
         }, containers);
 
         return VStack(12,
-            TextBlock("Containers").FontSize(24),
+            TextBlock(AppStrings.Get("ContainersHeading")).FontSize(24),
             containers.Error is { } error
-                ? TextBlock($"Unable to refresh: {error}")
+                ? TextBlock(AppStrings.Format("RefreshError", error))
                 : ContainerList.Create(containers.Containers),
-            Button("Refresh", () => _ = polling.RefreshAsync())
+            Button(AppStrings.Get("RefreshButton"), () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
 }

@@ -67,8 +67,12 @@ public sealed class AppLifecycle(ContainerService containers, ContainerPolling p
     private TrayIconSpec CreateTrayIconSpec()
     {
         var running = containers.HasRunningContainers;
-        var status = !containers.HasRefreshed ? "Unknown" : running ? "Running" : "Idle";
-        return new TrayIconSpec(TrayStatusIcon.Create(running), $"Wessl - {status}");
+        var status = !containers.HasRefreshed
+            ? AppStrings.Get("TrayStatusUnknown")
+            : running
+                ? AppStrings.Get("TrayStatusRunning")
+                : AppStrings.Get("TrayStatusIdle");
+        return new TrayIconSpec(TrayStatusIcon.Create(running), AppStrings.Format("TrayTooltip", status));
     }
 
     private void UpdateTrayIcon()

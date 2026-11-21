@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ContainersHeading" xml:space="preserve">
+    <value>Containers</value>
+  </data>
+  <data name="RefreshError" xml:space="preserve">
+    <value>Unable to refresh: {0}</value>
+  </data>
+  <data name="RefreshButton" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="EmptyContainers" xml:space="preserve">
+    <value>No containers found.</value>
+  </data>
+  <data name="NoPorts" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ContainerDetails" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="PortsLabel" xml:space="preserve">
+    <value>Ports: {0}</value>
+  </data>
+  <data name="ContainerStateUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ContainerStateRunning" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="ContainerStateStopped" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
+  <data name="TrayStatusUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="TrayStatusRunning" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="TrayStatusIdle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="TrayTooltip" xml:space="preserve">
+    <value>Wessl - {0}</value>
+  </data>
+  <data name="TrayOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="TrayExit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+</root>
