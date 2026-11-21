@@ -8,6 +8,7 @@ public sealed class ContainerService(
     IContainerShellLauncher shellLauncher)
 {
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private int _actionInProgress;
 
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
 
@@ -16,6 +17,10 @@ public sealed class ContainerService(
     public bool HasRefreshed { get; private set; }
 
     public string? Error { get; private set; }
+
+    public string? Status { get; private set; }
+
+    public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
 
     public string? ShellError { get; private set; }
 
@@ -98,5 +103,105 @@ public sealed class ContainerService(
             Error = error;
             Changed?.Invoke();
         });
+    }
+
+    public Task StartAsync(ContainerInfo container) =>
+        RunActionAsync(container, "Starting", client.StartContainerAsync);
+
+    public Task StopAsync(ContainerInfo container) =>
+        RunActionAsync(container, "Stopping", client.StopContainerAsync);
+
+    public Task RestartAsync(ContainerInfo container) =>
+        RunActionAsync(container, "Restarting", client.RestartContainerAsync);
+
+    public Task RemoveAsync(ContainerInfo container) =>
+        RunActionAsync(container, "Removing", client.RemoveContainerAsync);
+
+    private async Task RunActionAsync(
+        ContainerInfo container,
+        string action,
+        Func<string, CancellationToken, Task> execute)
+    {
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
+        {
+            dispatch(() =>
+            {
+                Error = "Wait for the current container action to finish.";
+                Changed?.Invoke();
+            });
+            return;
+        }
+
+        try
+        {
+            dispatch(() =>
+            {
+                Error = null;
+                Status = $"{action} {container.Name}…";
+                Changed?.Invoke();
+            });
+
+            Exception? actionError = null;
+            Exception? refreshError = null;
+            IReadOnlyList<ContainerInfo>? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                try
+                {
+                    await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    actionError = exception;
+                }
+
+                try
+                {
+                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    refreshError = exception;
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
+
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    Containers = result;
+                    HasRefreshed = true;
+                }
+
+                if (actionError is not null)
+                {
+                    Status = null;
+                    Error = refreshError is null
+                        ? $"{action} {container.Name} failed: {actionError.Message}"
+                        : $"{action} {container.Name} failed: {actionError.Message} Unable to refresh containers: {refreshError.Message}";
+                }
+                else if (refreshError is not null)
+                {
+                    Status = $"{action} {container.Name} succeeded.";
+                    Error = $"Unable to refresh containers: {refreshError.Message}";
+                }
+                else
+                {
+                    Status = $"{action} {container.Name} succeeded.";
+                    Error = null;
+                }
+
+                Changed?.Invoke();
+            });
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _actionInProgress, 0);
+        }
     }
 }

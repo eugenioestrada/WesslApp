@@ -102,6 +102,17 @@ public sealed class ContainerPollingTests
                 [new("id", "name", "image", ContainerState.Running)]);
         }
 
+        public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
     }
 
     private sealed class UnusedShellLauncher : IContainerShellLauncher
@@ -122,6 +133,18 @@ public sealed class ContainerPollingTests
             Token = cancellationToken;
             return _result.Task;
         }
+
+        public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
 
         public void Complete() => _result.SetResult(
             [new("id", "name", "image", ContainerState.Running)]);
@@ -144,6 +167,18 @@ public sealed class ContainerPollingTests
             SecondStarted.SetResult();
             return Task.FromResult<IReadOnlyList<ContainerInfo>>([]);
         }
+
+        public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
 
         public void CompleteFirst() => _first.SetResult([]);
     }

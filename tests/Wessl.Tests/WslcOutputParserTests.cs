@@ -54,4 +54,29 @@ public sealed class WslcOutputParserTests
         source.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await client.ListContainersAsync(source.Token));
     }
+
+    [Fact]
+    public async Task SampleClientSupportsContainerLifecycleActions()
+    {
+        var client = new SampleWslcClient();
+
+        await client.StopContainerAsync("sample-1");
+        Assert.Equal(ContainerState.Stopped, Assert.Single(await client.ListContainersAsync(), c => c.Id == "sample-1").State);
+
+        await client.StartContainerAsync("sample-2");
+        Assert.Equal(ContainerState.Running, Assert.Single(await client.ListContainersAsync(), c => c.Id == "sample-2").State);
+
+        await client.RestartContainerAsync("sample-2");
+        await client.RemoveContainerAsync("sample-2");
+        Assert.DoesNotContain((await client.ListContainersAsync()), container => container.Id == "sample-2");
+    }
+
+    [Fact]
+    public async Task SampleClientRejectsActionsForUnknownContainers()
+    {
+        var client = new SampleWslcClient();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.StartContainerAsync("missing"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.RemoveContainerAsync("missing"));
+    }
 }

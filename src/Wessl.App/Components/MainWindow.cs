@@ -10,6 +10,7 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
     public override Element Render()
     {
         var (_, setRevision) = UseState(0);
+        var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         UseEffect(() =>
         {
             var revision = 0;
@@ -20,9 +21,15 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
 
         return VStack(12,
             TextBlock("Containers").FontSize(24),
-            containers.Error is { } error
-                ? TextBlock($"Unable to refresh: {error}")
-                : ContainerList.Create(containers.Containers, containers.OpenShell),
+            containers.Error is { } error ? TextBlock(error) : TextBlock(string.Empty),
+            containers.Status is { } status ? TextBlock(status) : TextBlock(string.Empty),
+            ContainerList.Create(
+                containers.Containers,
+                containers,
+                containers.OpenShell,
+                pendingRemoval,
+                id => setPendingRemoval(id),
+                () => setPendingRemoval(null)),
             containers.ShellError is { } shellError
                 ? TextBlock($"Unable to open shell: {shellError}")
                 : TextBlock(string.Empty),
