@@ -4,7 +4,7 @@ Wessl is a lightweight native Windows system-tray app for WSL Containers (WSLc),
 
 See the [roadmap](ROADMAP.md) for planned milestones and feature priorities.
 
-This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Verify that your WSLc version supports this format before enabling it.
+This is an initial scaffold. The app uses sample containers by default and does not change real containers. `WslcClient` provides an experimental read-only CLI integration; to use it, replace the `SampleWslcClient` registration in `src/Wessl.App/Program.cs` with `WslcClient`. It calls `wslc container list --all --format json` and expects one JSON object per line. Published TCP mappings in a container's `Ports` field are shown as localhost URLs that can be opened or copied. Verify that your WSLc version supports this format before enabling it.
 
 ## Prerequisites
 

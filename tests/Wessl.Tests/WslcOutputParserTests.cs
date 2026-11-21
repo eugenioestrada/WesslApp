@@ -9,7 +9,7 @@ public sealed class WslcOutputParserTests
     public void ParseReadsJsonLinesAndStates()
     {
         const string output = """
-            {"ID":"abc","Names":"web","Image":"nginx","State":"running"}
+            {"ID":"abc","Names":"web","Image":"nginx","State":"running","Ports":"0.0.0.0:8080->80/tcp, :::8080->80/tcp, 0.0.0.0:5353->53/udp, 80/tcp"}
             {"ID":"def","Names":"db","Image":"postgres","Status":"Exited (0) 2 hours ago"}
             {"ID":"ghi","Names":"other","Image":"busybox","State":"paused"}
             """;
@@ -17,9 +17,27 @@ public sealed class WslcOutputParserTests
         var containers = WslcOutputParser.Parse(output);
 
         Assert.Equal(3, containers.Count);
-        Assert.Equal(new ContainerInfo("abc", "web", "nginx", ContainerState.Running), containers[0]);
+        Assert.Equal("abc", containers[0].Id);
+        Assert.Equal("web", containers[0].Name);
+        Assert.Equal("nginx", containers[0].Image);
+        Assert.Equal(ContainerState.Running, containers[0].State);
+        Assert.Equal(
+            [new ExposedPort(8080, 80, "tcp"), new ExposedPort(5353, 53, "udp")],
+            containers[0].Ports);
         Assert.Equal(ContainerState.Stopped, containers[1].State);
         Assert.Equal(ContainerState.Unknown, containers[2].State);
+    }
+
+    [Fact]
+    public void ParseReadsPublishedPortsFromStructuredPortData()
+    {
+        const string output = """{"ID":"abc","Names":"web","Image":"nginx","State":"running","Ports":[{"HostPort":"8081","ContainerPort":"80","Protocol":"tcp"},{"PublicPort":5353,"PrivatePort":53,"Type":"udp"}]}""";
+
+        var container = Assert.Single(WslcOutputParser.Parse(output));
+
+        Assert.Equal(
+            [new ExposedPort(8081, 80, "tcp"), new ExposedPort(5353, 53, "udp")],
+            container.Ports);
     }
 
     [Fact]
