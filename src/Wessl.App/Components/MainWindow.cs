@@ -5,7 +5,7 @@ using static Microsoft.UI.Reactor.Factories;
 
 namespace Wessl.App.Components;
 
-public sealed class MainWindow(ContainerService containers) : Component
+public sealed class MainWindow(ContainerService containers, ContainerPolling polling) : Component
 {
     public override Element Render()
     {
@@ -23,7 +23,7 @@ public sealed class MainWindow(ContainerService containers) : Component
             containers.Error is { } error
                 ? TextBlock($"Unable to refresh: {error}")
                 : ContainerList.Create(containers.Containers),
-            Button("Refresh", () => _ = containers.RefreshAsync())
+            Button("Refresh", () => _ = polling.RefreshAsync())
         ).Padding(20);
     }
 }
