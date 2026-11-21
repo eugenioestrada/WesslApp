@@ -1,44 +1,106 @@
-using Microsoft.UI.Reactor;
 using Wessl.Domain;
 
 namespace Wessl.App.Services;
 
-public sealed class ContainerService(IWslcClient client)
+public sealed class ContainerService(
+    IWslcClient client,
+    Action<Action> dispatch,
+    IContainerShellLauncher shellLauncher)
 {
+    private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private int _actionInProgress;
+
     public IReadOnlyList<ContainerInfo> Containers { get; private set; } = [];
+
+    public bool HasRunningContainers => Containers.Any(container => container.State == ContainerState.Running);
+
+    public bool HasRefreshed { get; private set; }
 
     public string? Error { get; private set; }
 
     public string? Status { get; private set; }
 
-    public bool IsBusy { get; private set; }
+    public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
+
+    public string? ShellError { get; private set; }
 
     public event Action? Changed;
 
-    public async Task RefreshAsync()
+    public void OpenShell(ContainerInfo container)
     {
-        var dispatcher = ReactorApp.UIDispatcher
-            ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+        ShellError = null;
+        try
+        {
+            if (container.State != ContainerState.Running)
+            {
+                throw new InvalidOperationException("A shell can only be opened for a running container.");
+            }
+
+            shellLauncher.OpenShell(container.Id);
+        }
+        catch (Exception exception)
+        {
+            ShellError = exception.Message;
+        }
+
+        Changed?.Invoke();
+    }
+
+    public async Task RefreshAsync(CancellationToken cancellationToken = default, bool skipIfBusy = false)
+    {
+        try
+        {
+            if (skipIfBusy)
+            {
+                if (!await _refreshLock.WaitAsync(0, cancellationToken))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                await _refreshLock.WaitAsync(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         IReadOnlyList<ContainerInfo>? result = null;
         string? error = null;
         try
         {
-            result = await client.ListContainersAsync().ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            result = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
         }
         catch (Exception exception)
         {
             error = exception.Message;
         }
-
-        dispatcher.TryEnqueue(() =>
+        finally
         {
+            _refreshLock.Release();
+        }
+
+        dispatch(() =>
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             if (result is not null)
             {
                 Containers = result;
+                HasRefreshed = true;
             }
 
             Error = error;
-            Status = error is null ? "Containers refreshed." : null;
             Changed?.Invoke();
         });
     }
@@ -60,12 +122,9 @@ public sealed class ContainerService(IWslcClient client)
         string action,
         Func<string, CancellationToken, Task> execute)
     {
-        var dispatcher = ReactorApp.UIDispatcher
-            ?? throw new InvalidOperationException("The UI dispatcher is not available.");
-
-        if (IsBusy)
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
         {
-            dispatcher.TryEnqueue(() =>
+            dispatch(() =>
             {
                 Error = "Wait for the current container action to finish.";
                 Changed?.Invoke();
@@ -73,60 +132,76 @@ public sealed class ContainerService(IWslcClient client)
             return;
         }
 
-        dispatcher.TryEnqueue(() =>
-        {
-            IsBusy = true;
-            Error = null;
-            Status = $"{action} {container.Name}…";
-            Changed?.Invoke();
-        });
-
-        Exception? actionError = null;
         try
         {
-            await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
-        }
-        catch (Exception exception)
-        {
-            actionError = exception;
-        }
-
-        IReadOnlyList<ContainerInfo>? result = null;
-        Exception? refreshError = null;
-        try
-        {
-            result = await client.ListContainersAsync().ConfigureAwait(false);
-        }
-        catch (Exception exception)
-        {
-            refreshError = exception;
-        }
-
-        dispatcher.TryEnqueue(() =>
-        {
-            if (result is not null)
+            dispatch(() =>
             {
-                Containers = result;
-            }
-
-            IsBusy = false;
-            if (actionError is not null)
-            {
-                Status = null;
-                Error = $"{action} {container.Name} failed: {actionError.Message}";
-            }
-            else if (refreshError is not null)
-            {
-                Status = $"{action} {container.Name} succeeded.";
-                Error = $"Unable to refresh containers: {refreshError.Message}";
-            }
-            else
-            {
-                Status = $"{action} {container.Name} succeeded.";
                 Error = null;
+                Status = $"{action} {container.Name}…";
+                Changed?.Invoke();
+            });
+
+            Exception? actionError = null;
+            Exception? refreshError = null;
+            IReadOnlyList<ContainerInfo>? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                try
+                {
+                    await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    actionError = exception;
+                }
+
+                try
+                {
+                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    refreshError = exception;
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
             }
 
-            Changed?.Invoke();
-        });
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    Containers = result;
+                    HasRefreshed = true;
+                }
+
+                if (actionError is not null)
+                {
+                    Status = null;
+                    Error = refreshError is null
+                        ? $"{action} {container.Name} failed: {actionError.Message}"
+                        : $"{action} {container.Name} failed: {actionError.Message} Unable to refresh containers: {refreshError.Message}";
+                }
+                else if (refreshError is not null)
+                {
+                    Status = $"{action} {container.Name} succeeded.";
+                    Error = $"Unable to refresh containers: {refreshError.Message}";
+                }
+                else
+                {
+                    Status = $"{action} {container.Name} succeeded.";
+                    Error = null;
+                }
+
+                Changed?.Invoke();
+            });
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _actionInProgress, 0);
+        }
     }
 }

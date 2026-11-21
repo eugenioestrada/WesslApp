@@ -11,23 +11,33 @@ public static class ContainerRow
     public static Element Create(
         ContainerInfo container,
         ContainerService service,
+        Action<ContainerInfo> onOpenShell,
         bool confirmRemove,
         Action requestRemove,
-        Action cancelRemove) =>
-        VStack(2,
+        Action cancelRemove)
+    {
+        var ports = container.Ports.Count == 0
+            ? "None"
+            : string.Join(", ", container.Ports);
+
+        return VStack(2,
             TextBlock(container.Name).SemiBold(),
             TextBlock($"{container.Image} · {container.State}"),
+            TextBlock($"Ports: {ports}"),
             container.State == ContainerState.Running
                 ? Button("Stop", () => _ = service.StopAsync(container))
                 : Button("Start", () => _ = service.StartAsync(container)),
             container.State == ContainerState.Running
                 ? Button("Restart", () => _ = service.RestartAsync(container))
                 : TextBlock(string.Empty),
+            container.State == ContainerState.Running
+                ? Button("Open shell", () => onOpenShell(container))
+                : TextBlock(string.Empty),
             confirmRemove
                 ? VStack(2,
                     TextBlock($"Remove {container.Name}? This permanently deletes the container and stops it if running."),
                     Button("Confirm remove", () => _ = service.RemoveAsync(container)),
                     Button("Cancel", cancelRemove))
-                : Button("Remove", requestRemove)
-        );
+                : Button("Remove", requestRemove));
+    }
 }

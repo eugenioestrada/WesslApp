@@ -11,16 +11,20 @@ public static class ContainerList
     public static Element Create(
         IReadOnlyList<ContainerInfo> containers,
         ContainerService service,
+        Action<ContainerInfo> onOpenShell,
         string? pendingRemoval,
         Action<string> requestRemove,
         Action cancelRemove) =>
         containers.Count == 0
             ? TextBlock("No containers found.")
-            : ScrollViewer(VStack(8, containers.Select(container =>
-                ContainerRow.Create(
-                    container,
-                    service,
-                    pendingRemoval == container.Id,
-                    () => requestRemove(container.Id),
-                    cancelRemove).WithKey(container.Id)).ToArray()));
+            : ScrollViewer(VStack(
+                8,
+                containers.Select(container =>
+                    ContainerRow.Create(
+                        container,
+                        service,
+                        onOpenShell,
+                        pendingRemoval == container.Id,
+                        () => requestRemove(container.Id),
+                        cancelRemove).WithKey(container.Id)).ToArray()));
 }
