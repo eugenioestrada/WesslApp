@@ -8,18 +8,18 @@ namespace Wessl.Tests;
 public sealed class WslcIntegrationTests
 {
     [Fact]
-    public void RegistrationUsesSampleClientByDefault()
+    public void RegistrationUsesRealClientByDefault()
     {
         using var services = new ServiceCollection().AddWslcClient().BuildServiceProvider();
-        var client = Assert.IsType<SampleWslcClient>(services.GetRequiredService<IWslcClient>());
+        var client = Assert.IsType<WslcClient>(services.GetRequiredService<IWslcClient>());
         Assert.Same(client, services.GetRequiredService<IImageClient>());
     }
 
     [Fact]
-    public void RegistrationSelectsRealClientWhenEnabled()
+    public void RegistrationUsesSampleClientOnlyWhenExplicitlyEnabled()
     {
-        using var services = new ServiceCollection().AddWslcClient(useRealClient: true).BuildServiceProvider();
-        var client = Assert.IsType<WslcClient>(services.GetRequiredService<IWslcClient>());
+        using var services = new ServiceCollection().AddWslcClient(useSampleClient: true).BuildServiceProvider();
+        var client = Assert.IsType<SampleWslcClient>(services.GetRequiredService<IWslcClient>());
         Assert.Same(client, services.GetRequiredService<IImageClient>());
     }
 

@@ -32,7 +32,7 @@
 ## Runtime and integration
 
 - The app is an unpackaged WinUI 3 desktop app with the Windows App SDK runtime included. It targets Windows SDK 10.0.22621.0, requires Windows 10 build 19041 or later, and supports x64 and ARM64.
-- Register `SampleWslcClient` by default for safe demo behavior. Use `WslcClient` only when explicitly enabling the real WSLc CLI integration.
+- Register `WslcClient` by default. Use `SampleWslcClient` only when explicitly enabling demo mode.
 - Keep asynchronous work and external process interactions out of UI components; marshal UI updates through the app's dispatcher.
 
 ## Validation
