@@ -135,9 +135,11 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         bool accent = false,
         bool subtle = true)
     {
+        // Reactor applies native button styles only on mount; keep each action's identity distinct.
         var button = Button(
             Icon(FontIcon(glyph, fontSize: 16)),
             action)
+            .WithKey(glyph)
             .Width(40)
             .Height(40)
             .ToolTip(label)
