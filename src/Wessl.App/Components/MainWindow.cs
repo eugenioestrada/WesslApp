@@ -116,7 +116,7 @@ public sealed class MainWindow(
                 pendingRemoval,
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null)).Margin(16, 0, 16, 16).Grid(row: 3)
-        ));
+        ).Padding(0, 8, 0, 0));
     }
 
     private Element WithDialogs(Element content) =>

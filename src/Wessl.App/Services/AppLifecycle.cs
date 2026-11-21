@@ -310,6 +310,7 @@ public sealed partial class AppLifecycle(
             {
                 throw new InvalidOperationException("The main window requires an overlapped presenter.");
             }
+            presenter.IsResizable = false;
             presenter.SetBorderAndTitleBar(true, false);
             _window.NativeWindow.SystemBackdrop = new MicaBackdrop();
             ApplyTheme(_window);
