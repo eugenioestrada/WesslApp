@@ -22,7 +22,10 @@ public sealed class MainWindow(ContainerService containers, ContainerPolling pol
             TextBlock("Containers").FontSize(24),
             containers.Error is { } error
                 ? TextBlock($"Unable to refresh: {error}")
-                : ContainerList.Create(containers.Containers),
+                : ContainerList.Create(containers.Containers, containers.OpenShell),
+            containers.ShellError is { } shellError
+                ? TextBlock($"Unable to open shell: {shellError}")
+                : TextBlock(string.Empty),
             Button("Refresh", () => _ = polling.RefreshAsync())
         ).Padding(20);
     }

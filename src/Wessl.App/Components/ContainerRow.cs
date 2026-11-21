@@ -7,7 +7,7 @@ namespace Wessl.App.Components;
 
 public static class ContainerRow
 {
-    public static Element Create(ContainerInfo container)
+    public static Element Create(ContainerInfo container, Action<ContainerInfo> onOpenShell)
     {
         var ports = container.Ports.Count == 0
             ? "None"
@@ -16,6 +16,9 @@ public static class ContainerRow
         return VStack(2,
             TextBlock(container.Name).SemiBold(),
             TextBlock($"{container.Image} · {container.State}"),
-            TextBlock($"Ports: {ports}"));
+            TextBlock($"Ports: {ports}"),
+            container.State == ContainerState.Running
+                ? Button("Open shell", () => onOpenShell(container))
+                : TextBlock(string.Empty));
     }
 }
