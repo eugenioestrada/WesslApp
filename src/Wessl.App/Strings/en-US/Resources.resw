@@ -260,6 +260,66 @@
   <data name="TrayStopAllFailureSeparator" xml:space="preserve">
     <value>; </value>
   </data>
+  <data name="BulkSelectionCount" xml:space="preserve">
+    <value>Selected: {0}</value>
+  </data>
+  <data name="BulkStartSelectedButton" xml:space="preserve">
+    <value>Start ({0})</value>
+  </data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve">
+    <value>Restart ({0})</value>
+  </data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve">
+    <value>Remove stopped ({0})</value>
+  </data>
+  <data name="BulkClearSelectionButton" xml:space="preserve">
+    <value>Clear selection</value>
+  </data>
+  <data name="SelectContainerButton" xml:space="preserve">
+    <value>Select container</value>
+  </data>
+  <data name="DeselectContainerButton" xml:space="preserve">
+    <value>Deselect container</value>
+  </data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve">
+    <value>Remove selected stopped containers?</value>
+  </data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve">
+    <value>Only the {0} selected containers still confirmed as stopped when removal begins will be removed.</value>
+  </data>
+  <data name="BulkRemoveConfirm" xml:space="preserve">
+    <value>Remove stopped</value>
+  </data>
+  <data name="BulkStartPending" xml:space="preserve">
+    <value>Starting {0} selected containers…</value>
+  </data>
+  <data name="BulkRestartPending" xml:space="preserve">
+    <value>Restarting {0} selected containers…</value>
+  </data>
+  <data name="BulkRemovePending" xml:space="preserve">
+    <value>Removing {0} selected stopped containers…</value>
+  </data>
+  <data name="BulkActionCompleted" xml:space="preserve">
+    <value>Succeeded for {0} of {1} selected containers: {2}</value>
+  </data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve">
+    <value>{0}: succeeded</value>
+  </data>
+  <data name="BulkActionPartialFailure" xml:space="preserve">
+    <value>Some selected containers were not processed: {0}</value>
+  </data>
+  <data name="BulkActionNotFound" xml:space="preserve">
+    <value>{0} is no longer available and was skipped.</value>
+  </data>
+  <data name="BulkActionStateChanged" xml:space="preserve">
+    <value>{0} is no longer in the required state and was skipped.</value>
+  </data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve">
+    <value>{0} could not be verified and was not changed: {1}</value>
+  </data>
+  <data name="BulkActionFailureDetail" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
   <data name="TrayStopAllResultTitle" xml:space="preserve">
     <value>Stop all containers</value>
   </data>
