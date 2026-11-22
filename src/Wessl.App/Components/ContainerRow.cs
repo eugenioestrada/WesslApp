@@ -34,11 +34,8 @@ public sealed class ContainerRow : Component<ContainerRowProps>
 
     public override Element Render()
     {
-        var (status, setStatus) = UseState(string.Empty);
+        var (status, setStatus) = UseState<(string Message, bool IsError)?>(null);
         var container = Props.Container;
-        var ports = container.Ports.Count == 0
-            ? AppStrings.Get("NoPorts")
-            : string.Join(", ", container.Ports);
         var stateGlyph = container.State switch
         {
             ContainerState.Running => "●",
@@ -54,13 +51,14 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         var actionPending = Props.Service.Status?.ResourceKey.EndsWith("Pending", StringComparison.Ordinal) == true;
         var row = new List<Element>
         {
-            Grid([GridSize.Auto, GridSize.Star(), GridSize.Star()], [GridSize.Auto],
+            Grid([GridSize.Auto, GridSize.Star(2).MinSize(0), GridSize.Star().MinSize(0)], [GridSize.Auto],
                 TextBlock(stateGlyph).FontSize(14)
                     .Foreground(stateColor)
                     .ToolTip(AppStrings.GetContainerState(container.State))
                     .AutomationName(AppStrings.GetContainerState(container.State))
                     .Margin(0, 0, 8, 0).Grid(column: 0),
-                TextBlock(container.Name).FontSize(16).SemiBold().TextWrapping().Grid(column: 1),
+                Caption(container.Name).SemiBold().TextWrapping()
+                    .ToolTip(container.Name).Grid(column: 1),
                 Caption(container.Image)
                     .Foreground(Theme.SecondaryText)
                     .TextTrimming(TextTrimming.CharacterEllipsis)
@@ -68,28 +66,38 @@ public sealed class ContainerRow : Component<ContainerRowProps>
                     .HorizontalAlignment(HorizontalAlignment.Right)
                     .TextAlignment(TextAlignment.Right)
                     .Margin(8, 0, 0, 0).Grid(column: 2)),
-            Caption(AppStrings.Format("PortsLabel", ports)).Foreground(Theme.SecondaryText).TextWrapping(),
         };
-        row.AddRange(container.PublishedPorts
+        var endpoints = container.PublishedPorts
             .Where(port => port.Protocol.Equals("tcp", StringComparison.OrdinalIgnoreCase))
             .Select(port =>
             {
                 var url = $"http://localhost:{port.HostPort}";
-                return FlexRow(
-                    TextBlock(url).TextWrapping(),
+                return Grid([GridSize.Star().MinSize(0), GridSize.Auto, GridSize.Auto], [GridSize.Auto],
+                    TextBlock(url).TextWrapping()
+                        .VerticalAlignment(VerticalAlignment.Center).Grid(column: 0),
                     IconButton(
                         "\uE8A7",
                         AppStrings.Get("PortOpenButton"),
-                        () => _ = OpenUrlAsync(url, setStatus)),
+                        () => _ = OpenUrlAsync(url, setStatus),
+                        automationName: AppStrings.Format("PortOpenAccessible", url))
+                        .Grid(column: 1),
                     IconButton(
                         "\uE8C8",
                         AppStrings.Get("CopyUrlButton"),
-                        () => CopyUrl(url, setStatus))) with
-                    { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 };
-            }));
+                        () => CopyUrl(url, setStatus),
+                        automationName: AppStrings.Format("CopyUrlAccessible", url))
+                        .Grid(column: 2));
+            }).ToArray();
+        if (endpoints.Length > 0)
+        {
+            row.Add(VStack(4, endpoints));
+        }
         if (Props.Service.UsageErrors.TryGetValue(container.Id, out var usageError))
         {
-            row.Add(InfoBar(message: AppStrings.Format(usageError)).Error()
+            var message = AppStrings.Format(usageError);
+            row.Add(InfoBar().Error()
+                .Content(Caption(message).TextTrimming(TextTrimming.CharacterEllipsis).ToolTip(message))
+                .Height(44)
                 with { IsOpen = true, IsClosable = false });
         }
         else if (Props.Service.Usage.TryGetValue(container.Id, out var usage))
@@ -97,22 +105,25 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             var memory = usage.MemoryPercent.Length > 0
                 ? $"{usage.MemoryUsage} ({usage.MemoryPercent})"
                 : usage.MemoryUsage;
-            row.Add(Caption(AppStrings.Format("ContainerUsage", usage.CpuPercent, memory))
-                .Foreground(Theme.SecondaryText).TextWrapping());
-            if (usage.NetworkIo.Length > 0 && usage.BlockIo.Length > 0 && usage.Processes.Length > 0)
-            {
-                row.Add(Caption(AppStrings.Format("ContainerUsageDetails", usage.NetworkIo, usage.BlockIo, usage.Processes))
-                    .Foreground(Theme.SecondaryText).TextWrapping());
-            }
+            var details = usage.NetworkIo.Length > 0 && usage.BlockIo.Length > 0 && usage.Processes.Length > 0
+                ? AppStrings.Format("ContainerUsageDetails", usage.NetworkIo, usage.BlockIo, usage.Processes)
+                : string.Empty;
+            row.Add(VStack(4,
+                UsageLine(AppStrings.Format("ContainerUsage", usage.CpuPercent, memory)),
+                UsageLine(details)));
         }
         else if (container.State == ContainerState.Running)
         {
-            row.Add(Caption(AppStrings.Get("ContainerUsageLoading")).Foreground(Theme.SecondaryText));
+            row.Add(VStack(4,
+                UsageLine(AppStrings.Get("ContainerUsageLoading")),
+                UsageLine(string.Empty)));
         }
 
-        if (status.Length > 0)
+        if (status is { } feedback)
         {
-            row.Add(TextBlock(status).TextWrapping());
+            var message = InfoBar(message: feedback.Message);
+            row.Add((feedback.IsError ? message.Error() : message.Success())
+                with { IsOpen = true, IsClosable = false });
         }
 
         var actions = new List<Element>
@@ -151,12 +162,21 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         return Card(VStack(8, row.ToArray())).Padding(16);
     }
 
+    private static Element UsageLine(string text)
+    {
+        var line = Caption(text).Foreground(Theme.SecondaryText)
+            .Height(20)
+            .TextTrimming(TextTrimming.CharacterEllipsis);
+        return text.Length == 0 ? line : line.ToolTip(text);
+    }
+
     private static Element IconButton(
         string glyph,
         string label,
         Action action,
         bool accent = false,
-        bool subtle = true)
+        bool subtle = true,
+        string? automationName = null)
     {
         // Reactor applies native button styles only on mount; keep each action's identity distinct.
         var button = Button(
@@ -166,7 +186,7 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             .Width(40)
             .Height(40)
             .ToolTip(label)
-            .AutomationName(label);
+            .AutomationName(automationName ?? label);
 
         if (accent)
         {
@@ -176,31 +196,31 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         return (subtle ? button.SubtleButton() : button).Padding(0);
     }
 
-    private static async Task OpenUrlAsync(string url, Action<string> setStatus)
+    private static async Task OpenUrlAsync(string url, Action<(string Message, bool IsError)?> setStatus)
     {
         try
         {
             var launched = await Launcher.LaunchUriAsync(new Uri(url));
-            setStatus(AppStrings.Format(launched ? "PortOpenSuccess" : "PortOpenFailure", url));
+            setStatus((AppStrings.Format(launched ? "PortOpenSuccess" : "PortOpenFailure", url), !launched));
         }
         catch (Exception exception)
         {
-            setStatus(AppStrings.Format("PortOpenError", url, exception.Message));
+            setStatus((AppStrings.Format("PortOpenError", url, exception.Message), true));
         }
     }
 
-    private static void CopyUrl(string url, Action<string> setStatus)
+    private static void CopyUrl(string url, Action<(string Message, bool IsError)?> setStatus)
     {
         try
         {
             var package = new DataPackage();
             package.SetText(url);
             Clipboard.SetContent(package);
-            setStatus(AppStrings.Format("PortCopySuccess", url));
+            setStatus((AppStrings.Format("PortCopySuccess", url), false));
         }
         catch (Exception exception)
         {
-            setStatus(AppStrings.Format("PortCopyError", url, exception.Message));
+            setStatus((AppStrings.Format("PortCopyError", url, exception.Message), true));
         }
     }
 }

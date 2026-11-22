@@ -23,8 +23,8 @@
   <data name="CopyUpdateCommand" xml:space="preserve"><value>Updatebefehl kopieren</value></data>
   <data name="UpdateCommandCopied" xml:space="preserve"><value>wsl --update wurde in die Zwischenablage kopiert.</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>Updatebefehl konnte nicht kopiert werden: {0}</value></data>
-  <data name="NoPorts" xml:space="preserve"><value>Keine</value></data>
-  <data name="PortsLabel" xml:space="preserve"><value>Ports: {0}</value></data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>{0} öffnen</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>{0} kopieren</value></data>
   <data name="StartButton" xml:space="preserve"><value>Starten</value></data>
   <data name="StopButton" xml:space="preserve"><value>Beenden</value></data>
   <data name="RestartButton" xml:space="preserve"><value>Neu starten</value></data>

@@ -27,6 +27,7 @@ public static class ContainerList
             ? VStack(8,
                 TextBlock(AppStrings.Get("EmptyContainers")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
                 Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync()))
+            // Scroll mode alone disables input but still permits an unconstrained horizontal measure.
             : ScrollViewer(VStack(
                 8,
                 containers.Select(container =>
@@ -38,7 +39,11 @@ public static class ContainerList
                         pendingRemoval == container.Id,
                         () => requestRemove(container.Id),
                         cancelRemove).WithKey(container.Id)).ToArray()))
-                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
+                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled) with
+                {
+                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto
+                };
 }
 
 public sealed class UnavailableWslc : Component

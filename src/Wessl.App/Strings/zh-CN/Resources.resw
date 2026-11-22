@@ -23,8 +23,8 @@
   <data name="CopyUpdateCommand" xml:space="preserve"><value>复制更新命令</value></data>
   <data name="UpdateCommandCopied" xml:space="preserve"><value>已将 wsl --update 复制到剪贴板。</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>无法复制更新命令：{0}</value></data>
-  <data name="NoPorts" xml:space="preserve"><value>无</value></data>
-  <data name="PortsLabel" xml:space="preserve"><value>端口：{0}</value></data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>打开 {0}</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>复制 {0}</value></data>
   <data name="StartButton" xml:space="preserve"><value>启动</value></data>
   <data name="StopButton" xml:space="preserve"><value>停止</value></data>
   <data name="RestartButton" xml:space="preserve"><value>重启</value></data>

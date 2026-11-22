@@ -23,8 +23,8 @@
   <data name="CopyUpdateCommand" xml:space="preserve"><value>Copia comando di aggiornamento</value></data>
   <data name="UpdateCommandCopied" xml:space="preserve"><value>Il comando wsl --update è stato copiato negli appunti.</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>Impossibile copiare il comando di aggiornamento: {0}</value></data>
-  <data name="NoPorts" xml:space="preserve"><value>Nessuno</value></data>
-  <data name="PortsLabel" xml:space="preserve"><value>Porte: {0}</value></data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>Apri {0}</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>Copia {0}</value></data>
   <data name="StartButton" xml:space="preserve"><value>Avvia</value></data>
   <data name="StopButton" xml:space="preserve"><value>Arresta</value></data>
   <data name="RestartButton" xml:space="preserve"><value>Riavvia</value></data>
