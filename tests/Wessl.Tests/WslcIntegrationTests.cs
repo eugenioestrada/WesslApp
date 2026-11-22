@@ -45,6 +45,19 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public void InspectCommandRequestsBatchedJsonAndPassesIdsAsArguments()
+    {
+        var client = new WslcClient("wslc");
+        var startInfo = client.CreateContainerInspectStartInfo(["container-123", "container-456"]);
+
+        Assert.Equal(
+            ["container", "inspect", "--format", "json", "container-123", "container-456"],
+            startInfo.ArgumentList);
+        Assert.True(startInfo.RedirectStandardOutput);
+        Assert.Throws<ArgumentException>(() => client.CreateContainerInspectStartInfo(["--help"]));
+    }
+
+    [Fact]
     public void ContainerDetailsCommandRequestsSingleContainerJson()
     {
         var client = new WslcClient("wslc");
@@ -319,6 +332,11 @@ public sealed class WslcIntegrationTests
                 ? Task.FromException<IReadOnlyList<ContainerInfo>>(failure)
                 : Task.FromResult<IReadOnlyList<ContainerInfo>>([new("id", "name", "image", ContainerState.Running)]);
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
+
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
@@ -339,6 +357,11 @@ public sealed class WslcIntegrationTests
 
         public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<ContainerInfo>>(containers);
+
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
@@ -417,6 +440,10 @@ public sealed class WslcIntegrationTests
     {
         public void OpenShell(string containerId, ContainerTerminal terminal) => throw new NotSupportedException();
     }
+
+    private static Task<IReadOnlyDictionary<string, ContainerDiagnostics>> NoDiagnosticsAsync() =>
+        Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
 
     private sealed class RecordingShellLauncher : IContainerShellLauncher
     {

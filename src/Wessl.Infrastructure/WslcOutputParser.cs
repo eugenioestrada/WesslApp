@@ -407,6 +407,169 @@ public static class WslcOutputParser
         return containers;
     }
 
+    public static IReadOnlyDictionary<string, ContainerDiagnostics> ParseContainerDiagnostics(string output)
+    {
+        using var document = JsonDocument.Parse(output);
+        var root = document.RootElement;
+        if (root.ValueKind != JsonValueKind.Array)
+        {
+            throw new FormatException("WSLc inspect output is not an array.");
+        }
+
+        var diagnostics = new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal);
+        foreach (var container in root.EnumerateArray())
+        {
+            if (container.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc inspect output contains an invalid container.");
+            }
+
+            var id = GetRequiredDiagnosticString(container, "Id");
+            if (!TryGetProperty(container, "State", out var state) || state.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc inspect output is missing container state.");
+            }
+
+            var health = ContainerHealthStatus.Unavailable;
+            string? latestError = null;
+            if (TryGetProperty(state, "Health", out var healthElement)
+                && healthElement.ValueKind != JsonValueKind.Null)
+            {
+                if (healthElement.ValueKind != JsonValueKind.Object)
+                {
+                    throw new FormatException("WSLc inspect output contains an invalid health value.");
+                }
+
+                health = ParseHealthStatus(GetDiagnosticString(healthElement, "Status"));
+                latestError = GetLatestHealthCheckError(healthElement);
+            }
+
+            var diagnosticsEntry = new ContainerDiagnostics(
+                health,
+                GetOptionalInt32(state, "ExitCode"),
+                GetDiagnosticTimestamp(state, "FinishedAt"),
+                latestError);
+            if (!diagnostics.TryAdd(id, diagnosticsEntry))
+            {
+                throw new FormatException("WSLc inspect output contains a duplicate container ID.");
+            }
+        }
+
+        return diagnostics;
+    }
+
+    private static string GetRequiredDiagnosticString(JsonElement element, string propertyName)
+    {
+        var value = GetDiagnosticString(element, propertyName);
+        if (value.Length == 0)
+        {
+            throw new FormatException($"WSLc inspect output is missing {propertyName}.");
+        }
+
+        return value;
+    }
+
+    private static string GetDiagnosticString(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value))
+        {
+            return string.Empty;
+        }
+
+        if (value.ValueKind != JsonValueKind.String)
+        {
+            throw new FormatException($"WSLc inspect output contains an invalid {propertyName} value.");
+        }
+
+        return value.GetString() ?? string.Empty;
+    }
+
+    private static int? GetOptionalInt32(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value))
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out var result))
+        {
+            throw new FormatException($"WSLc inspect output contains an invalid {propertyName} value.");
+        }
+
+        return result;
+    }
+
+    private static DateTimeOffset? GetDiagnosticTimestamp(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value))
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.String)
+        {
+            throw new FormatException($"WSLc inspect output contains an invalid {propertyName} value.");
+        }
+
+        var timestamp = value.GetString();
+        if (string.IsNullOrWhiteSpace(timestamp))
+        {
+            return null;
+        }
+
+        if (!DateTimeOffset.TryParse(
+                timestamp,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var result))
+        {
+            throw new FormatException($"WSLc inspect output contains an invalid {propertyName} value.");
+        }
+
+        return result == DateTimeOffset.MinValue ? null : result;
+    }
+
+    private static string? GetLatestHealthCheckError(JsonElement health)
+    {
+        if (!TryGetProperty(health, "Log", out var log))
+        {
+            return null;
+        }
+
+        if (log.ValueKind != JsonValueKind.Array)
+        {
+            throw new FormatException("WSLc inspect output contains an invalid health log.");
+        }
+
+        string? latestError = null;
+        foreach (var entry in log.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc inspect output contains an invalid health log entry.");
+            }
+
+            var exitCode = GetOptionalInt32(entry, "ExitCode");
+            var output = GetDiagnosticString(entry, "Output");
+            if (exitCode is not null and not 0 && !string.IsNullOrWhiteSpace(output))
+            {
+                latestError = output;
+            }
+        }
+
+        return latestError;
+    }
+
+    private static ContainerHealthStatus ParseHealthStatus(string status) =>
+        status.ToLowerInvariant() switch
+        {
+            "starting" => ContainerHealthStatus.Starting,
+            "healthy" => ContainerHealthStatus.Healthy,
+            "unhealthy" => ContainerHealthStatus.Unhealthy,
+            "" => ContainerHealthStatus.Unknown,
+            _ => ContainerHealthStatus.Unknown
+        };
+
     private static string GetString(JsonElement element, string propertyName)
     {
         foreach (var property in element.EnumerateObject())

@@ -26,6 +26,8 @@ Running containers show CPU, memory, network and block I/O, and PID counts using
 
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
 
+Container cards request one batched `wslc container inspect --format json` during each visible status refresh. They show reported health, and stopped containers show the reported exit code and time when available. Missing values remain explicitly unknown or unavailable; the latest failed health-check output is shown only when WSLc provides it. Diagnostics are not polled while the panel is hidden.
+
 ## Prerequisites
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64.

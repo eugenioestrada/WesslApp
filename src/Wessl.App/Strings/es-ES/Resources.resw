@@ -417,6 +417,17 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 segundo</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>Red: {0} · E/S de bloque: {1} · PID: {2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Las estadísticas de este contenedor no están disponibles.</value></data>
+  <data name="ContainerHealth" xml:space="preserve"><value>Estado de salud: {0}</value></data>
+  <data name="ContainerHealthUnknown" xml:space="preserve"><value>Desconocido</value></data>
+  <data name="ContainerHealthUnavailable" xml:space="preserve"><value>No indicado</value></data>
+  <data name="ContainerHealthStarting" xml:space="preserve"><value>Iniciando</value></data>
+  <data name="ContainerHealthHealthy" xml:space="preserve"><value>Saludable</value></data>
+  <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>No saludable</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>No disponible</value></data>
+  <data name="ContainerExitCode" xml:space="preserve"><value>Código de salida: {0}</value></data>
+  <data name="ContainerExitTime" xml:space="preserve"><value>Finalizó: {0}</value></data>
+  <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Error más reciente de comprobación de salud: {0}</value></data>
+  <data name="ContainerDiagnosticsLoadError" xml:space="preserve"><value>Los diagnósticos del contenedor no están disponibles: {0}</value></data>
   <data name="ContainersSearchLabel" xml:space="preserve"><value>Buscar contenedores</value></data>
   <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>Buscar por nombre o imagen</value></data>
   <data name="ContainersStateFilterLabel" xml:space="preserve"><value>Estado</value></data>

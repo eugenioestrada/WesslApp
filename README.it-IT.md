@@ -26,6 +26,8 @@ I contenitori in esecuzione mostrano CPU, memoria, I/O di rete e blocchi e numer
 
 Lo stato dei contenitori viene aggiornato all’apertura della finestra e ogni 10 secondi mentre è visibile. Il pulsante Aggiorna richiede anche un aggiornamento immediato. Il polling si interrompe quando la finestra viene nascosta, ridotta a icona o chiusa; avviare l’app nell’area di notifica non invoca WSLc. L’indicatore nell’area mostra uno stato sconosciuto fino al primo aggiornamento riuscito, quindi riflette l’ultimo stato noto mentre la finestra è chiusa.
 
+Durante ogni aggiornamento visibile, le schede dei contenitori richiedono i dati diagnostici in un’unica chiamata `wslc container inspect --format json`. Mostrano lo stato di salute indicato da WSLc e, per i contenitori arrestati, il codice e l’ora di uscita quando disponibili. I valori mancanti restano esplicitamente sconosciuti o non disponibili; l’output dell’ultimo controllo di salute non riuscito viene mostrato solo se fornito da WSLc. I dati diagnostici non vengono richiesti quando il pannello è nascosto.
+
 ## Prerequisiti
 
 - Windows 10 versione 2004 (build 19041) o successiva, x64 o ARM64.

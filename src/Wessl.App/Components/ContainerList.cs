@@ -210,6 +210,18 @@ public sealed class ContainerList : Component<ContainerListProps>
                         Props.CancelRemove).WithKey(container.Id)).ToArray()))
                 .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
 
+        if (service.DiagnosticsError is { } diagnosticsError)
+        {
+            var diagnosticsInfo = InfoBar(message: AppStrings.Format(diagnosticsError)).Error()
+                with { IsOpen = true, IsClosable = false };
+            return Grid(
+                [GridSize.Star()],
+                [GridSize.Auto, GridSize.Auto, GridSize.Star()],
+                controls.Grid(row: 0),
+                diagnosticsInfo.Grid(row: 1),
+                list.Grid(row: 2));
+        }
+
         return Grid(
             [GridSize.Star()],
             [GridSize.Auto, GridSize.Star()],

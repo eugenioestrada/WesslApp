@@ -25,6 +25,20 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         return WslcOutputParser.Parse(output);
     }
 
+    public async Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+        IReadOnlyCollection<string> ids,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        if (ids.Count == 0)
+        {
+            return new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal);
+        }
+
+        var output = await RunCommandAsync(CreateContainerInspectStartInfo(ids), cancellationToken);
+        return WslcOutputParser.ParseContainerDiagnostics(output);
+    }
+
     public async Task<ContainerUsage> GetContainerUsageAsync(
         string id,
         CancellationToken cancellationToken = default)
@@ -206,6 +220,29 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         foreach (var argument in new[] { "stats", "--format", "json", id })
         {
             startInfo.ArgumentList.Add(argument);
+        }
+
+        return startInfo;
+    }
+
+    internal ProcessStartInfo CreateContainerInspectStartInfo(IReadOnlyCollection<string> ids)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "container", "inspect", "--format", "json" })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        foreach (var id in ids)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(id);
+            if (id.StartsWith('-'))
+            {
+                throw new ArgumentException("A container ID cannot start with a hyphen.", nameof(ids));
+            }
+
+            startInfo.ArgumentList.Add(id);
         }
 
         return startInfo;

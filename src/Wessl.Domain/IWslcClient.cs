@@ -4,6 +4,12 @@ public interface IWslcClient
 {
     Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+        IReadOnlyCollection<string> ids,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
+
     Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default);
 
     Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default);
