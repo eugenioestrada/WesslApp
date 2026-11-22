@@ -143,4 +143,22 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>Tutte le immagini</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>Nessun contenitore corrisponde alla ricerca e ai filtri.</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>Cancella ricerca e filtri</value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>Dettagli contenitore</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>Dettagli di {0}</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>Immagine</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>ID / digest immagine</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>Creato</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>Avviato</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>Comando</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>Porte</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>Mount</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>Reti</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>Non disponibile</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>Nessuno</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>I valori delle variabili di ambiente non vengono mostrati né inclusi nella copia.</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>Caricamento dei dettagli del contenitore…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>Impossibile ispezionare questo contenitore: {0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copia dettagli non segreti</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>Dettagli del contenitore copiati.</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Impossibile copiare i dettagli del contenitore: {0}</value></data>
 </root>

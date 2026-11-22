@@ -15,6 +15,7 @@ public sealed record ContainerRowProps(
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
     Action<ContainerInfo> OnOpenLogs,
+    Action<ContainerInfo> OnOpenDetails,
     bool ConfirmRemove,
     Action RequestRemove,
     Action CancelRemove);
@@ -26,11 +27,12 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
         Action<ContainerInfo> onOpenLogs,
+        Action<ContainerInfo> onOpenDetails,
         bool confirmRemove,
         Action requestRemove,
         Action cancelRemove) =>
         Component<ContainerRow, ContainerRowProps>(
-            new(container, service, onOpenShell, onOpenLogs, confirmRemove, requestRemove, cancelRemove));
+            new(container, service, onOpenShell, onOpenLogs, onOpenDetails, confirmRemove, requestRemove, cancelRemove));
 
     public override Element Render()
     {
@@ -117,6 +119,7 @@ public sealed class ContainerRow : Component<ContainerRowProps>
 
         var actions = new List<Element>
         {
+            IconButton("\uE946", AppStrings.Get("ContainerDetailsButton"), () => Props.OnOpenDetails(container)),
             container.State == ContainerState.Running
                 ? IconButton("\uE71A", AppStrings.Get("StopButton"), () => _ = Props.Service.StopAsync(container), subtle: false)
                     .IsEnabled(!actionPending)

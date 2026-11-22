@@ -96,6 +96,14 @@ public sealed class LocalizationResourceTests
         }
         referencedKeys.UnionWith([
             "ImagesPrunePending",
+            "ContainerDetailsImage",
+            "ContainerDetailsImageDigest",
+            "ContainerDetailsCreated",
+            "ContainerDetailsStarted",
+            "ContainerDetailsCommand",
+            "ContainerDetailsPorts",
+            "ContainerDetailsMounts",
+            "ContainerDetailsNetworks",
             "PortOpenSuccess",
             "PortOpenFailure",
             "LogsFollowing",

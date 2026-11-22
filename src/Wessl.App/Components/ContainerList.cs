@@ -14,6 +14,7 @@ public sealed record ContainerListProps(
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
     Action<ContainerInfo> OnOpenLogs,
+    Action<ContainerInfo> OnOpenDetails,
     string? PendingRemoval,
     Action<string> RequestRemove,
     Action CancelRemove,
@@ -26,12 +27,13 @@ public sealed class ContainerList : Component<ContainerListProps>
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
         Action<ContainerInfo> onOpenLogs,
+        Action<ContainerInfo> onOpenDetails,
         string? pendingRemoval,
         Action<string> requestRemove,
         Action cancelRemove,
         string languageTag) =>
         Component<ContainerList, ContainerListProps>(
-            new(containers, service, onOpenShell, onOpenLogs, pendingRemoval, requestRemove, cancelRemove, languageTag));
+            new(containers, service, onOpenShell, onOpenLogs, onOpenDetails, pendingRemoval, requestRemove, cancelRemove, languageTag));
 
     public override Element Render()
     {
@@ -155,6 +157,7 @@ public sealed class ContainerList : Component<ContainerListProps>
                         service,
                         Props.OnOpenShell,
                         Props.OnOpenLogs,
+                        Props.OnOpenDetails,
                         Props.PendingRemoval == container.Id,
                         () => Props.RequestRemove(container.Id),
                         Props.CancelRemove).WithKey(container.Id)).ToArray()))

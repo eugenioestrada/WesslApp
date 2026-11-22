@@ -369,4 +369,22 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>All images</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>No containers match your search and filters.</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>Clear search and filters</value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>Container details</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>{0} details</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>Image ID / digest</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>Created</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>Started</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>Command</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>Ports</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>Mounts</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>Networks</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>None</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>Environment variable values are not shown or included when copying.</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>Loading container details…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>Unable to inspect this container: {0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copy non-secret details</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>Container details copied.</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Unable to copy container details: {0}</value></data>
 </root>

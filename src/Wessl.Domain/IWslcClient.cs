@@ -6,6 +6,8 @@ public interface IWslcClient
 
     Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default);
 
+    Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default);
+
     async Task<IReadOnlyDictionary<string, ContainerUsage>> GetContainerUsagesAsync(
         IReadOnlyCollection<string> ids, CancellationToken cancellationToken = default)
     {
