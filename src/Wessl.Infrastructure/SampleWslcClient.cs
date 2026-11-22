@@ -29,6 +29,15 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
         return Task.FromResult<IReadOnlyList<ContainerInfo>>(_containers.ToArray());
     }
 
+    public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+        IReadOnlyCollection<string> ids,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
+    }
+
     public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -40,6 +49,21 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
 
         return Task.FromResult(new ContainerUsage(
             "0.00%", "12.4 MiB / 7.6 GiB", "1.2 kB / 3.4 kB", "0 B / 4 kB", "3", "0.16%"));
+    }
+
+    public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var container = FindContainer(id);
+        return Task.FromResult(new ContainerDetails(
+            container.Image,
+            id == "sample-1" ? "sha256:sample-web-image" : null,
+            "2026-01-15T10:00:00Z",
+            container.State == ContainerState.Running ? "2026-01-15T10:01:00Z" : null,
+            "[\"/docker-entrypoint.sh\"]",
+            ["80/tcp → 0.0.0.0:8080"],
+            ["/sample/data → /data (read-write)"],
+            ["bridge"]));
     }
 
     public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>

@@ -26,6 +26,8 @@ Les conteneurs en cours d’exécution affichent le processeur, la mémoire, les
 
 L’état des conteneurs est actualisé à l’ouverture de la fenêtre, puis toutes les 10 secondes tant qu’elle reste visible. Le bouton Actualiser permet également de demander une mise à jour immédiate. La vérification périodique s’arrête lorsque la fenêtre est masquée, réduite ou fermée ; le simple démarrage de l’application dans la zone de notification n’invoque pas WSLc. L’indicateur de la zone affiche un état inconnu jusqu’à la première actualisation réussie, puis reflète le dernier état connu lorsque la fenêtre est fermée.
 
+À chaque actualisation visible, les cartes demandent les diagnostics groupés avec `wslc container inspect --format json`. Elles affichent l’état de santé signalé par WSLc et, pour les conteneurs arrêtés, le code et l’heure de sortie lorsqu’ils sont disponibles. Les valeurs absentes restent explicitement inconnues ou indisponibles ; la sortie du dernier contrôle de santé en échec n’est affichée que si WSLc la fournit. Aucun diagnostic n’est interrogé lorsque le panneau est masqué.
+
 ## Prérequis
 
 - Windows 10 version 2004 (build 19041) ou ultérieure, x64 ou ARM64.

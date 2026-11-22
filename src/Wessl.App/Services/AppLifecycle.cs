@@ -21,6 +21,7 @@ public sealed partial class AppLifecycle(
     AppSettings settings,
     IStartupManager startupManager,
     ImageService images,
+    ContainerDetailsService details,
     IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
@@ -304,7 +305,7 @@ public sealed partial class AppLifecycle(
                 },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
+                    _mainComponent = new MainWindow(containers, polling, settings, images, details, OpenLogs);
                     return _mainComponent;
                 });
             if (_window.AppWindow.Presenter is not OverlappedPresenter presenter)

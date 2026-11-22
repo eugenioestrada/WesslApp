@@ -1,5 +1,6 @@
 using Wessl.Domain;
 using Wessl.Infrastructure;
+using System.Text.Json;
 
 namespace Wessl.Tests;
 
@@ -106,6 +107,79 @@ public sealed class WslcOutputParserTests
     }
 
     [Fact]
+    public void ParseContainerDiagnosticsReadsInspectHealthExitAndLatestFailedCheck()
+    {
+        const string output = """
+            [
+              {
+                "Id":"abc",
+                "State":{
+                  "Status":"exited",
+                  "Running":false,
+                  "ExitCode":137,
+                  "StartedAt":"2026-11-22T13:40:00Z",
+                  "FinishedAt":"2026-11-22T14:43:36.295Z",
+                  "Health":{
+                    "Status":"unhealthy",
+                    "FailingStreak":2,
+                    "Log":[
+                      {"Start":"2026-11-22T14:42:00Z","End":"2026-11-22T14:42:01Z","ExitCode":1,"Output":"old failure"},
+                      {"Start":"2026-11-22T14:43:00Z","End":"2026-11-22T14:43:01Z","ExitCode":0,"Output":"recovered"},
+                      {"Start":"2026-11-22T14:43:30Z","End":"2026-11-22T14:43:31Z","ExitCode":2,"Output":"latest failure"}
+                    ]
+                  }
+                },
+                "Config":{"Env":["SECRET=never retain"]}
+              },
+              {
+                "Id":"def",
+                "State":{
+                  "Status":"running",
+                  "Running":true,
+                  "ExitCode":0,
+                  "FinishedAt":"0001-01-01T00:00:00Z",
+                  "Health":{"Status":"future-status"}
+                }
+              }
+            ]
+            """;
+
+        var diagnostics = WslcOutputParser.ParseContainerDiagnostics(output);
+        Assert.Equal(2, diagnostics.Count);
+        Assert.Equal(ContainerHealthStatus.Unhealthy, diagnostics["abc"].Health);
+        Assert.Equal(137, diagnostics["abc"].ExitCode);
+        Assert.Equal(DateTimeOffset.Parse("2026-11-22T14:43:36.295Z"), diagnostics["abc"].FinishedAt);
+        Assert.Equal("latest failure", diagnostics["abc"].LatestHealthCheckError);
+        Assert.DoesNotContain("SECRET", diagnostics["abc"].ToString());
+        Assert.Equal(ContainerHealthStatus.Unknown, diagnostics["def"].Health);
+        Assert.Equal(0, diagnostics["def"].ExitCode);
+        Assert.Null(diagnostics["def"].FinishedAt);
+        Assert.Null(diagnostics["def"].LatestHealthCheckError);
+    }
+
+    [Fact]
+    public void ParseContainerDiagnosticsDoesNotInferMissingHealthOrExitDetails()
+    {
+        const string output = """[{"Id":"abc","State":{"Status":"exited"}}]""";
+
+        var diagnostics = Assert.Single(WslcOutputParser.ParseContainerDiagnostics(output)).Value;
+
+        Assert.Equal(ContainerHealthStatus.Unavailable, diagnostics.Health);
+        Assert.Null(diagnostics.ExitCode);
+        Assert.Null(diagnostics.FinishedAt);
+        Assert.Null(diagnostics.LatestHealthCheckError);
+    }
+
+    [Theory]
+    [InlineData("""{"Id":"abc","State":{"Status":"exited"}}""")]
+    [InlineData("""[{"Id":"abc","State":{"ExitCode":"1"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{"FinishedAt":"not-a-time"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{"Health":"healthy"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{}},{"Id":"abc","State":{}}]""")]
+    public void ParseContainerDiagnosticsRejectsUnverifiedShapes(string output) =>
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseContainerDiagnostics(output));
+
+    [Fact]
     public void ParseReadsPortsAsDelimitedTextOrStringArray()
     {
         const string output = """
@@ -153,6 +227,76 @@ public sealed class WslcOutputParserTests
     public void ParseRejectsInvalidLabels(string output)
     {
         Assert.Throws<FormatException>(() => WslcOutputParser.Parse(output));
+    }
+
+    [Fact]
+    public void ParseContainerDetailsReadsWslcInspectFieldsWithoutRetainingEnvironmentValues()
+    {
+        const string output = """
+            [{
+              "Id":"container-id",
+              "Name":"/api",
+              "Created":"2026-04-03T12:30:00Z",
+              "Image":"sha256:0123456789abcdef",
+              "State":{"Status":"running","Running":true,"ExitCode":0,"StartedAt":"2026-04-03T12:31:00Z","FinishedAt":"0001-01-01T00:00:00Z"},
+              "Config":{"Image":"registry.example/api:1.2","Env":["API_TOKEN=super-secret"],"Entrypoint":["dotnet"],"Cmd":["service.dll"]},
+              "Ports":{"8080/tcp":[{"HostIp":"127.0.0.1","HostPort":"18080"}],"53/udp":[]},
+              "Mounts":[{"Type":"bind","Name":"","Source":"/srv/api","Destination":"/data","ReadWrite":false}],
+              "NetworkSettings":{"Networks":{"wsl-bridge":{"IPAddress":"172.20.0.2"}}}
+            }]
+            """;
+
+        var details = WslcOutputParser.ParseContainerDetails(output);
+
+        Assert.Equal("registry.example/api:1.2", details.Image);
+        Assert.Equal("sha256:0123456789abcdef", details.ImageDigest);
+        Assert.Equal("2026-04-03T12:30:00Z", details.CreatedAt);
+        Assert.Equal("2026-04-03T12:31:00Z", details.StartedAt);
+        Assert.Equal("[\"dotnet\",\"service.dll\"]", details.Command);
+        Assert.Equal(["8080/tcp → 127.0.0.1:18080", "53/udp"], details.Ports);
+        Assert.Equal(["bind: /srv/api → /data (read-only)"], details.Mounts);
+        Assert.Equal(["wsl-bridge"], details.Networks);
+        Assert.DoesNotContain("super-secret", JsonSerializer.Serialize(details));
+    }
+
+    [Fact]
+    public void ParseContainerDetailsDistinguishesUnavailableAndEmptyFields()
+    {
+        const string output = """
+            [{
+              "Id":"container-id",
+              "Name":"/api",
+              "Created":"",
+              "Image":"",
+              "Config":{"Entrypoint":[],"Cmd":[]},
+              "State":{"StartedAt":"0001-01-01T00:00:00Z"},
+              "Ports":{},
+              "Mounts":[],
+              "NetworkSettings":{"Networks":{}}
+            }]
+            """;
+
+        var details = WslcOutputParser.ParseContainerDetails(output);
+
+        Assert.Null(details.Image);
+        Assert.Null(details.ImageDigest);
+        Assert.Null(details.CreatedAt);
+        Assert.Null(details.StartedAt);
+        Assert.Equal("[]", details.Command);
+        Assert.Empty(details.Ports!);
+        Assert.Empty(details.Mounts!);
+        Assert.Empty(details.Networks!);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("[]")]
+    [InlineData("[{},{}]")]
+    [InlineData("""[{"Id":"id","Name":"/api","Ports":[]} ]""")]
+    [InlineData("""[{"Id":"id","Name":"/api","Config":{"Cmd":"not-an-array"}}]""")]
+    public void ParseContainerDetailsRejectsInvalidOrUnsupportedSchema(string output)
+    {
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseContainerDetails(output));
     }
 
     [Fact]

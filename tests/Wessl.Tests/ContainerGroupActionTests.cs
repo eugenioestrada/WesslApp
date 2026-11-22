@@ -34,7 +34,6 @@ public sealed class ContainerGroupActionTests
             Container("stopped", ContainerState.Stopped));
         var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
         await service.RefreshAsync();
-
         await service.StopGroupAsync("store", service.Containers);
 
         Assert.Equal(["running"], client.Stopped);
@@ -59,6 +58,9 @@ public sealed class ContainerGroupActionTests
             Task.FromResult<IReadOnlyList<ContainerInfo>>(_containers.Values.ToArray());
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default)

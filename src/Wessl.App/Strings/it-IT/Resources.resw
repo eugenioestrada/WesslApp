@@ -95,6 +95,26 @@
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>Sono stati arrestati {0} dei {1} contenitori in esecuzione.</value></data>
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>Impossibile arrestare alcuni contenitori: {0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="BulkSelectionCount" xml:space="preserve"><value>Selezionati: {0}</value></data>
+  <data name="BulkStartSelectedButton" xml:space="preserve"><value>Avvia ({0})</value></data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve"><value>Riavvia ({0})</value></data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve"><value>Rimuovi arrestati ({0})</value></data>
+  <data name="BulkClearSelectionButton" xml:space="preserve"><value>Cancella selezione</value></data>
+  <data name="SelectContainerButton" xml:space="preserve"><value>Seleziona contenitore</value></data>
+  <data name="DeselectContainerButton" xml:space="preserve"><value>Deseleziona contenitore</value></data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>Rimuovere i contenitori arrestati selezionati?</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>Verranno rimossi solo i {0} contenitori selezionati che risultano ancora arrestati all’avvio della rimozione.</value></data>
+  <data name="BulkRemoveConfirm" xml:space="preserve"><value>Rimuovi arrestati</value></data>
+  <data name="BulkStartPending" xml:space="preserve"><value>Avvio di {0} contenitori selezionati…</value></data>
+  <data name="BulkRestartPending" xml:space="preserve"><value>Riavvio di {0} contenitori selezionati…</value></data>
+  <data name="BulkRemovePending" xml:space="preserve"><value>Rimozione di {0} contenitori arrestati selezionati…</value></data>
+  <data name="BulkActionCompleted" xml:space="preserve"><value>Operazione riuscita per {0} di {1} contenitori selezionati: {2}</value></data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve"><value>{0}: riuscito</value></data>
+  <data name="BulkActionPartialFailure" xml:space="preserve"><value>Alcuni contenitori selezionati non sono stati elaborati: {0}</value></data>
+  <data name="BulkActionNotFound" xml:space="preserve"><value>{0} non è più disponibile ed è stato ignorato.</value></data>
+  <data name="BulkActionStateChanged" xml:space="preserve"><value>{0} non è più nello stato richiesto ed è stato ignorato.</value></data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve"><value>Impossibile verificare {0}; nessuna modifica: {1}</value></data>
+  <data name="BulkActionFailureDetail" xml:space="preserve"><value>{0}: {1}</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>Arresta tutti i contenitori</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>Chiudi</value></data>
@@ -130,6 +150,17 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 secondo</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>Rete: {0} · I/O blocchi: {1} · PID: {2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Le statistiche per questo contenitore non sono disponibili.</value></data>
+  <data name="ContainerHealth" xml:space="preserve"><value>Salute: {0}</value></data>
+  <data name="ContainerHealthUnknown" xml:space="preserve"><value>Sconosciuta</value></data>
+  <data name="ContainerHealthUnavailable" xml:space="preserve"><value>Non segnalata</value></data>
+  <data name="ContainerHealthStarting" xml:space="preserve"><value>Avvio</value></data>
+  <data name="ContainerHealthHealthy" xml:space="preserve"><value>Sana</value></data>
+  <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>Non sana</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Non disponibile</value></data>
+  <data name="ContainerExitCode" xml:space="preserve"><value>Codice di uscita: {0}</value></data>
+  <data name="ContainerExitTime" xml:space="preserve"><value>Terminato: {0}</value></data>
+  <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Errore più recente del controllo di integrità: {0}</value></data>
+  <data name="ContainerDiagnosticsLoadError" xml:space="preserve"><value>Diagnostica del contenitore non disponibile: {0}</value></data>
   <data name="ContainersSearchLabel" xml:space="preserve"><value>Cerca contenitori</value></data>
   <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>Cerca per nome o immagine</value></data>
   <data name="ContainersStateFilterLabel" xml:space="preserve"><value>Stato</value></data>
@@ -162,4 +193,22 @@
   <data name="GroupActionPartialFailure" xml:space="preserve"><value>Impossibile {1} alcuni contenitori del gruppo {0}: {2}</value></data>
   <data name="GroupActionFailureDetail" xml:space="preserve"><value>{0}: {1}</value></data>
   <data name="ActionFailureSeparator" xml:space="preserve"><value>; </value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>Dettagli contenitore</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>Dettagli di {0}</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>Immagine</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>ID / digest immagine</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>Creato</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>Avviato</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>Comando</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>Porte</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>Mount</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>Reti</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>Non disponibile</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>Nessuno</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>I valori delle variabili di ambiente non vengono mostrati né inclusi nella copia.</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>Caricamento dei dettagli del contenitore…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>Impossibile ispezionare questo contenitore: {0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copia dettagli non segreti</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>Dettagli del contenitore copiati.</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Impossibile copiare i dettagli del contenitore: {0}</value></data>
 </root>

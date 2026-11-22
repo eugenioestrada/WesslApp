@@ -76,6 +76,11 @@ public sealed class ContainerUsageTests
             Task.FromResult<IReadOnlyList<ContainerInfo>>(
                 [new("container-id", "web", "nginx", State)]);
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
+
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default)
         {
             Requests.Add(id);
@@ -87,6 +92,9 @@ public sealed class ContainerUsageTests
             return UsageCompletion ?? Task.FromResult(new ContainerUsage("1.25%", "25 MiB / 1 GiB"));
         }
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -97,6 +105,10 @@ public sealed class ContainerUsageTests
     {
         public void OpenShell(string containerId, ContainerTerminal terminal) => throw new NotSupportedException();
     }
+
+    private static Task<IReadOnlyDictionary<string, ContainerDiagnostics>> NoDiagnosticsAsync() =>
+        Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
 
     [Fact]
     public async Task AutomaticUsageRequestsOnlyRunningContainersAndSkipsEmptyOrCancelledRefreshes()
@@ -340,6 +352,11 @@ public sealed class ContainerUsageTests
         public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(Containers);
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
+
         public Task<IReadOnlyDictionary<string, ContainerUsage>> GetContainerUsagesAsync(
             IReadOnlyCollection<string> ids, CancellationToken cancellationToken = default)
         {
@@ -350,6 +367,10 @@ public sealed class ContainerUsageTests
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();

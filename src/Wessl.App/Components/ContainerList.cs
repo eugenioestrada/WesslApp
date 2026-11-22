@@ -14,9 +14,11 @@ public sealed record ContainerListProps(
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
     Action<ContainerInfo> OnOpenLogs,
+    Action<ContainerInfo> OnOpenDetails,
     string? PendingRemoval,
     Action<string> RequestRemove,
     Action CancelRemove,
+    Action<IReadOnlyList<ContainerInfo>> RequestBulkRemove,
     string LanguageTag);
 
 public sealed class ContainerList : Component<ContainerListProps>
@@ -26,12 +28,15 @@ public sealed class ContainerList : Component<ContainerListProps>
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
         Action<ContainerInfo> onOpenLogs,
+        Action<ContainerInfo> onOpenDetails,
         string? pendingRemoval,
         Action<string> requestRemove,
         Action cancelRemove,
+        Action<IReadOnlyList<ContainerInfo>> requestBulkRemove,
         string languageTag) =>
         Component<ContainerList, ContainerListProps>(
-            new(containers, service, onOpenShell, onOpenLogs, pendingRemoval, requestRemove, cancelRemove, languageTag));
+            new(containers, service, onOpenShell, onOpenLogs, onOpenDetails, pendingRemoval, requestRemove, cancelRemove,
+                requestBulkRemove, languageTag));
 
     public override Element Render()
     {
@@ -40,6 +45,7 @@ public sealed class ContainerList : Component<ContainerListProps>
         var (imageFilter, setImageFilter) = UseState<string?>(null);
         var (sortOrder, setSortOrder) = UseState(ContainerSortOrder.Name);
         var (groupingSelection, setGroupingSelection) = UseState(string.Empty);
+        var (selectedIds, setSelectedIds) = UseState(Array.Empty<string>());
         var service = Props.Service;
 
         if (service.IsWslcUnavailable)
@@ -127,8 +133,42 @@ public sealed class ContainerList : Component<ContainerListProps>
             groupingKeys,
             key => string.Equals(key, groupByLabel, StringComparison.Ordinal));
 
+        var selectedContainers = Props.Containers
+            .Where(container => selectedIds.Contains(container.Id, StringComparer.Ordinal))
+            .ToArray();
+        var startableContainers = selectedContainers
+            .Where(container => container.State == ContainerState.Stopped)
+            .ToArray();
+        var restartableContainers = selectedContainers
+            .Where(container => container.State == ContainerState.Running)
+            .ToArray();
+        var removeableContainers = startableContainers;
+        var selectionActions = FlexRow(
+            TextBlock(AppStrings.Format("BulkSelectionCount", selectedContainers.Length))
+                .VerticalAlignment(Microsoft.UI.Xaml.VerticalAlignment.Center),
+            Button(AppStrings.Format("BulkStartSelectedButton", startableContainers.Length),
+                () => _ = service.StartSelectedAsync(startableContainers))
+                .AccentButton()
+                .IsEnabled(!service.IsBusy && startableContainers.Length > 0),
+            Button(AppStrings.Format("BulkRestartSelectedButton", restartableContainers.Length),
+                () => _ = service.RestartSelectedAsync(restartableContainers))
+                .IsEnabled(!service.IsBusy && restartableContainers.Length > 0),
+            Button(AppStrings.Format("BulkRemoveSelectedButton", removeableContainers.Length),
+                () => Props.RequestBulkRemove(removeableContainers))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy && removeableContainers.Length > 0),
+            Button(AppStrings.Get("BulkClearSelectionButton"), () => setSelectedIds(Array.Empty<string>()))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy && selectedContainers.Length > 0)) with
+        {
+            Wrap = FlexWrap.Wrap,
+            ColumnGap = 8,
+            RowGap = 8
+        };
+
         var controlSections = new List<Element>
         {
+            selectionActions,
             TextBox(searchText, setSearchText)
                 .PlaceholderText(AppStrings.Get("ContainersSearchPlaceholder"))
                 .AutomationName(AppStrings.Get("ContainersSearchLabel")),
@@ -184,10 +224,30 @@ public sealed class ContainerList : Component<ContainerListProps>
         else if (!hasComposeProjectLabel && groupingSelection.Length == 0)
         {
             controlSections.Add(TextBlock(AppStrings.Get("ContainersGroupComposeUnavailable"))
-                .TextWrapping(TextWrapping.Wrap));
+                    .TextWrapping(TextWrapping.Wrap));
         }
         var controls = VStack(8, controlSections.ToArray());
 
+        Element CreateRow(ContainerInfo container) =>
+            ContainerRow.Create(
+                container,
+                service,
+                Props.OnOpenShell,
+                Props.OnOpenLogs,
+                Props.OnOpenDetails,
+                selectedIds.Contains(container.Id, StringComparer.Ordinal),
+                () =>
+                {
+                    var nextSelectedIds = selectedIds.ToHashSet(StringComparer.Ordinal);
+                    if (!nextSelectedIds.Add(container.Id))
+                    {
+                        nextSelectedIds.Remove(container.Id);
+                    }
+                    setSelectedIds(nextSelectedIds.ToArray());
+                },
+                Props.PendingRemoval == container.Id,
+                () => Props.RequestRemove(container.Id),
+                Props.CancelRemove).WithKey(container.Id);
         Element list;
         if (filteredContainers.Count == 0)
         {
@@ -223,6 +283,18 @@ public sealed class ContainerList : Component<ContainerListProps>
                 .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
         }
 
+        if (service.DiagnosticsError is { } diagnosticsError)
+        {
+            var diagnosticsInfo = InfoBar(message: AppStrings.Format(diagnosticsError)).Error()
+                with { IsOpen = true, IsClosable = false };
+            return Grid(
+                [GridSize.Star()],
+                [GridSize.Auto, GridSize.Auto, GridSize.Star()],
+                controls.Grid(row: 0),
+                diagnosticsInfo.Grid(row: 1),
+                list.Grid(row: 2));
+        }
+
         return Grid(
             [GridSize.Star()],
             [GridSize.Auto, GridSize.Star()],
@@ -230,15 +302,6 @@ public sealed class ContainerList : Component<ContainerListProps>
             list.Grid(row: 1));
     }
 
-    private Element CreateRow(ContainerInfo container) =>
-        ContainerRow.Create(
-            container,
-            Props.Service,
-            Props.OnOpenShell,
-            Props.OnOpenLogs,
-            Props.PendingRemoval == container.Id,
-            () => Props.RequestRemove(container.Id),
-            Props.CancelRemove).WithKey(container.Id);
 }
 
 public sealed record ContainerGroupSectionProps(

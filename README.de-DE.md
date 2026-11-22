@@ -26,6 +26,8 @@ Laufende Container zeigen CPU, Arbeitsspeicher, Netzwerk- und Block-E/A sowie di
 
 Der Containerstatus wird beim Öffnen des Fensters und anschließend alle 10 Sekunden aktualisiert, solange es sichtbar ist. Die Schaltfläche Aktualisieren fordert ebenfalls sofort eine Aktualisierung an. Die regelmäßige Abfrage endet, sobald das Fenster ausgeblendet, minimiert oder geschlossen wird; allein der Start der App im Infobereich ruft WSLc nicht auf. Der Infobereich-Indikator zeigt bis zur ersten erfolgreichen Aktualisierung einen unbekannten Status und danach bei geschlossenem Fenster den zuletzt bekannten Status.
 
+Containerkarten fragen bei jeder sichtbaren Statusaktualisierung die Diagnosedaten gebündelt mit `wslc container inspect --format json` ab. Sie zeigen den von WSLc gemeldeten Gesundheitsstatus sowie bei gestoppten Containern den Exitcode und Zeitpunkt, sofern verfügbar. Fehlende Werte bleiben ausdrücklich unbekannt oder nicht verfügbar; die Ausgabe des letzten fehlgeschlagenen Gesundheitschecks wird nur angezeigt, wenn WSLc sie bereitstellt. Bei ausgeblendetem Panel werden keine Diagnosen abgefragt.
+
 ## Voraussetzungen
 
 - Windows 10, Version 2004 (Build 19041) oder höher, x64 oder ARM64.
