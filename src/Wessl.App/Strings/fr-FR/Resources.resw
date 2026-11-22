@@ -96,6 +96,26 @@
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>Certains conteneurs n’ont pas pu être arrêtés : {0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
   <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value> ; </value></data>
+  <data name="BulkSelectionCount" xml:space="preserve"><value>Sélectionnés : {0}</value></data>
+  <data name="BulkStartSelectedButton" xml:space="preserve"><value>Démarrer ({0})</value></data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve"><value>Redémarrer ({0})</value></data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve"><value>Supprimer les arrêtés ({0})</value></data>
+  <data name="BulkClearSelectionButton" xml:space="preserve"><value>Effacer la sélection</value></data>
+  <data name="SelectContainerButton" xml:space="preserve"><value>Sélectionner le conteneur</value></data>
+  <data name="DeselectContainerButton" xml:space="preserve"><value>Désélectionner le conteneur</value></data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>Supprimer les conteneurs arrêtés sélectionnés ?</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>Seuls les {0} conteneurs sélectionnés encore confirmés comme arrêtés au début de la suppression seront supprimés.</value></data>
+  <data name="BulkRemoveConfirm" xml:space="preserve"><value>Supprimer les arrêtés</value></data>
+  <data name="BulkStartPending" xml:space="preserve"><value>Démarrage de {0} conteneurs sélectionnés…</value></data>
+  <data name="BulkRestartPending" xml:space="preserve"><value>Redémarrage de {0} conteneurs sélectionnés…</value></data>
+  <data name="BulkRemovePending" xml:space="preserve"><value>Suppression de {0} conteneurs arrêtés sélectionnés…</value></data>
+  <data name="BulkActionCompleted" xml:space="preserve"><value>Réussite pour {0} conteneurs sélectionnés sur {1} : {2}</value></data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve"><value>{0} : réussite</value></data>
+  <data name="BulkActionPartialFailure" xml:space="preserve"><value>Certains conteneurs sélectionnés n’ont pas été traités : {0}</value></data>
+  <data name="BulkActionNotFound" xml:space="preserve"><value>{0} n’est plus disponible et a été ignoré.</value></data>
+  <data name="BulkActionStateChanged" xml:space="preserve"><value>{0} n’est plus dans l’état requis et a été ignoré.</value></data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve"><value>Impossible de vérifier {0} ; aucune modification effectuée : {1}</value></data>
+  <data name="BulkActionFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>Arrêter tous les conteneurs</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>Fermer</value></data>

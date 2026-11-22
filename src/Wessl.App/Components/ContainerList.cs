@@ -18,6 +18,7 @@ public sealed record ContainerListProps(
     string? PendingRemoval,
     Action<string> RequestRemove,
     Action CancelRemove,
+    Action<IReadOnlyList<ContainerInfo>> RequestBulkRemove,
     string LanguageTag);
 
 public sealed class ContainerList : Component<ContainerListProps>
@@ -31,9 +32,11 @@ public sealed class ContainerList : Component<ContainerListProps>
         string? pendingRemoval,
         Action<string> requestRemove,
         Action cancelRemove,
+        Action<IReadOnlyList<ContainerInfo>> requestBulkRemove,
         string languageTag) =>
         Component<ContainerList, ContainerListProps>(
-            new(containers, service, onOpenShell, onOpenLogs, onOpenDetails, pendingRemoval, requestRemove, cancelRemove, languageTag));
+            new(containers, service, onOpenShell, onOpenLogs, onOpenDetails, pendingRemoval, requestRemove, cancelRemove,
+                requestBulkRemove, languageTag));
 
     public override Element Render()
     {
@@ -41,6 +44,7 @@ public sealed class ContainerList : Component<ContainerListProps>
         var (stateFilter, setStateFilter) = UseState<ContainerState?>(null);
         var (imageFilter, setImageFilter) = UseState<string?>(null);
         var (sortOrder, setSortOrder) = UseState(ContainerSortOrder.Name);
+        var (selectedIds, setSelectedIds) = UseState(Array.Empty<string>());
         var service = Props.Service;
 
         if (service.IsWslcUnavailable)
@@ -108,8 +112,41 @@ public sealed class ContainerList : Component<ContainerListProps>
             stateFilter,
             imageFilter,
             sortOrder);
+        var selectedContainers = Props.Containers
+            .Where(container => selectedIds.Contains(container.Id, StringComparer.Ordinal))
+            .ToArray();
+        var startableContainers = selectedContainers
+            .Where(container => container.State == ContainerState.Stopped)
+            .ToArray();
+        var restartableContainers = selectedContainers
+            .Where(container => container.State == ContainerState.Running)
+            .ToArray();
+        var removeableContainers = startableContainers;
+        var selectionActions = FlexRow(
+            TextBlock(AppStrings.Format("BulkSelectionCount", selectedContainers.Length))
+                .VerticalAlignment(Microsoft.UI.Xaml.VerticalAlignment.Center),
+            Button(AppStrings.Format("BulkStartSelectedButton", startableContainers.Length),
+                () => _ = service.StartSelectedAsync(startableContainers))
+                .AccentButton()
+                .IsEnabled(!service.IsBusy && startableContainers.Length > 0),
+            Button(AppStrings.Format("BulkRestartSelectedButton", restartableContainers.Length),
+                () => _ = service.RestartSelectedAsync(restartableContainers))
+                .IsEnabled(!service.IsBusy && restartableContainers.Length > 0),
+            Button(AppStrings.Format("BulkRemoveSelectedButton", removeableContainers.Length),
+                () => Props.RequestBulkRemove(removeableContainers))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy && removeableContainers.Length > 0),
+            Button(AppStrings.Get("BulkClearSelectionButton"), () => setSelectedIds(Array.Empty<string>()))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy && selectedContainers.Length > 0)) with
+        {
+            Wrap = FlexWrap.Wrap,
+            ColumnGap = 8,
+            RowGap = 8
+        };
 
         var controls = VStack(8,
+            selectionActions,
             TextBox(searchText, setSearchText)
                 .PlaceholderText(AppStrings.Get("ContainersSearchPlaceholder"))
                 .AutomationName(AppStrings.Get("ContainersSearchLabel")),
@@ -158,6 +195,16 @@ public sealed class ContainerList : Component<ContainerListProps>
                         Props.OnOpenShell,
                         Props.OnOpenLogs,
                         Props.OnOpenDetails,
+                        selectedIds.Contains(container.Id, StringComparer.Ordinal),
+                        () =>
+                        {
+                            var nextSelectedIds = selectedIds.ToHashSet(StringComparer.Ordinal);
+                            if (!nextSelectedIds.Add(container.Id))
+                            {
+                                nextSelectedIds.Remove(container.Id);
+                            }
+                            setSelectedIds(nextSelectedIds.ToArray());
+                        },
                         Props.PendingRemoval == container.Id,
                         () => Props.RequestRemove(container.Id),
                         Props.CancelRemove).WithKey(container.Id)).ToArray()))

@@ -24,7 +24,9 @@ public sealed class MainWindow(
     private bool _showStopAllResult;
     private bool _showDetailsDialog;
     private ContainerInfo? _detailsContainer;
+    private bool _showBulkRemoveConfirmation;
     private ContainerInfo[] _stopAllContainers = [];
+    private ContainerInfo[] _bulkRemoveContainers = [];
     private string _stopAllResult = string.Empty;
 
     public override Element Render()
@@ -122,6 +124,7 @@ public sealed class MainWindow(
                 pendingRemoval,
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null),
+                RequestBulkRemove,
                 settings.LanguageTag).Margin(16, 0, 16, 16).Grid(row: 3)
         ).Padding(0, 8, 0, 0));
     }
@@ -162,7 +165,18 @@ public sealed class MainWindow(
                     DefaultButton = ContentDialogButton.Primary
                 })
                 .Closed(_ => CloseDetails())
-                : TextBlock(string.Empty)
+                : TextBlock(string.Empty),
+            (ContentDialog(
+                AppStrings.Get("BulkRemoveConfirmationTitle"),
+                TextBlock(AppStrings.Format("BulkRemoveConfirmation", _bulkRemoveContainers.Length))
+                    .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                AppStrings.Get("BulkRemoveConfirm")) with
+                {
+                    IsOpen = _showBulkRemoveConfirmation,
+                    CloseButtonText = AppStrings.Get("CancelButton"),
+                    DefaultButton = ContentDialogButton.Close
+                })
+                .Closed(OnBulkRemoveConfirmationClosed)
         );
 
     public void ShowSettings()
@@ -236,6 +250,28 @@ public sealed class MainWindow(
             result.Error is { } error ? AppStrings.Format(error) : string.Empty);
         _showStopAllResult = true;
         RequestRender();
+    }
+
+    private void RequestBulkRemove(IReadOnlyList<ContainerInfo> selected)
+    {
+        _bulkRemoveContainers = selected.ToArray();
+        if (_bulkRemoveContainers.Length == 0)
+        {
+            return;
+        }
+
+        _showBulkRemoveConfirmation = true;
+        RequestRender();
+    }
+
+    private void OnBulkRemoveConfirmationClosed(ContentDialogResult result)
+    {
+        _showBulkRemoveConfirmation = false;
+        RequestRender();
+        if (result == ContentDialogResult.Primary)
+        {
+            _ = containers.RemoveSelectedAsync(_bulkRemoveContainers);
+        }
     }
 
     private void Navigate(bool showSettings)

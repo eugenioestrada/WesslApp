@@ -96,6 +96,26 @@
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>部分容器无法停止：{0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
   <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value>；</value></data>
+  <data name="BulkSelectionCount" xml:space="preserve"><value>已选择：{0}</value></data>
+  <data name="BulkStartSelectedButton" xml:space="preserve"><value>启动 ({0})</value></data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve"><value>重启 ({0})</value></data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve"><value>删除已停止项 ({0})</value></data>
+  <data name="BulkClearSelectionButton" xml:space="preserve"><value>清除选择</value></data>
+  <data name="SelectContainerButton" xml:space="preserve"><value>选择容器</value></data>
+  <data name="DeselectContainerButton" xml:space="preserve"><value>取消选择容器</value></data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>删除所选的已停止容器？</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>只有在开始删除时仍确认处于已停止状态的 {0} 个所选容器才会被删除。</value></data>
+  <data name="BulkRemoveConfirm" xml:space="preserve"><value>删除已停止项</value></data>
+  <data name="BulkStartPending" xml:space="preserve"><value>正在启动 {0} 个所选容器…</value></data>
+  <data name="BulkRestartPending" xml:space="preserve"><value>正在重启 {0} 个所选容器…</value></data>
+  <data name="BulkRemovePending" xml:space="preserve"><value>正在删除 {0} 个所选的已停止容器…</value></data>
+  <data name="BulkActionCompleted" xml:space="preserve"><value>已成功处理 {1} 个所选容器中的 {0} 个：{2}</value></data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve"><value>{0}：成功</value></data>
+  <data name="BulkActionPartialFailure" xml:space="preserve"><value>部分所选容器未能处理：{0}</value></data>
+  <data name="BulkActionNotFound" xml:space="preserve"><value>{0} 已不可用，已跳过。</value></data>
+  <data name="BulkActionStateChanged" xml:space="preserve"><value>{0} 不再处于所需状态，已跳过。</value></data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve"><value>无法验证 {0}，未对其进行更改：{1}</value></data>
+  <data name="BulkActionFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>停止所有容器</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>关闭</value></data>

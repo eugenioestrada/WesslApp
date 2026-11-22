@@ -112,7 +112,12 @@ public sealed class LocalizationResourceTests
             "LogsEndedTruncated",
             "ContainerStateUnknown",
             "ContainerStateRunning",
-            "ContainerStateStopped"
+            "ContainerStateStopped",
+            "SelectContainerButton",
+            "DeselectContainerButton",
+            "BulkStartPending",
+            "BulkRestartPending",
+            "BulkRemovePending"
         ]);
 
         var resourceKeys = LoadResources()["en-US"].Keys.ToHashSet(StringComparer.Ordinal);
