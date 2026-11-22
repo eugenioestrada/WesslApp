@@ -56,12 +56,18 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
 
     public async Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
     {
-        var output = await RunCommandAsync(cancellationToken, "image", "list", "--format", "json");
+        var output = await RunCommandAsync(CreateImageListStartInfo(), cancellationToken);
         return WslcOutputParser.ParseImages(output);
     }
 
     public Task<string> PruneImagesAsync(CancellationToken cancellationToken = default) =>
         RunCommandAsync(cancellationToken, "image", "prune", "--all", "--force");
+
+    public Task<string> PullImageAsync(string image, CancellationToken cancellationToken = default) =>
+        RunCommandAsync(CreateImagePullStartInfo(image), cancellationToken);
+
+    public Task<string> TagImageAsync(string source, string target, CancellationToken cancellationToken = default) =>
+        RunCommandAsync(CreateImageTagStartInfo(source, target), cancellationToken);
 
     public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunCommandAsync(cancellationToken, "container", "start", id);
@@ -201,6 +207,51 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         }
 
         return startInfo;
+    }
+
+    internal ProcessStartInfo CreateImagePullStartInfo(string image)
+    {
+        ValidateImageReference(image, nameof(image));
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "image", "pull", image })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        return startInfo;
+    }
+
+    internal ProcessStartInfo CreateImageListStartInfo()
+    {
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "image", "list", "--format", "json", "--digests" })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        return startInfo;
+    }
+
+    internal ProcessStartInfo CreateImageTagStartInfo(string source, string target)
+    {
+        ValidateImageReference(source, nameof(source));
+        ValidateImageReference(target, nameof(target));
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "image", "tag", source, target })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        return startInfo;
+    }
+
+    private static void ValidateImageReference(string image, string parameterName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(image, parameterName);
+        if (image[0] == '-')
+        {
+            throw new ArgumentException("An image reference cannot start with a hyphen.", parameterName);
+        }
     }
 
     private async Task<string> RunCommandAsync(CancellationToken cancellationToken, params string[] arguments)

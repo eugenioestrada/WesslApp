@@ -5,6 +5,24 @@
   <data name="ImagesEmpty" xml:space="preserve"><value>Keine Images gefunden.</value></data>
   <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
   <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Größe: {1}</value></data>
+  <data name="ImageDigest" xml:space="preserve"><value>Digest: {0}</value></data>
+  <data name="ImagesPullHeading" xml:space="preserve"><value>Image herunterladen</value></data>
+  <data name="ImagesPullReferenceLabel" xml:space="preserve"><value>Image-Referenz</value></data>
+  <data name="ImagesPullReferencePlaceholder" xml:space="preserve"><value>Zum Beispiel nginx:latest</value></data>
+  <data name="ImagesPullButton" xml:space="preserve"><value>Image herunterladen</value></data>
+  <data name="ImagesPullPending" xml:space="preserve"><value>{0} wird heruntergeladen…</value></data>
+  <data name="ImagesPullSuccess" xml:space="preserve"><value>{0} wurde heruntergeladen: {1}</value></data>
+  <data name="ImagesPullError" xml:space="preserve"><value>{0} konnte nicht heruntergeladen werden: {1}</value></data>
+  <data name="ImagesTagHeading" xml:space="preserve"><value>Image taggen</value></data>
+  <data name="ImagesTagSourceLabel" xml:space="preserve"><value>Quellimage</value></data>
+  <data name="ImagesTagSourcePlaceholder" xml:space="preserve"><value>Zum Beispiel nginx:latest</value></data>
+  <data name="ImagesTagTargetLabel" xml:space="preserve"><value>Neue Image-Referenz</value></data>
+  <data name="ImagesTagTargetPlaceholder" xml:space="preserve"><value>Zum Beispiel local/nginx:dev</value></data>
+  <data name="ImagesTagButton" xml:space="preserve"><value>Image taggen</value></data>
+  <data name="ImagesTagPending" xml:space="preserve"><value>{0} wird als {1} getaggt…</value></data>
+  <data name="ImagesTagSuccess" xml:space="preserve"><value>{0} wurde als {1} getaggt: {2}</value></data>
+  <data name="ImagesTagError" xml:space="preserve"><value>{0} konnte nicht als {1} getaggt werden: {2}</value></data>
+  <data name="ImagesInvalidReference" xml:space="preserve"><value>Geben Sie eine gültige Image-Referenz ein, die nicht mit einem Bindestrich beginnt.</value></data>
   <data name="ImagesLoading" xml:space="preserve"><value>Images werden geladen…</value></data>
   <data name="ImagesRefreshError" xml:space="preserve"><value>Images konnten nicht aktualisiert werden: {0}</value></data>
   <data name="ImagesPruneButton" xml:space="preserve"><value>Ungenutzte Images bereinigen</value></data>

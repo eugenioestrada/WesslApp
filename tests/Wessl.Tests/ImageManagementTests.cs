@@ -10,13 +10,13 @@ public sealed class ImageManagementTests
     public void ParsesWslcJsonLinesIncludingUntaggedImagesAndSizes()
     {
         var images = WslcOutputParser.ParseImages("""
-            {"ID":"abc","Repository":"nginx","Tag":"latest","Size":"123MB"}
+            {"ID":"abc","Repository":"nginx","Tag":"latest","Size":"123MB","Digest":"sha256:abc"}
 
             {"id":"def","repository":"<none>","tag":"<none>","size":"42.1MB"}
             """);
 
         Assert.Equal(2, images.Count);
-        Assert.Equal(new ImageInfo("abc", "nginx", "latest", "123MB"), images[0]);
+        Assert.Equal(new ImageInfo("abc", "nginx", "latest", "123MB", "sha256:abc"), images[0]);
         Assert.Equal(new ImageInfo("def", "<none>", "<none>", "42.1MB"), images[1]);
         Assert.Empty(WslcOutputParser.ParseImages(""));
     }
@@ -72,6 +72,53 @@ public sealed class ImageManagementTests
     }
 
     [Fact]
+    public async Task PullAndTagRunExplicitlyAndReportTheirResults()
+    {
+        var client = new ImageClient();
+        var service = new ImageService(client, action => action());
+
+        await service.PullImageAsync("nginx:latest");
+        Assert.Equal("nginx:latest", client.PulledImage);
+        Assert.Equal("ImagesPullSuccess", service.Status!.ResourceKey);
+        Assert.Null(service.Error);
+
+        await service.TagImageAsync("nginx:latest", "local/nginx:dev");
+        Assert.Equal(("nginx:latest", "local/nginx:dev"), (client.TagSource, client.TagTarget));
+        Assert.Equal("ImagesTagSuccess", service.Status!.ResourceKey);
+        Assert.Null(service.Error);
+    }
+
+    [Fact]
+    public async Task PullFailureIsReportedWithoutSuccessStatus()
+    {
+        var client = new ImageClient { PullFailure = true };
+        var service = new ImageService(client, action => action());
+
+        await service.PullImageAsync("nginx:latest");
+
+        Assert.Equal("ImagesPullError", service.Error!.ResourceKey);
+        Assert.Equal("pull failed", service.Error.Arguments[1]);
+        Assert.Null(service.Status);
+        Assert.False(service.IsBusy);
+    }
+
+    [Fact]
+    public async Task ReportsInvalidImageReferencesBeforeCallingClient()
+    {
+        var client = new ImageClient();
+        var service = new ImageService(client, action => action());
+
+        await service.PullImageAsync("--help");
+        Assert.Equal("ImagesInvalidReference", service.Error!.ResourceKey);
+
+        await service.TagImageAsync("nginx:latest", " ");
+        Assert.Equal("ImagesInvalidReference", service.Error!.ResourceKey);
+
+        Assert.Null(client.PulledImage);
+        Assert.Null(client.TagSource);
+    }
+
+    [Fact]
     public async Task IgnoresConcurrentActionsUntilRefreshCompletes()
     {
         var client = new BlockingImageClient();
@@ -97,6 +144,12 @@ public sealed class ImageManagementTests
             return Task.FromResult("");
         }
 
+        public Task<string> PullImageAsync(string image, CancellationToken cancellationToken = default) =>
+            Task.FromResult(string.Empty);
+
+        public Task<string> TagImageAsync(string source, string target, CancellationToken cancellationToken = default) =>
+            Task.FromResult(string.Empty);
+
         public void Complete() => _result.SetResult([]);
     }
 
@@ -104,7 +157,11 @@ public sealed class ImageManagementTests
     {
         public int ListCalls { get; private set; }
         public int PruneCalls { get; private set; }
+        public string? PulledImage { get; private set; }
+        public string? TagSource { get; private set; }
+        public string? TagTarget { get; private set; }
         public bool PruneFailure { get; init; }
+        public bool PullFailure { get; init; }
         public bool ListFailure { get; init; }
 
         public Task<IReadOnlyList<ImageInfo>> ListImagesAsync(CancellationToken cancellationToken = default)
@@ -121,6 +178,21 @@ public sealed class ImageManagementTests
             return PruneFailure
                 ? Task.FromException<string>(new InvalidOperationException("prune failed"))
                 : Task.FromResult("Total reclaimed space: 42MB\n");
+        }
+
+        public Task<string> PullImageAsync(string image, CancellationToken cancellationToken = default)
+        {
+            PulledImage = image;
+            return PullFailure
+                ? Task.FromException<string>(new InvalidOperationException("pull failed"))
+                : Task.FromResult("download complete");
+        }
+
+        public Task<string> TagImageAsync(string source, string target, CancellationToken cancellationToken = default)
+        {
+            TagSource = source;
+            TagTarget = target;
+            return Task.FromResult("tag complete");
         }
     }
 }
