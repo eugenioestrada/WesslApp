@@ -26,6 +26,8 @@ Los contenedores en ejecución muestran CPU, memoria, E/S de red y de bloque, y 
 
 El estado de los contenedores se actualiza al abrir la ventana y cada 10 segundos mientras permanece visible. El botón Actualizar también solicita una actualización inmediata. El sondeo se detiene cuando la ventana se oculta, minimiza o cierra; iniciar la aplicación en la bandeja no invoca WSLc. El indicador de la bandeja muestra un estado desconocido hasta la primera actualización correcta y, después, refleja el último estado conocido mientras la ventana está cerrada.
 
+Las tarjetas de contenedores solicitan una única inspección agrupada con `wslc container inspect --format json` en cada actualización visible. Muestran el estado de salud indicado por WSLc y, para los contenedores detenidos, el código y la hora de salida cuando están disponibles. Los valores ausentes se muestran explícitamente como desconocidos o no disponibles; la salida del último control de salud fallido solo se muestra si WSLc la proporciona. Los diagnósticos no se consultan mientras el panel está oculto.
+
 ## Requisitos previos
 
 - Windows 10, versión 2004 (compilación 19041) o posterior, x64 o ARM64.

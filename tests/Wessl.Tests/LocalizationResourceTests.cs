@@ -104,6 +104,14 @@ public sealed class LocalizationResourceTests
             "ImagesPruneError",
             "ImagesPruneSuccess",
             "ImagesPrunePending",
+            "ContainerDetailsImage",
+            "ContainerDetailsImageDigest",
+            "ContainerDetailsCreated",
+            "ContainerDetailsStarted",
+            "ContainerDetailsCommand",
+            "ContainerDetailsPorts",
+            "ContainerDetailsMounts",
+            "ContainerDetailsNetworks",
             "PortOpenSuccess",
             "PortOpenFailure",
             "LogsFollowing",
@@ -112,7 +120,12 @@ public sealed class LocalizationResourceTests
             "LogsEndedTruncated",
             "ContainerStateUnknown",
             "ContainerStateRunning",
-            "ContainerStateStopped"
+            "ContainerStateStopped",
+            "SelectContainerButton",
+            "DeselectContainerButton",
+            "BulkStartPending",
+            "BulkRestartPending",
+            "BulkRemovePending"
         ]);
 
         var resourceKeys = LoadResources()["en-US"].Keys.ToHashSet(StringComparer.Ordinal);

@@ -41,8 +41,8 @@
   <data name="CopyUpdateCommand" xml:space="preserve"><value>复制更新命令</value></data>
   <data name="UpdateCommandCopied" xml:space="preserve"><value>已将 wsl --update 复制到剪贴板。</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>无法复制更新命令：{0}</value></data>
-  <data name="NoPorts" xml:space="preserve"><value>无</value></data>
-  <data name="PortsLabel" xml:space="preserve"><value>端口：{0}</value></data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>打开 {0}</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>复制 {0}</value></data>
   <data name="StartButton" xml:space="preserve"><value>启动</value></data>
   <data name="StopButton" xml:space="preserve"><value>停止</value></data>
   <data name="RestartButton" xml:space="preserve"><value>重启</value></data>
@@ -113,7 +113,26 @@
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>已停止 {1} 个运行中容器中的 {0} 个。</value></data>
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>部分容器无法停止：{0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
-  <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value>；</value></data>
+  <data name="BulkSelectionCount" xml:space="preserve"><value>已选择：{0}</value></data>
+  <data name="BulkStartSelectedButton" xml:space="preserve"><value>启动 ({0})</value></data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve"><value>重启 ({0})</value></data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve"><value>删除已停止项 ({0})</value></data>
+  <data name="BulkClearSelectionButton" xml:space="preserve"><value>清除选择</value></data>
+  <data name="SelectContainerButton" xml:space="preserve"><value>选择容器</value></data>
+  <data name="DeselectContainerButton" xml:space="preserve"><value>取消选择容器</value></data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>删除所选的已停止容器？</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>只有在开始删除时仍确认处于已停止状态的 {0} 个所选容器才会被删除。</value></data>
+  <data name="BulkRemoveConfirm" xml:space="preserve"><value>删除已停止项</value></data>
+  <data name="BulkStartPending" xml:space="preserve"><value>正在启动 {0} 个所选容器…</value></data>
+  <data name="BulkRestartPending" xml:space="preserve"><value>正在重启 {0} 个所选容器…</value></data>
+  <data name="BulkRemovePending" xml:space="preserve"><value>正在删除 {0} 个所选的已停止容器…</value></data>
+  <data name="BulkActionCompleted" xml:space="preserve"><value>已成功处理 {1} 个所选容器中的 {0} 个：{2}</value></data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve"><value>{0}：成功</value></data>
+  <data name="BulkActionPartialFailure" xml:space="preserve"><value>部分所选容器未能处理：{0}</value></data>
+  <data name="BulkActionNotFound" xml:space="preserve"><value>{0} 已不可用，已跳过。</value></data>
+  <data name="BulkActionStateChanged" xml:space="preserve"><value>{0} 不再处于所需状态，已跳过。</value></data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve"><value>无法验证 {0}，未对其进行更改：{1}</value></data>
+  <data name="BulkActionFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>停止所有容器</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>关闭</value></data>
@@ -149,6 +168,17 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 秒</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>网络：{0} · 块 I/O：{1} · PID：{2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>此容器的统计信息不可用。</value></data>
+  <data name="ContainerHealth" xml:space="preserve"><value>健康状态：{0}</value></data>
+  <data name="ContainerHealthUnknown" xml:space="preserve"><value>未知</value></data>
+  <data name="ContainerHealthUnavailable" xml:space="preserve"><value>未报告</value></data>
+  <data name="ContainerHealthStarting" xml:space="preserve"><value>正在启动</value></data>
+  <data name="ContainerHealthHealthy" xml:space="preserve"><value>正常</value></data>
+  <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>异常</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>不可用</value></data>
+  <data name="ContainerExitCode" xml:space="preserve"><value>退出代码：{0}</value></data>
+  <data name="ContainerExitTime" xml:space="preserve"><value>退出时间：{0}</value></data>
+  <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>最近的健康检查错误：{0}</value></data>
+  <data name="ContainerDiagnosticsLoadError" xml:space="preserve"><value>容器诊断信息不可用：{0}</value></data>
   <data name="ContainersSearchLabel" xml:space="preserve"><value>搜索容器</value></data>
   <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>按名称或映像搜索</value></data>
   <data name="ContainersStateFilterLabel" xml:space="preserve"><value>状态</value></data>
@@ -161,4 +191,42 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>所有映像</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>没有容器符合搜索条件和筛选条件。</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>清除搜索和筛选条件</value></data>
+  <data name="ContainersGroupByLabelLabel" xml:space="preserve"><value>分组依据</value></data>
+  <data name="ContainersGroupNone" xml:space="preserve"><value>不分组</value></data>
+  <data name="ContainersGroupCompose" xml:space="preserve"><value>Compose 项目</value></data>
+  <data name="ContainersGroupLabel" xml:space="preserve"><value>标签：{0}</value></data>
+  <data name="ContainersGroupNoMetadata" xml:space="preserve"><value>WSLc 未返回标签元数据。容器将不分组显示。</value></data>
+  <data name="ContainersGroupComposeUnavailable" xml:space="preserve"><value>未返回 Compose 项目标签。请选择可用标签，或不分组显示容器。</value></data>
+  <data name="ContainersWithoutGroupLabel" xml:space="preserve"><value>没有 {0} 值的容器将单独显示。</value></data>
+  <data name="ContainerGroupTitle" xml:space="preserve"><value>{0}：{1} 个容器</value></data>
+  <data name="GroupStartButton" xml:space="preserve"><value>启动组</value></data>
+  <data name="GroupStopButton" xml:space="preserve"><value>停止组</value></data>
+  <data name="GroupStartName" xml:space="preserve"><value>启动</value></data>
+  <data name="GroupStopName" xml:space="preserve"><value>停止</value></data>
+  <data name="GroupStartVerb" xml:space="preserve"><value>启动</value></data>
+  <data name="GroupStopVerb" xml:space="preserve"><value>停止</value></data>
+  <data name="GroupActionPending" xml:space="preserve"><value>{0}组 {1}（{2} 个容器）…</value></data>
+  <data name="GroupActionCompleted" xml:space="preserve"><value>{0}组 {1}：已完成 {2}/{3} 个容器。</value></data>
+  <data name="GroupActionNothingToDo" xml:space="preserve"><value>组 {0} 中没有需要执行此操作的容器。</value></data>
+  <data name="GroupActionPartialFailure" xml:space="preserve"><value>组 {0} 中的部分容器无法{1}：{2}</value></data>
+  <data name="GroupActionFailureDetail" xml:space="preserve"><value>{0}：{1}</value></data>
+  <data name="ActionFailureSeparator" xml:space="preserve"><value>；</value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>容器详情</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>{0} 的详情</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>映像</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>映像 ID / 摘要</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>创建时间</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>启动时间</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>命令</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>端口</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>挂载</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>网络</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>不可用</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>无</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>环境变量值不会显示，也不会包含在复制内容中。</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>正在加载容器详情…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>无法检查此容器：{0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>复制非机密详情</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>已复制容器详情。</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>无法复制容器详情：{0}</value></data>
 </root>

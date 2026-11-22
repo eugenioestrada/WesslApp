@@ -92,6 +92,30 @@ public sealed class ContainerPollingTests
     }
 
     [Fact]
+    public async Task RefreshAppliesInspectDiagnosticsAndReportsInspectionFailureSeparately()
+    {
+        var client = new RecordingClient
+        {
+            Diagnostics = new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal)
+            {
+                ["id"] = new(ContainerHealthStatus.Healthy, 0, null, null)
+            }
+        };
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+
+        await service.RefreshAsync();
+
+        Assert.Equal(ContainerHealthStatus.Healthy, Assert.Single(service.Containers).Diagnostics.Health);
+        Assert.Null(service.DiagnosticsError);
+
+        client.DiagnosticsError = new InvalidOperationException("inspect is unsupported");
+        await service.RefreshAsync();
+
+        Assert.Equal(ContainerDiagnostics.Unavailable, Assert.Single(service.Containers).Diagnostics);
+        Assert.Equal("ContainerDiagnosticsLoadError", service.DiagnosticsError?.ResourceKey);
+    }
+
+    [Fact]
     public void ActiveRefreshIntervalTracksSavedSetting()
     {
         using var directory = new TemporaryDirectory();
@@ -123,6 +147,9 @@ public sealed class ContainerPollingTests
     private sealed class RecordingClient : IWslcClient
     {
         public int Calls { get; private set; }
+        public IReadOnlyDictionary<string, ContainerDiagnostics> Diagnostics { get; set; } =
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal);
+        public Exception? DiagnosticsError { get; set; }
 
         public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default)
         {
@@ -131,7 +158,17 @@ public sealed class ContainerPollingTests
                 [new("id", "name", "image", ContainerState.Running)]);
         }
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            DiagnosticsError is { } error
+                ? Task.FromException<IReadOnlyDictionary<string, ContainerDiagnostics>>(error)
+                : Task.FromResult(Diagnostics);
+
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -166,7 +203,15 @@ public sealed class ContainerPollingTests
             return _result.Task;
         }
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
+
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -203,7 +248,15 @@ public sealed class ContainerPollingTests
             return Task.FromResult<IReadOnlyList<ContainerInfo>>([]);
         }
 
+        public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+            IReadOnlyCollection<string> ids,
+            CancellationToken cancellationToken = default) =>
+            NoDiagnosticsAsync();
+
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -236,4 +289,8 @@ public sealed class ContainerPollingTests
             }
         }
     }
+
+    private static Task<IReadOnlyDictionary<string, ContainerDiagnostics>> NoDiagnosticsAsync() =>
+        Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
 }

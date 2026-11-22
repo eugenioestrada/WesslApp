@@ -15,6 +15,7 @@
 
 ## Design and UX
 
+- Follow WinUI 3 and Fluent UI design principles and recommended patterns. Keep UX professional, with clearly ordered content, consistent presentation, and appropriate hierarchy and spacing.
 - Treat the main window as a compact system-tray panel, not a conventional desktop window. Position it beside the tray when opened; do not allow title-bar dragging.
 - Do not show a native title bar or Close, Minimize, or Maximize buttons on the main panel. Open it visibly and focused beside the tray, without making it always-on-top. Hide it when it loses activation, keeping the tray app running. Use short entry/exit animations that respect Windows animation settings; allow reopening from the tray. Keep separate tool windows, such as logs, independently usable.
 - Follow native WinUI 3 control styles and semantic theme resources. Use Mica for the main panel, and acrylic only where appropriate for transient surfaces. Preserve readability, high-contrast support, and light/dark adaptation; avoid expensive effects and decorative transparency.

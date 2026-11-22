@@ -16,7 +16,9 @@ The app uses the real WSLc client by default. The `wslc` executable must be on `
 
 Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
 
-Open **Images** to explicitly load the WSLc image list, reported size, and digest when available. Pull an image with `wslc image pull <image>` or tag one with `wslc image tag <source> <target>`; both operations show pending, result, and error feedback and run only when requested. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action. Image history is not available in the verified WSLc 3.0.5.0 command set (`wslc image --help` has no history command), so Wessl does not offer a history action.
+Containers can be grouped by the Compose project label (`com.docker.compose.project`) or any other label returned by WSLc. Group Start and Stop actions apply to the matching containers currently shown by search and filters. When WSLc returns no labels, containers remain ungrouped; Wessl does not infer a project from container names.
+
+Open **Images** to explicitly load the WSLc image list, reported size, and digest when available. Refresh reloads it. Pull an image with `wslc image pull <image>` or tag one with `wslc image tag <source> <target>`; both operations show pending, result, and error feedback and run only when requested. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action. Image history is not available in the verified WSLc 3.0.5.0 command set (`wslc image --help` has no history command), so Wessl does not offer a history action.
 
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Use real WSLc integration for this action; Windows Terminal and a WSLc version supporting `exec -it` must be available.
 
@@ -25,6 +27,8 @@ For a running container, **Open shell** launches Windows Terminal with an intera
 Running containers show CPU, memory, network and block I/O, and PID counts using `wslc stats --format json`. Statistics refresh every second by default; change this interval in Settings. Polling stops when the panel is hidden.
 
 Container status refreshes when the window opens and every 10 seconds while it is visible. The Refresh button also requests an immediate update. Polling stops when the window is hidden, minimized, or closed; starting the tray app alone does not invoke WSLc. The tray indicator shows unknown until the first successful refresh, then reflects the last known status while the window is closed.
+
+Container cards request one batched `wslc container inspect --format json` during each visible status refresh. They show reported health, and stopped containers show the reported exit code and time when available. Missing values remain explicitly unknown or unavailable; the latest failed health-check output is shown only when WSLc provides it. Diagnostics are not polled while the panel is hidden.
 
 ## Prerequisites
 
