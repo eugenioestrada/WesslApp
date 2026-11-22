@@ -120,4 +120,16 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 Sekunde</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>Netzwerk: {0} · Block-E/A: {1} · PIDs: {2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Statistiken für diesen Container sind nicht verfügbar.</value></data>
+  <data name="ContainersSearchLabel" xml:space="preserve"><value>Container suchen</value></data>
+  <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>Nach Name oder Image suchen</value></data>
+  <data name="ContainersStateFilterLabel" xml:space="preserve"><value>Status</value></data>
+  <data name="ContainersImageFilterLabel" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainersSortLabel" xml:space="preserve"><value>Sortieren nach</value></data>
+  <data name="ContainersSortName" xml:space="preserve"><value>Name</value></data>
+  <data name="ContainersSortState" xml:space="preserve"><value>Status</value></data>
+  <data name="ContainersSortImage" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainersFilterAllStates" xml:space="preserve"><value>Alle Status</value></data>
+  <data name="ContainersFilterAllImages" xml:space="preserve"><value>Alle Images</value></data>
+  <data name="ContainersNoMatches" xml:space="preserve"><value>Keine Container entsprechen der Suche und den Filtern.</value></data>
+  <data name="ContainersResetFilters" xml:space="preserve"><value>Suche und Filter löschen</value></data>
 </root>

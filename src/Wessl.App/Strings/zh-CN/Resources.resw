@@ -120,4 +120,16 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 秒</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>网络：{0} · 块 I/O：{1} · PID：{2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>此容器的统计信息不可用。</value></data>
+  <data name="ContainersSearchLabel" xml:space="preserve"><value>搜索容器</value></data>
+  <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>按名称或映像搜索</value></data>
+  <data name="ContainersStateFilterLabel" xml:space="preserve"><value>状态</value></data>
+  <data name="ContainersImageFilterLabel" xml:space="preserve"><value>映像</value></data>
+  <data name="ContainersSortLabel" xml:space="preserve"><value>排序依据</value></data>
+  <data name="ContainersSortName" xml:space="preserve"><value>名称</value></data>
+  <data name="ContainersSortState" xml:space="preserve"><value>状态</value></data>
+  <data name="ContainersSortImage" xml:space="preserve"><value>映像</value></data>
+  <data name="ContainersFilterAllStates" xml:space="preserve"><value>所有状态</value></data>
+  <data name="ContainersFilterAllImages" xml:space="preserve"><value>所有映像</value></data>
+  <data name="ContainersNoMatches" xml:space="preserve"><value>没有容器符合搜索条件和筛选条件。</value></data>
+  <data name="ContainersResetFilters" xml:space="preserve"><value>清除搜索和筛选条件</value></data>
 </root>
