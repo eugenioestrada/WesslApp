@@ -25,7 +25,7 @@
 
 ## v1.x — Future / Under Consideration
 
-- [ ] [Group containers by Compose project or label, with group Start and Stop actions](https://github.com/eugenioestrada/WesslApp/issues/16).
+- [x] [Group containers by Compose project or label, with group Start and Stop actions](https://github.com/eugenioestrada/WesslApp/issues/16).
 - [x] [Show container RAM and CPU usage on demand while the UI is open](https://github.com/eugenioestrada/WesslApp/issues/17).
 - [ ] [Send native Windows Toast notifications when a container exits unexpectedly with a non-zero code](https://github.com/eugenioestrada/WesslApp/issues/18).
 - [x] [Search, filter, and sort containers](https://github.com/eugenioestrada/WesslApp/issues/53).

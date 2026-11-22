@@ -257,9 +257,6 @@
   <data name="TrayStopAllFailureDetail" xml:space="preserve">
     <value>{0}: {1}</value>
   </data>
-  <data name="TrayStopAllFailureSeparator" xml:space="preserve">
-    <value>; </value>
-  </data>
   <data name="TrayStopAllResultTitle" xml:space="preserve">
     <value>Stop all containers</value>
   </data>
@@ -369,4 +366,24 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>All images</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>No containers match your search and filters.</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>Clear search and filters</value></data>
+  <data name="ContainersGroupByLabelLabel" xml:space="preserve"><value>Group by</value></data>
+  <data name="ContainersGroupNone" xml:space="preserve"><value>No grouping</value></data>
+  <data name="ContainersGroupCompose" xml:space="preserve"><value>Compose project</value></data>
+  <data name="ContainersGroupLabel" xml:space="preserve"><value>Label: {0}</value></data>
+  <data name="ContainersGroupNoMetadata" xml:space="preserve"><value>WSLc returned no label metadata. Containers are shown without groups.</value></data>
+  <data name="ContainersGroupComposeUnavailable" xml:space="preserve"><value>No Compose project label was returned. Choose an available label or show containers without groups.</value></data>
+  <data name="ContainersWithoutGroupLabel" xml:space="preserve"><value>Containers without a value for {0} are shown separately.</value></data>
+  <data name="ContainerGroupTitle" xml:space="preserve"><value>{0}: {1} containers</value></data>
+  <data name="GroupStartButton" xml:space="preserve"><value>Start group</value></data>
+  <data name="GroupStopButton" xml:space="preserve"><value>Stop group</value></data>
+  <data name="GroupStartName" xml:space="preserve"><value>Start</value></data>
+  <data name="GroupStopName" xml:space="preserve"><value>Stop</value></data>
+  <data name="GroupStartVerb" xml:space="preserve"><value>start</value></data>
+  <data name="GroupStopVerb" xml:space="preserve"><value>stop</value></data>
+  <data name="GroupActionPending" xml:space="preserve"><value>{0} group {1} ({2} containers)…</value></data>
+  <data name="GroupActionCompleted" xml:space="preserve"><value>{0} group {1}: {2} of {3} containers completed.</value></data>
+  <data name="GroupActionNothingToDo" xml:space="preserve"><value>No containers in group {0} need this action.</value></data>
+  <data name="GroupActionPartialFailure" xml:space="preserve"><value>Some containers in group {0} failed to {1}: {2}</value></data>
+  <data name="GroupActionFailureDetail" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="ActionFailureSeparator" xml:space="preserve"><value>; </value></data>
 </root>

@@ -124,6 +124,38 @@ public sealed class WslcOutputParserTests
     }
 
     [Fact]
+    public void ParseReadsLabelsFromTheWslcListJsonField()
+    {
+        const string output = """
+            {"ID":"abc","Names":"web","Image":"nginx","State":"running","Labels":"com.docker.compose.project=store,com.example.role=api,com.example.value=one=two"}
+            {"ID":"def","Names":"other","Image":"busybox","State":"stopped","Labels":""}
+            {"ID":"ghi","Names":"old","Image":"busybox","State":"stopped"}
+            """;
+
+        var containers = WslcOutputParser.Parse(output);
+
+        Assert.Equal(
+            new Dictionary<string, string>
+            {
+                ["com.docker.compose.project"] = "store",
+                ["com.example.role"] = "api",
+                ["com.example.value"] = "one=two"
+            },
+            containers[0].Labels);
+        Assert.Empty(containers[1].Labels);
+        Assert.Empty(containers[2].Labels);
+    }
+
+    [Theory]
+    [InlineData("""{"ID":"abc","Names":"web","Labels":[]}""")]
+    [InlineData("""{"ID":"abc","Names":"web","Labels":"broken"}""")]
+    [InlineData("""{"ID":"abc","Names":"web","Labels":"key=value,key=value"}""")]
+    public void ParseRejectsInvalidLabels(string output)
+    {
+        Assert.Throws<FormatException>(() => WslcOutputParser.Parse(output));
+    }
+
+    [Fact]
     public async Task SampleClientReturnsContainersAndHonorsCancellation()
     {
         var client = new SampleWslcClient();

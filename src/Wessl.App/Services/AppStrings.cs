@@ -45,7 +45,7 @@ public static class AppStrings
         {
             LocalizedMessage nested => Format(nested),
             LocalizedMessageList list => string.Join(
-                Get("TrayStopAllFailureSeparator"),
+                Get("ActionFailureSeparator"),
                 list.Messages.Select(Format)),
             _ => argument
         };
