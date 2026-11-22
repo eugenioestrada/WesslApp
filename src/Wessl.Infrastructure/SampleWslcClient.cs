@@ -29,6 +29,15 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
         return Task.FromResult<IReadOnlyList<ContainerInfo>>(_containers.ToArray());
     }
 
+    public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(
+        IReadOnlyCollection<string> ids,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyDictionary<string, ContainerDiagnostics>>(
+            new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal));
+    }
+
     public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

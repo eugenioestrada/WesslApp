@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
 using Microsoft.UI.Reactor.Layout;
@@ -87,6 +88,33 @@ public sealed class ContainerRow : Component<ContainerRowProps>
                         () => CopyUrl(url, setStatus))) with
                     { Wrap = FlexWrap.Wrap, ColumnGap = 8, RowGap = 8 };
             }));
+        var health = container.Diagnostics.Health switch
+        {
+            ContainerHealthStatus.Starting => AppStrings.Get("ContainerHealthStarting"),
+            ContainerHealthStatus.Healthy => AppStrings.Get("ContainerHealthHealthy"),
+            ContainerHealthStatus.Unhealthy => AppStrings.Get("ContainerHealthUnhealthy"),
+            ContainerHealthStatus.Unavailable => AppStrings.Get("ContainerHealthUnavailable"),
+            _ => AppStrings.Get("ContainerHealthUnknown")
+        };
+        row.Add(Caption(AppStrings.Format("ContainerHealth", health))
+            .Foreground(Theme.SecondaryText).TextWrapping());
+        if (container.State == ContainerState.Stopped)
+        {
+            var exitCode = container.Diagnostics.ExitCode?.ToString(CultureInfo.CurrentCulture)
+                ?? AppStrings.Get("ContainerDiagnosticUnavailable");
+            var exitTime = container.Diagnostics.FinishedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)
+                ?? AppStrings.Get("ContainerDiagnosticUnavailable");
+            row.Add(Caption(AppStrings.Format("ContainerExitCode", exitCode))
+                .Foreground(Theme.SecondaryText).TextWrapping());
+            row.Add(Caption(AppStrings.Format("ContainerExitTime", exitTime))
+                .Foreground(Theme.SecondaryText).TextWrapping());
+        }
+
+        row.Add(Caption(AppStrings.Format(
+                "ContainerLatestHealthCheckError",
+                container.Diagnostics.LatestHealthCheckError ?? AppStrings.Get("ContainerDiagnosticUnavailable")))
+            .Foreground(Theme.SecondaryText).TextWrapping());
+
         if (Props.Service.UsageErrors.TryGetValue(container.Id, out var usageError))
         {
             row.Add(InfoBar(message: AppStrings.Format(usageError)).Error()

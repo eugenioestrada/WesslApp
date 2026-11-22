@@ -131,6 +131,17 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 秒</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>网络：{0} · 块 I/O：{1} · PID：{2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>此容器的统计信息不可用。</value></data>
+  <data name="ContainerHealth" xml:space="preserve"><value>健康状态：{0}</value></data>
+  <data name="ContainerHealthUnknown" xml:space="preserve"><value>未知</value></data>
+  <data name="ContainerHealthUnavailable" xml:space="preserve"><value>未报告</value></data>
+  <data name="ContainerHealthStarting" xml:space="preserve"><value>正在启动</value></data>
+  <data name="ContainerHealthHealthy" xml:space="preserve"><value>正常</value></data>
+  <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>异常</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>不可用</value></data>
+  <data name="ContainerExitCode" xml:space="preserve"><value>退出代码：{0}</value></data>
+  <data name="ContainerExitTime" xml:space="preserve"><value>退出时间：{0}</value></data>
+  <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>最近的健康检查错误：{0}</value></data>
+  <data name="ContainerDiagnosticsLoadError" xml:space="preserve"><value>容器诊断信息不可用：{0}</value></data>
   <data name="ContainersSearchLabel" xml:space="preserve"><value>搜索容器</value></data>
   <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>按名称或映像搜索</value></data>
   <data name="ContainersStateFilterLabel" xml:space="preserve"><value>状态</value></data>

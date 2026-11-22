@@ -28,6 +28,8 @@ public sealed class ContainerService(
 
     public LocalizedMessage? Error { get; private set; }
 
+    public LocalizedMessage? DiagnosticsError { get; private set; }
+
     public LocalizedMessage? Status { get; private set; }
 
     public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
@@ -234,13 +236,13 @@ public sealed class ContainerService(
             return;
         }
 
-        IReadOnlyList<ContainerInfo>? result = null;
+        ContainerRefreshResult? result = null;
         LocalizedMessage? error = null;
         var unavailable = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            result = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+            result = await RefreshContainerListAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -265,12 +267,14 @@ public sealed class ContainerService(
 
             if (result is not null)
             {
-                SetContainers(result);
+                SetContainers(result.Containers);
+                DiagnosticsError = result.DiagnosticsError;
                 HasRefreshed = true;
             }
             else if (unavailable)
             {
                 SetContainers([]);
+                DiagnosticsError = null;
                 HasRefreshed = false;
             }
 
@@ -316,7 +320,7 @@ public sealed class ContainerService(
             var failures = new List<(string Name, string Message)>();
             var stopped = 0;
             Exception? refreshError = null;
-            IReadOnlyList<ContainerInfo>? result = null;
+            ContainerRefreshResult? result = null;
             await _refreshLock.WaitAsync();
             try
             {
@@ -335,7 +339,7 @@ public sealed class ContainerService(
 
                 try
                 {
-                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
@@ -366,12 +370,14 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    SetContainers(result);
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
                     SetContainers([]);
+                    DiagnosticsError = null;
                     HasRefreshed = false;
                 }
 
@@ -420,7 +426,7 @@ public sealed class ContainerService(
 
             Exception? actionError = null;
             Exception? refreshError = null;
-            IReadOnlyList<ContainerInfo>? result = null;
+            ContainerRefreshResult? result = null;
             await _refreshLock.WaitAsync();
             try
             {
@@ -435,7 +441,7 @@ public sealed class ContainerService(
 
                 try
                 {
-                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
@@ -451,12 +457,14 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    SetContainers(result);
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
                     SetContainers([]);
+                    DiagnosticsError = null;
                     HasRefreshed = false;
                 }
 
@@ -511,6 +519,48 @@ public sealed class ContainerService(
             _usageErrors.Remove(id);
         }
     }
+
+    private async Task<ContainerRefreshResult> RefreshContainerListAsync(CancellationToken cancellationToken)
+    {
+        var containers = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+        if (containers.Count == 0)
+        {
+            return new(containers, null);
+        }
+
+        IReadOnlyDictionary<string, ContainerDiagnostics> diagnostics;
+        try
+        {
+            diagnostics = await client.GetContainerDiagnosticsAsync(
+                containers.Select(container => container.Id).ToArray(),
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            var unavailable = containers
+                .Select(container => container with { Diagnostics = ContainerDiagnostics.Unavailable })
+                .ToArray();
+            return new(unavailable, new("ContainerDiagnosticsLoadError", [exception.Message]));
+        }
+
+        var enriched = containers
+            .Select(container => container with
+            {
+                Diagnostics = diagnostics.TryGetValue(container.Id, out var value)
+                    ? value
+                    : ContainerDiagnostics.Unavailable
+            })
+            .ToArray();
+        return new(enriched, null);
+    }
+
+    private sealed record ContainerRefreshResult(
+        IReadOnlyList<ContainerInfo> Containers,
+        LocalizedMessage? DiagnosticsError);
 }
 
 public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);

@@ -106,6 +106,79 @@ public sealed class WslcOutputParserTests
     }
 
     [Fact]
+    public void ParseContainerDiagnosticsReadsInspectHealthExitAndLatestFailedCheck()
+    {
+        const string output = """
+            [
+              {
+                "Id":"abc",
+                "State":{
+                  "Status":"exited",
+                  "Running":false,
+                  "ExitCode":137,
+                  "StartedAt":"2026-11-22T13:40:00Z",
+                  "FinishedAt":"2026-11-22T14:43:36.295Z",
+                  "Health":{
+                    "Status":"unhealthy",
+                    "FailingStreak":2,
+                    "Log":[
+                      {"Start":"2026-11-22T14:42:00Z","End":"2026-11-22T14:42:01Z","ExitCode":1,"Output":"old failure"},
+                      {"Start":"2026-11-22T14:43:00Z","End":"2026-11-22T14:43:01Z","ExitCode":0,"Output":"recovered"},
+                      {"Start":"2026-11-22T14:43:30Z","End":"2026-11-22T14:43:31Z","ExitCode":2,"Output":"latest failure"}
+                    ]
+                  }
+                },
+                "Config":{"Env":["SECRET=never retain"]}
+              },
+              {
+                "Id":"def",
+                "State":{
+                  "Status":"running",
+                  "Running":true,
+                  "ExitCode":0,
+                  "FinishedAt":"0001-01-01T00:00:00Z",
+                  "Health":{"Status":"future-status"}
+                }
+              }
+            ]
+            """;
+
+        var diagnostics = WslcOutputParser.ParseContainerDiagnostics(output);
+        Assert.Equal(2, diagnostics.Count);
+        Assert.Equal(ContainerHealthStatus.Unhealthy, diagnostics["abc"].Health);
+        Assert.Equal(137, diagnostics["abc"].ExitCode);
+        Assert.Equal(DateTimeOffset.Parse("2026-11-22T14:43:36.295Z"), diagnostics["abc"].FinishedAt);
+        Assert.Equal("latest failure", diagnostics["abc"].LatestHealthCheckError);
+        Assert.DoesNotContain("SECRET", diagnostics["abc"].ToString());
+        Assert.Equal(ContainerHealthStatus.Unknown, diagnostics["def"].Health);
+        Assert.Equal(0, diagnostics["def"].ExitCode);
+        Assert.Null(diagnostics["def"].FinishedAt);
+        Assert.Null(diagnostics["def"].LatestHealthCheckError);
+    }
+
+    [Fact]
+    public void ParseContainerDiagnosticsDoesNotInferMissingHealthOrExitDetails()
+    {
+        const string output = """[{"Id":"abc","State":{"Status":"exited"}}]""";
+
+        var diagnostics = Assert.Single(WslcOutputParser.ParseContainerDiagnostics(output)).Value;
+
+        Assert.Equal(ContainerHealthStatus.Unavailable, diagnostics.Health);
+        Assert.Null(diagnostics.ExitCode);
+        Assert.Null(diagnostics.FinishedAt);
+        Assert.Null(diagnostics.LatestHealthCheckError);
+    }
+
+    [Theory]
+    [InlineData("""{"Id":"abc","State":{"Status":"exited"}}""")]
+    [InlineData("""[{"Id":"abc","State":{"ExitCode":"1"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{"FinishedAt":"not-a-time"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{"Health":"healthy"}}]""")]
+    [InlineData("""[{"Id":"abc","State":{}},{"Id":"abc","State":{}}]""")]
+    public void ParseContainerDiagnosticsRejectsUnverifiedShapes(string output) =>
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseContainerDiagnostics(output));
+
+    [Fact]
     public void ParseReadsPortsAsDelimitedTextOrStringArray()
     {
         const string output = """
