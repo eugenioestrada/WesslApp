@@ -75,22 +75,55 @@
     <value>Registros: {0}</value>
   </data>
   <data name="LogsFollowing" xml:space="preserve">
-    <value>Siguiendo los registros. Cierra esta ventana para detener el seguimiento.</value>
+    <value>Se siguen los registros con marcas de tiempo para las líneas existentes y nuevas. Cierra esta ventana para detener el seguimiento.</value>
   </data>
   <data name="LogsFollowingTruncated" xml:space="preserve">
-    <value>Siguiendo los registros; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB. Cierra esta ventana para detener el seguimiento.</value>
+    <value>Se siguen los registros con marcas de tiempo para las líneas existentes y nuevas; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB. Cierra esta ventana para detener el seguimiento.</value>
   </data>
   <data name="LogsEnded" xml:space="preserve">
-    <value>Finalizó el flujo de registros.</value>
+    <value>Finalizó el flujo de registros. Se habilitaron marcas de tiempo para todas las líneas mostradas.</value>
   </data>
   <data name="LogsEndedTruncated" xml:space="preserve">
-    <value>Finalizó el flujo de registros; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB.</value>
+    <value>Finalizó el flujo de registros; las líneas antiguas se eliminaron al alcanzar el límite de 128 KB. Se habilitaron marcas de tiempo para todas las líneas mostradas.</value>
   </data>
   <data name="LogsNotRunning" xml:space="preserve">
     <value>Solo se pueden seguir los registros de un contenedor en ejecución.</value>
   </data>
   <data name="LogsError" xml:space="preserve">
     <value>No se pudieron seguir los registros: {0}</value>
+  </data>
+  <data name="LogsSearchLabel" xml:space="preserve">
+    <value>Buscar registros</value>
+  </data>
+  <data name="LogsContentLabel" xml:space="preserve">
+    <value>Salida del registro</value>
+  </data>
+  <data name="LogsNoMatches" xml:space="preserve">
+    <value>Ningún registro coincide con la búsqueda.</value>
+  </data>
+  <data name="LogsCopySelected" xml:space="preserve">
+    <value>Copiar selección</value>
+  </data>
+  <data name="LogsCopyVisible" xml:space="preserve">
+    <value>Copiar visibles</value>
+  </data>
+  <data name="LogsSaveButton" xml:space="preserve">
+    <value>Guardar en archivo</value>
+  </data>
+  <data name="LogsCopied" xml:space="preserve">
+    <value>Se copiaron los registros al portapapeles.</value>
+  </data>
+  <data name="LogsCopyError" xml:space="preserve">
+    <value>No se pudieron copiar los registros: {0}</value>
+  </data>
+  <data name="LogsSaved" xml:space="preserve">
+    <value>Se guardaron los registros.</value>
+  </data>
+  <data name="LogsSaveError" xml:space="preserve">
+    <value>No se pudieron guardar los registros: {0}</value>
+  </data>
+  <data name="LogsTextFileType" xml:space="preserve">
+    <value>Archivos de texto</value>
   </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Eliminar</value>

@@ -34,12 +34,23 @@
   <data name="ContainerUsage" xml:space="preserve"><value>Processeur : {0} · RAM : {1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>Impossible de charger l’utilisation du processeur et de la RAM : {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Journaux : {0}</value></data>
-  <data name="LogsFollowing" xml:space="preserve"><value>Suivi des journaux. Fermez cette fenêtre pour arrêter le suivi.</value></data>
-  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Suivi des journaux ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. Fermez cette fenêtre pour arrêter le suivi.</value></data>
-  <data name="LogsEnded" xml:space="preserve"><value>Le flux des journaux est terminé.</value></data>
-  <data name="LogsEndedTruncated" xml:space="preserve"><value>Le flux des journaux est terminé ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko.</value></data>
+  <data name="LogsFollowing" xml:space="preserve"><value>Suivi des journaux avec horodatage pour les lignes existantes et nouvelles. Fermez cette fenêtre pour arrêter le suivi.</value></data>
+  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Suivi des journaux avec horodatage pour les lignes existantes et nouvelles ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. Fermez cette fenêtre pour arrêter le suivi.</value></data>
+  <data name="LogsEnded" xml:space="preserve"><value>Le flux des journaux est terminé. L’horodatage était activé pour toutes les lignes affichées.</value></data>
+  <data name="LogsEndedTruncated" xml:space="preserve"><value>Le flux des journaux est terminé ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. L’horodatage était activé pour toutes les lignes affichées.</value></data>
   <data name="LogsNotRunning" xml:space="preserve"><value>Le suivi des journaux est possible uniquement pour un conteneur en cours d’exécution.</value></data>
   <data name="LogsError" xml:space="preserve"><value>Impossible de suivre les journaux : {0}</value></data>
+  <data name="LogsSearchLabel" xml:space="preserve"><value>Rechercher dans les journaux</value></data>
+  <data name="LogsContentLabel" xml:space="preserve"><value>Sortie du journal</value></data>
+  <data name="LogsNoMatches" xml:space="preserve"><value>Aucun journal ne correspond à la recherche.</value></data>
+  <data name="LogsCopySelected" xml:space="preserve"><value>Copier la sélection</value></data>
+  <data name="LogsCopyVisible" xml:space="preserve"><value>Copier les éléments visibles</value></data>
+  <data name="LogsSaveButton" xml:space="preserve"><value>Enregistrer dans un fichier</value></data>
+  <data name="LogsCopied" xml:space="preserve"><value>Journaux copiés dans le Presse-papiers.</value></data>
+  <data name="LogsCopyError" xml:space="preserve"><value>Impossible de copier les journaux : {0}</value></data>
+  <data name="LogsSaved" xml:space="preserve"><value>Journaux enregistrés.</value></data>
+  <data name="LogsSaveError" xml:space="preserve"><value>Impossible d’enregistrer les journaux : {0}</value></data>
+  <data name="LogsTextFileType" xml:space="preserve"><value>Fichiers texte</value></data>
   <data name="RemoveButton" xml:space="preserve"><value>Supprimer</value></data>
   <data name="ConfirmRemoveButton" xml:space="preserve"><value>Confirmer la suppression</value></data>
   <data name="CancelButton" xml:space="preserve"><value>Annuler</value></data>

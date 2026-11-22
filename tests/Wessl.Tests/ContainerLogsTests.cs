@@ -14,9 +14,45 @@ public sealed class ContainerLogsTests
         var info = new WslcClient().CreateLogsStartInfo("container-123");
 
         Assert.Equal("wslc", info.FileName);
-        Assert.Equal(["container", "logs", "-f", "container-123"], info.ArgumentList);
+        Assert.Equal(["container", "logs", "--timestamps", "-f", "container-123"], info.ArgumentList);
         Assert.True(info.RedirectStandardOutput);
         Assert.True(info.RedirectStandardError);
+    }
+
+    [Fact]
+    public void FilterTextMatchesLinesWithoutChangingTheStoredText()
+    {
+        var text = string.Join(Environment.NewLine, "INFO ready", "ERROR failed", "warning later");
+
+        Assert.Equal("ERROR failed", ContainerLogsSession.FilterText(text, "eRr"));
+        Assert.Equal(text, ContainerLogsSession.FilterText(text, string.Empty));
+        Assert.Equal(string.Empty, ContainerLogsSession.FilterText(text, "missing"));
+    }
+
+    [Fact]
+    public async Task SaveToFileWritesTheAvailableLogContent()
+    {
+        var session = new ContainerLogsSession(new SingleLineLogsClient("first line"), action => action());
+        var changed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        session.Changed += () => changed.TrySetResult();
+        session.Start(new("id", "name", "image", ContainerState.Running));
+        await changed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var path = Path.Combine(Path.GetTempPath(), $"wessl-logs-{Guid.NewGuid():N}.txt");
+        try
+        {
+            await session.SaveToFileAsync(path);
+
+            Assert.Equal($"first line{Environment.NewLine}", await File.ReadAllTextAsync(path));
+        }
+        finally
+        {
+            session.Stop();
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     [Fact]
@@ -130,6 +166,16 @@ public sealed class ContainerLogsTests
 #pragma warning disable CS0162
             yield break;
 #pragma warning restore CS0162
+        }
+    }
+
+    private sealed class SingleLineLogsClient(string line) : IContainerLogsClient
+    {
+        public async IAsyncEnumerable<string> FollowLogsAsync(
+            string id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            yield return line;
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
         }
     }
 }

@@ -75,22 +75,55 @@
     <value>Logs: {0}</value>
   </data>
   <data name="LogsFollowing" xml:space="preserve">
-    <value>Following logs. Close this window to stop.</value>
+    <value>Following logs with timestamps for existing and new lines. Close this window to stop.</value>
   </data>
   <data name="LogsFollowingTruncated" xml:space="preserve">
-    <value>Following logs; older lines were trimmed after the 128 KB limit. Close this window to stop.</value>
+    <value>Following logs with timestamps for existing and new lines; older lines were trimmed after the 128 KB limit. Close this window to stop.</value>
   </data>
   <data name="LogsEnded" xml:space="preserve">
-    <value>Log stream ended.</value>
+    <value>Log stream ended. Timestamps were enabled for all displayed lines.</value>
   </data>
   <data name="LogsEndedTruncated" xml:space="preserve">
-    <value>Log stream ended; older lines were trimmed after the 128 KB limit.</value>
+    <value>Log stream ended; older lines were trimmed after the 128 KB limit. Timestamps were enabled for all displayed lines.</value>
   </data>
   <data name="LogsNotRunning" xml:space="preserve">
     <value>Logs can only be followed for a running container.</value>
   </data>
   <data name="LogsError" xml:space="preserve">
     <value>Unable to follow logs: {0}</value>
+  </data>
+  <data name="LogsSearchLabel" xml:space="preserve">
+    <value>Search logs</value>
+  </data>
+  <data name="LogsContentLabel" xml:space="preserve">
+    <value>Log output</value>
+  </data>
+  <data name="LogsNoMatches" xml:space="preserve">
+    <value>No logs match your search.</value>
+  </data>
+  <data name="LogsCopySelected" xml:space="preserve">
+    <value>Copy selected</value>
+  </data>
+  <data name="LogsCopyVisible" xml:space="preserve">
+    <value>Copy visible</value>
+  </data>
+  <data name="LogsSaveButton" xml:space="preserve">
+    <value>Save to file</value>
+  </data>
+  <data name="LogsCopied" xml:space="preserve">
+    <value>Logs copied to the clipboard.</value>
+  </data>
+  <data name="LogsCopyError" xml:space="preserve">
+    <value>Unable to copy logs: {0}</value>
+  </data>
+  <data name="LogsSaved" xml:space="preserve">
+    <value>Logs saved.</value>
+  </data>
+  <data name="LogsSaveError" xml:space="preserve">
+    <value>Unable to save logs: {0}</value>
+  </data>
+  <data name="LogsTextFileType" xml:space="preserve">
+    <value>Text files</value>
   </data>
   <data name="RemoveButton" xml:space="preserve">
     <value>Remove</value>

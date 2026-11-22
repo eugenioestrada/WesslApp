@@ -13,6 +13,22 @@ public sealed class ContainerLogsSession(IContainerLogsClient client, Action<Act
     public bool IsTruncated { get; private set; }
     public event Action? Changed;
 
+    public static string FilterText(string text, string? searchTerm)
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            return text;
+        }
+
+        return string.Join(
+            Environment.NewLine,
+            text.Split(Environment.NewLine, StringSplitOptions.None)
+                .Where(line => line.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    public Task SaveToFileAsync(string path, CancellationToken cancellationToken = default) =>
+        File.WriteAllTextAsync(path, Text, cancellationToken);
+
     public void Start(ContainerInfo container)
     {
         if (container.State != ContainerState.Running)
