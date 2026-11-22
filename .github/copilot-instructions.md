@@ -4,6 +4,7 @@
 - Write UI declaratively in C# with Microsoft.UI.Reactor. Do not introduce XAML or MVVM/ViewModels.
 - Keep components small and composable. Put lifecycle and WSLc integration in services.
 - Prefer built-in .NET and Reactor features; avoid unnecessary third-party libraries.
+- For tasks creating, changing, or reviewing Wessl WinUI/Reactor UI, read `.github/skills/wessl-winui-ux/SKILL.md` before editing or validating the UI.
 
 # .NET 10 to .NET 11 migrations
 

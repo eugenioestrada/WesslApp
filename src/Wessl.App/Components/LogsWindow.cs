@@ -4,6 +4,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
 using Microsoft.UI.Reactor.Hooks;
+using Microsoft.UI.Reactor.Layout;
 using Wessl.App.Services;
 using static Microsoft.UI.Reactor.Factories;
 
@@ -18,7 +19,7 @@ public sealed class LogsWindow(
         var (revision, setRevision) = UseState(0);
         var (searchTerm, setSearchTerm) = UseState(string.Empty);
         var (selectedText, setSelectedText) = UseState(string.Empty);
-        var (operationMessage, setOperationMessage) = UseState<string?>(null);
+        var (operationMessage, setOperationMessage) = UseState<LogOperationResult?>(null);
         var logTextBox = this.UseElementRef<TextBox>();
         UseEffect(() =>
         {
@@ -41,81 +42,98 @@ public sealed class LogsWindow(
 
         var visibleText = ContainerLogsSession.FilterText(session.Text, searchTerm);
 
-        void CopyLogs(string text)
+        async Task CopyLogsAsync(string text)
         {
-            try
-            {
-                var package = new DataPackage();
-                package.SetText(text);
-                Clipboard.SetContent(package);
-                setOperationMessage(AppStrings.Get("LogsCopied"));
-            }
-            catch (Exception exception)
-            {
-                setOperationMessage(AppStrings.Format("LogsCopyError", exception.Message));
-            }
+            var result = await LogOperation.RunAsync(
+                () =>
+                {
+                    var package = new DataPackage();
+                    package.SetText(text);
+                    Clipboard.SetContent(package);
+                    return Task.CompletedTask;
+                },
+                AppStrings.Get("LogsCopied"),
+                exception => AppStrings.Format("LogsCopyError", exception.Message));
+            setOperationMessage(result);
         }
 
         async Task SaveLogsAsync()
         {
-            try
+            var path = await pickSavePath();
+            if (path is null)
             {
-                var path = await pickSavePath();
-                if (path is null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                await session.SaveToFileAsync(path);
-                setOperationMessage(AppStrings.Get("LogsSaved"));
-            }
-            catch (Exception exception)
-            {
-                setOperationMessage(AppStrings.Format("LogsSaveError", exception.Message));
-            }
+            var result = await LogOperation.RunAsync(
+                () => session.SaveToFileAsync(path),
+                AppStrings.Get("LogsSaved"),
+                exception => AppStrings.Format("LogsSaveError", exception.Message));
+            setOperationMessage(result);
         }
 
-        Element operationInfo = operationMessage is { } message
-            ? InfoBar(message).Success() with { IsOpen = true, IsClosable = true }
-            : TextBlock(string.Empty);
-        Element logContent = visibleText.Length == 0 && session.Text.Length > 0
-            ? TextBlock(AppStrings.Get("LogsNoMatches")).Grid(row: 4)
-            : TextBox(visibleText, _ => { })
-                .IsReadOnly(true)
-                .AutomationName(AppStrings.Get("LogsContentLabel"))
-                .SelectionChanged((text, _, _) => setSelectedText(text))
-                .Ref(logTextBox)
-                .Grid(row: 4);
+        var rows = new List<GridSize>();
+        var content = new List<Element>();
+        var row = 0;
+        var statusKey = session.IsTruncated
+            ? session.IsFollowing ? "LogsFollowingTruncatedStatus" : "LogsEndedTruncatedStatus"
+            : session.IsFollowing ? "LogsFollowingStatus" : "LogsEndedStatus";
+        var statusInfo = session.Error is { } error
+            ? InfoBar(message: AppStrings.Format(error)).Error() with { IsOpen = true, IsClosable = false }
+            : InfoBar(message: AppStrings.Get(statusKey))
+                .Informational() with { IsOpen = true, IsClosable = false };
+        content.Add(statusInfo.Grid(row: row++));
+        rows.Add(GridSize.Auto);
 
-        return Grid(
-            columns: [GridSize.Star()],
-            rows: [GridSize.Auto, GridSize.Auto, GridSize.Auto, GridSize.Auto, GridSize.Star()],
-            (session.Error is { } error
-                ? InfoBar(AppStrings.Format(error)).Error() with { IsOpen = true, IsClosable = false }
-                : InfoBar(AppStrings.Get(
-                    session.IsTruncated
-                        ? session.IsFollowing ? "LogsFollowingTruncated" : "LogsEndedTruncated"
-                        : session.IsFollowing ? "LogsFollowing" : "LogsEnded"))
-                    .Informational() with { IsOpen = true, IsClosable = false })
-                .Grid(row: 0),
-            operationInfo.Grid(row: 1),
-            Grid(
-                columns: [GridSize.Star()],
+        if (operationMessage is { } message)
+        {
+            var operationInfo = InfoBar(message: message.Message);
+            content.Add(((message.IsSuccess ? operationInfo.Success() : operationInfo.Error())
+                    with { IsOpen = true, IsClosable = true })
+                .Closed(() => setOperationMessage(null))
+                .Grid(row: row++));
+            rows.Add(GridSize.Auto);
+        }
+
+        content.Add(Grid(
+                columns: [GridSize.Star().MinSize(0)],
                 rows: [GridSize.Auto, GridSize.Auto],
                 TextBlock(AppStrings.Get("LogsSearchLabel")).Grid(row: 0),
                 TextBox(searchTerm, setSearchTerm)
                     .AutomationName(AppStrings.Get("LogsSearchLabel"))
                     .Grid(row: 1))
-                .Grid(row: 2),
-            HStack(8,
-                Button(AppStrings.Get("LogsCopySelected"), () => CopyLogs(selectedText))
+            .Grid(row: row++));
+        rows.Add(GridSize.Auto);
+
+        content.Add((FlexRow(
+                Button(AppStrings.Get("LogsCopySelected"), () => _ = CopyLogsAsync(selectedText))
                     .IsEnabled(selectedText.Length > 0),
-                Button(AppStrings.Get("LogsCopyVisible"), () => CopyLogs(visibleText))
+                Button(AppStrings.Get("LogsCopyVisible"), () => _ = CopyLogsAsync(visibleText))
                     .IsEnabled(visibleText.Length > 0),
                 Button(AppStrings.Get("LogsSaveButton"), () => _ = SaveLogsAsync())
                     .IsEnabled(session.Text.Length > 0))
-                .Grid(row: 3),
-            logContent
-        ).Padding(16);
+            with
+            {
+                Wrap = FlexWrap.Wrap,
+                ColumnGap = 8,
+                RowGap = 8
+            }).Grid(row: row++));
+        rows.Add(GridSize.Auto);
+
+        Element logContent = visibleText.Length == 0 && session.Text.Length > 0
+            ? TextBlock(AppStrings.Get("LogsNoMatches"))
+            : TextBox(visibleText, _ => { })
+                .IsReadOnly(true)
+                .AutomationName(AppStrings.Get("LogsContentLabel"))
+                .SelectionChanged((text, _, _) => setSelectedText(text))
+                .Ref(logTextBox);
+        content.Add(logContent.Grid(row: row));
+        rows.Add(GridSize.Star().MinSize(0));
+
+        return Grid(
+            columns: [GridSize.Star().MinSize(0)],
+            rows: rows.ToArray(),
+            content.ToArray())
+            .Padding(16);
     }
 }

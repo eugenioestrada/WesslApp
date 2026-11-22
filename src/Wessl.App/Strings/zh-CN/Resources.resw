@@ -107,7 +107,8 @@
   <data name="TrayExit" xml:space="preserve"><value>退出</value></data>
   <data name="TrayStopAll" xml:space="preserve"><value>停止所有容器</value></data>
   <data name="TrayStopAllConfirmationTitle" xml:space="preserve"><value>要停止所有容器吗？</value></data>
-  <data name="TrayStopAllConfirmation" xml:space="preserve"><value>将停止 {0} 个正在运行的容器。</value></data>
+  <data name="TrayStopAllConfirmation" xml:space="preserve"><value>将停止以下正在运行的容器：
+{0}</value></data>
   <data name="TrayStopAllConfirm" xml:space="preserve"><value>全部停止</value></data>
   <data name="TrayStopAllPending" xml:space="preserve"><value>正在停止 {0} 个运行中的容器…</value></data>
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>已停止 {1} 个运行中容器中的 {0} 个。</value></data>
@@ -121,7 +122,8 @@
   <data name="SelectContainerButton" xml:space="preserve"><value>选择容器</value></data>
   <data name="DeselectContainerButton" xml:space="preserve"><value>取消选择容器</value></data>
   <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>删除所选的已停止容器？</value></data>
-  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>只有在开始删除时仍确认处于已停止状态的 {0} 个所选容器才会被删除。</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>仅删除以下所选容器中在开始删除时仍确认已停止的容器：
+{0}</value></data>
   <data name="BulkRemoveConfirm" xml:space="preserve"><value>删除已停止项</value></data>
   <data name="BulkStartPending" xml:space="preserve"><value>正在启动 {0} 个所选容器…</value></data>
   <data name="BulkRestartPending" xml:space="preserve"><value>正在重启 {0} 个所选容器…</value></data>
@@ -174,7 +176,7 @@
   <data name="ContainerHealthStarting" xml:space="preserve"><value>正在启动</value></data>
   <data name="ContainerHealthHealthy" xml:space="preserve"><value>正常</value></data>
   <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>异常</value></data>
-  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>不可用</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>容器诊断信息不可用。</value></data>
   <data name="ContainerExitCode" xml:space="preserve"><value>退出代码：{0}</value></data>
   <data name="ContainerExitTime" xml:space="preserve"><value>退出时间：{0}</value></data>
   <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>最近的健康检查错误：{0}</value></data>
@@ -229,4 +231,19 @@
   <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>复制非机密详情</value></data>
   <data name="ContainerDetailsCopied" xml:space="preserve"><value>已复制容器详情。</value></data>
   <data name="ContainerDetailsCopyError" xml:space="preserve"><value>无法复制容器详情：{0}</value></data>
+  <data name="ContainersLoadFailed" xml:space="preserve"><value>无法加载容器。</value></data>
+  <data name="ContainersShowingPreviousData" xml:space="preserve"><value>刷新失败，正在显示上次加载的数据。</value></data>
+  <data name="ContainersRefreshingPreviousData" xml:space="preserve"><value>正在刷新；上次加载的数据仍会显示。</value></data>
+  <data name="ContainersShowFilters" xml:space="preserve"><value>筛选、排序和分组</value></data>
+  <data name="ContainersHideFilters" xml:space="preserve"><value>隐藏筛选条件</value></data>
+  <data name="BulkHiddenSelectionCount" xml:space="preserve"><value>已选择但被当前筛选条件隐藏：{0}</value></data>
+  <data name="ContainersReviewHiddenSelection" xml:space="preserve"><value>显示已选容器</value></data>
+  <data name="BulkRemoveMoreTargets" xml:space="preserve"><value>…以及另外 {0} 个</value></data>
+  <data name="ImagesShowingPreviousData" xml:space="preserve"><value>当前请求正在等待或失败，显示上次加载的镜像列表。</value></data>
+  <data name="ImagesLoadFailed" xml:space="preserve"><value>无法加载镜像。请刷新重试。</value></data>
+  <data name="ImagesPruneConfirmationTitle" xml:space="preserve"><value>清理未使用的镜像？</value></data>
+  <data name="LogsFollowingStatus" xml:space="preserve"><value>实时日志流。关闭此窗口以停止跟踪。</value></data>
+  <data name="LogsFollowingTruncatedStatus" xml:space="preserve"><value>实时日志流；达到 128 KB 后已省略较早的行。关闭此窗口以停止跟踪。</value></data>
+  <data name="LogsEndedStatus" xml:space="preserve"><value>日志流已结束。包含时间戳。</value></data>
+  <data name="LogsEndedTruncatedStatus" xml:space="preserve"><value>日志流已结束；达到 128 KB 后已省略较早的行。包含时间戳。</value></data>
 </root>

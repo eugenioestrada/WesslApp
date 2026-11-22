@@ -61,11 +61,15 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         var row = new List<Element>
         {
             Grid([GridSize.Auto, GridSize.Auto, GridSize.Star(2).MinSize(0), GridSize.Star().MinSize(0)], [GridSize.Auto],
-                IconButton(
-                    Props.IsSelected ? "\uE73A" : "\uE739",
-                    AppStrings.Get(Props.IsSelected ? "DeselectContainerButton" : "SelectContainerButton"),
-                    Props.ToggleSelection,
-                    accent: Props.IsSelected)
+                CheckBox(Props.IsSelected, isSelected =>
+                    {
+                        if (isSelected != Props.IsSelected)
+                        {
+                            Props.ToggleSelection();
+                        }
+                    }, label: string.Empty)
+                    .AutomationName(container.Name)
+                    .ToolTip(AppStrings.Get(Props.IsSelected ? "DeselectContainerButton" : "SelectContainerButton"))
                     .IsEnabled(!actionPending).Grid(column: 0),
                 TextBlock(stateGlyph).FontSize(14)
                     .Foreground(stateColor)
@@ -115,31 +119,53 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             ContainerHealthStatus.Unavailable => AppStrings.Get("ContainerHealthUnavailable"),
             _ => AppStrings.Get("ContainerHealthUnknown")
         };
-        row.Add(Caption(AppStrings.Format("ContainerHealth", health))
-            .Foreground(Theme.SecondaryText).TextWrapping());
+        var healthLabel = AppStrings.Format("ContainerHealth", health);
+        if (container.Diagnostics.Health is ContainerHealthStatus.Unhealthy or ContainerHealthStatus.Starting)
+        {
+            row.Add(HStack(4,
+                Icon(FontIcon("\uE7BA", fontSize: 14)),
+                Caption(healthLabel).SemiBold())
+                .AutomationName(healthLabel));
+        }
+        else
+        {
+            row.Add(Caption(healthLabel).Foreground(Theme.SecondaryText).TextWrapping());
+        }
         if (container.State == ContainerState.Stopped)
         {
-            var exitCode = container.Diagnostics.ExitCode?.ToString(CultureInfo.CurrentCulture)
-                ?? AppStrings.Get("ContainerDiagnosticUnavailable");
-            var exitTime = container.Diagnostics.FinishedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)
-                ?? AppStrings.Get("ContainerDiagnosticUnavailable");
-            row.Add(Caption(AppStrings.Format("ContainerExitCode", exitCode))
-                .Foreground(Theme.SecondaryText).TextWrapping());
-            row.Add(Caption(AppStrings.Format("ContainerExitTime", exitTime))
-                .Foreground(Theme.SecondaryText).TextWrapping());
+            if (container.Diagnostics.ExitCode is { } exitCode)
+            {
+                row.Add(Caption(AppStrings.Format("ContainerExitCode", exitCode.ToString(CultureInfo.CurrentCulture)))
+                    .Foreground(Theme.SecondaryText).TextWrapping());
+            }
+            if (container.Diagnostics.FinishedAt is { } finishedAt)
+            {
+                row.Add(Caption(AppStrings.Format(
+                        "ContainerExitTime",
+                        finishedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)))
+                    .Foreground(Theme.SecondaryText).TextWrapping());
+            }
         }
 
-        row.Add(Caption(AppStrings.Format(
-                "ContainerLatestHealthCheckError",
-                container.Diagnostics.LatestHealthCheckError ?? AppStrings.Get("ContainerDiagnosticUnavailable")))
-            .Foreground(Theme.SecondaryText).TextWrapping());
+        if (!string.IsNullOrWhiteSpace(container.Diagnostics.LatestHealthCheckError))
+        {
+            row.Add(Caption(AppStrings.Format(
+                    "ContainerLatestHealthCheckError",
+                    container.Diagnostics.LatestHealthCheckError))
+                .Foreground(Theme.SecondaryText).TextWrapping());
+        }
+        else if (container.Diagnostics.Health == ContainerHealthStatus.Unavailable
+            && container.Diagnostics.ExitCode is null
+            && container.Diagnostics.FinishedAt is null)
+        {
+            row.Add(Caption(AppStrings.Get("ContainerDiagnosticUnavailable"))
+                .Foreground(Theme.SecondaryText).TextWrapping());
+        }
 
         if (Props.Service.UsageErrors.TryGetValue(container.Id, out var usageError))
         {
             var message = AppStrings.Format(usageError);
-            row.Add(InfoBar().Error()
-                .Content(Caption(message).TextTrimming(TextTrimming.CharacterEllipsis).ToolTip(message))
-                .Height(44)
+            row.Add(InfoBar(message: message).Error()
                 with { IsOpen = true, IsClosable = false });
         }
         else if (Props.Service.Usage.TryGetValue(container.Id, out var usage))
@@ -150,15 +176,19 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             var details = usage.NetworkIo.Length > 0 && usage.BlockIo.Length > 0 && usage.Processes.Length > 0
                 ? AppStrings.Format("ContainerUsageDetails", usage.NetworkIo, usage.BlockIo, usage.Processes)
                 : string.Empty;
-            row.Add(VStack(4,
-                UsageLine(AppStrings.Format("ContainerUsage", usage.CpuPercent, memory)),
-                UsageLine(details)));
+            var usageLines = new List<Element>
+            {
+                UsageLine(AppStrings.Format("ContainerUsage", usage.CpuPercent, memory))
+            };
+            if (details.Length > 0)
+            {
+                usageLines.Add(UsageLine(details));
+            }
+            row.Add(VStack(4, usageLines.ToArray()));
         }
         else if (container.State == ContainerState.Running)
         {
-            row.Add(VStack(4,
-                UsageLine(AppStrings.Get("ContainerUsageLoading")),
-                UsageLine(string.Empty)));
+            row.Add(UsageLine(AppStrings.Get("ContainerUsageLoading")));
         }
 
         if (status is { } feedback)
@@ -207,10 +237,7 @@ public sealed class ContainerRow : Component<ContainerRowProps>
 
     private static Element UsageLine(string text)
     {
-        var line = Caption(text).Foreground(Theme.SecondaryText)
-            .Height(20)
-            .TextTrimming(TextTrimming.CharacterEllipsis);
-        return text.Length == 0 ? line : line.ToolTip(text);
+        return Caption(text).Foreground(Theme.SecondaryText).TextWrapping();
     }
 
     private static Element IconButton(

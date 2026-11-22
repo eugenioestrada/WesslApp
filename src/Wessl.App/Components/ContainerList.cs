@@ -46,25 +46,50 @@ public sealed class ContainerList : Component<ContainerListProps>
         var (sortOrder, setSortOrder) = UseState(ContainerSortOrder.Name);
         var (groupingSelection, setGroupingSelection) = UseState(string.Empty);
         var (selectedIds, setSelectedIds) = UseState(Array.Empty<string>());
+        var (filtersExpanded, setFiltersExpanded) = UseState(false);
         var service = Props.Service;
 
-        if (service.IsWslcUnavailable)
+        if (service.IsWslcUnavailable && !service.HasRefreshed)
         {
             return Component<UnavailableWslc>();
         }
 
-        if (!service.HasRefreshed && service.Error is null)
+        if (!service.HasRefreshed && service.IsRefreshing)
+        {
+            return ProgressRing();
+        }
+
+        if (!service.HasRefreshed && service.Error is not null)
         {
             return VStack(8,
-                TextBlock(AppStrings.Get("ContainersLoading")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
-                ProgressRing());
+                TextBlock(AppStrings.Get("ContainersLoadFailed"))
+                    .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync()));
+        }
+
+        if (!service.HasRefreshed)
+        {
+            return VStack(8,
+                TextBlock(AppStrings.Get("ContainersLoading"))
+                    .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
+                Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync()));
         }
 
         if (Props.Containers.Count == 0)
         {
-            return VStack(8,
-                TextBlock(AppStrings.Get("EmptyContainers")).TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
-                Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync()));
+            var emptyContent = new List<Element>();
+            if (service.IsRefreshing || service.RefreshError is not null)
+            {
+                emptyContent.Add(InfoBar(message: AppStrings.Get(service.IsRefreshing && service.RefreshError is null
+                        ? "ContainersRefreshingPreviousData"
+                        : "ContainersShowingPreviousData"))
+                    .Informational() with { IsOpen = true, IsClosable = false });
+            }
+            emptyContent.Add(TextBlock(AppStrings.Get("EmptyContainers"))
+                .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap));
+            emptyContent.Add(Button(AppStrings.Get("RefreshButton"), () => _ = service.RefreshAsync())
+                .IsEnabled(!service.IsRefreshing));
+            return VStack(8, emptyContent.ToArray());
         }
 
         var states = new ContainerState?[]
@@ -136,6 +161,7 @@ public sealed class ContainerList : Component<ContainerListProps>
         var selectedContainers = Props.Containers
             .Where(container => selectedIds.Contains(container.Id, StringComparer.Ordinal))
             .ToArray();
+        var hiddenSelectedCount = ContainerListQuery.CountHiddenSelected(selectedContainers, filteredContainers);
         var startableContainers = selectedContainers
             .Where(container => container.State == ContainerState.Stopped)
             .ToArray();
@@ -143,36 +169,62 @@ public sealed class ContainerList : Component<ContainerListProps>
             .Where(container => container.State == ContainerState.Running)
             .ToArray();
         var removeableContainers = startableContainers;
-        var selectionActions = FlexRow(
-            TextBlock(AppStrings.Format("BulkSelectionCount", selectedContainers.Length))
-                .VerticalAlignment(Microsoft.UI.Xaml.VerticalAlignment.Center),
-            Button(AppStrings.Format("BulkStartSelectedButton", startableContainers.Length),
-                () => _ = service.StartSelectedAsync(startableContainers))
-                .AccentButton()
-                .IsEnabled(!service.IsBusy && startableContainers.Length > 0),
-            Button(AppStrings.Format("BulkRestartSelectedButton", restartableContainers.Length),
-                () => _ = service.RestartSelectedAsync(restartableContainers))
-                .IsEnabled(!service.IsBusy && restartableContainers.Length > 0),
-            Button(AppStrings.Format("BulkRemoveSelectedButton", removeableContainers.Length),
-                () => Props.RequestBulkRemove(removeableContainers))
-                .SubtleButton()
-                .IsEnabled(!service.IsBusy && removeableContainers.Length > 0),
-            Button(AppStrings.Get("BulkClearSelectionButton"), () => setSelectedIds(Array.Empty<string>()))
-                .SubtleButton()
-                .IsEnabled(!service.IsBusy && selectedContainers.Length > 0)) with
-        {
-            Wrap = FlexWrap.Wrap,
-            ColumnGap = 8,
-            RowGap = 8
-        };
-
         var controlSections = new List<Element>
         {
-            selectionActions,
             TextBox(searchText, setSearchText)
                 .PlaceholderText(AppStrings.Get("ContainersSearchPlaceholder"))
                 .AutomationName(AppStrings.Get("ContainersSearchLabel")),
-            FlexRow(
+            Button(AppStrings.Get(filtersExpanded ? "ContainersHideFilters" : "ContainersShowFilters"),
+                () => setFiltersExpanded(!filtersExpanded))
+        };
+        if (selectedContainers.Length > 0)
+        {
+            var selectionControls = new List<Element>
+            {
+                TextBlock(AppStrings.Format("BulkSelectionCount", selectedContainers.Length))
+                    .VerticalAlignment(Microsoft.UI.Xaml.VerticalAlignment.Center)
+            };
+            if (hiddenSelectedCount > 0)
+            {
+                selectionControls.Add(TextBlock(AppStrings.Format(
+                        "BulkHiddenSelectionCount",
+                        hiddenSelectedCount))
+                    .TextWrapping(TextWrapping.Wrap));
+                selectionControls.Add(Button(AppStrings.Get("ContainersReviewHiddenSelection"), () =>
+                {
+                    setSearchText(string.Empty);
+                    setStateFilter(null);
+                    setImageFilter(null);
+                    setFiltersExpanded(true);
+                }));
+            }
+
+            selectionControls.Add(Button(AppStrings.Format("BulkStartSelectedButton", startableContainers.Length),
+                    () => _ = service.StartSelectedAsync(startableContainers))
+                .AccentButton()
+                .IsEnabled(!service.IsBusy && startableContainers.Length > 0));
+            selectionControls.Add(Button(AppStrings.Format("BulkRestartSelectedButton", restartableContainers.Length),
+                    () => _ = service.RestartSelectedAsync(restartableContainers))
+                .IsEnabled(!service.IsBusy && restartableContainers.Length > 0));
+            selectionControls.Add(Button(AppStrings.Format("BulkRemoveSelectedButton", removeableContainers.Length),
+                    () => Props.RequestBulkRemove(removeableContainers))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy && removeableContainers.Length > 0));
+            selectionControls.Add(Button(AppStrings.Get("BulkClearSelectionButton"),
+                    () => setSelectedIds(Array.Empty<string>()))
+                .SubtleButton()
+                .IsEnabled(!service.IsBusy));
+            controlSections.Add(FlexRow(selectionControls.ToArray()) with
+            {
+                Wrap = FlexWrap.Wrap,
+                ColumnGap = 8,
+                RowGap = 8
+            });
+        }
+
+        if (filtersExpanded)
+        {
+            controlSections.Add(FlexRow(
                 VStack(4,
                     TextBlock(AppStrings.Get("ContainersStateFilterLabel")),
                     ComboBox(
@@ -203,8 +255,8 @@ public sealed class ContainerList : Component<ContainerListProps>
                 Wrap = FlexWrap.Wrap,
                 ColumnGap = 8,
                 RowGap = 8
-            },
-            VStack(4,
+            });
+            controlSections.Add(VStack(4,
                 TextBlock(AppStrings.Get("ContainersGroupByLabelLabel")),
                 ComboBox(groupingLabels, groupingIndex, index =>
                 {
@@ -214,17 +266,12 @@ public sealed class ContainerList : Component<ContainerListProps>
                     }
                 })
                 .AutomationName(AppStrings.Get("ContainersGroupByLabelLabel"))
-                .WithKey($"containers-group-{Props.LanguageTag}-{string.Join("|", labelKeys)}"))
-        };
-        if (labelKeys.Count == 0)
-        {
-            controlSections.Add(TextBlock(AppStrings.Get("ContainersGroupNoMetadata"))
-                .TextWrapping(TextWrapping.Wrap));
-        }
-        else if (!hasComposeProjectLabel && groupingSelection.Length == 0)
-        {
-            controlSections.Add(TextBlock(AppStrings.Get("ContainersGroupComposeUnavailable"))
-                    .TextWrapping(TextWrapping.Wrap));
+                .ToolTip(AppStrings.Get(labelKeys.Count == 0
+                    ? "ContainersGroupNoMetadata"
+                    : !hasComposeProjectLabel && groupingSelection.Length == 0
+                        ? "ContainersGroupComposeUnavailable"
+                        : "ContainersGroupByLabelLabel"))
+                .WithKey($"containers-group-{Props.LanguageTag}-{string.Join("|", labelKeys)}")));
         }
         var controls = VStack(8, controlSections.ToArray());
 
@@ -282,6 +329,13 @@ public sealed class ContainerList : Component<ContainerListProps>
         }
 
         var content = new List<Element> { controls };
+        if (service.HasRefreshed && (service.IsRefreshing || service.RefreshError is not null))
+        {
+            content.Add(InfoBar(message: AppStrings.Get(service.IsRefreshing && service.RefreshError is null
+                    ? "ContainersRefreshingPreviousData"
+                    : "ContainersShowingPreviousData"))
+                .Informational() with { IsOpen = true, IsClosable = false });
+        }
         if (service.DiagnosticsError is { } diagnosticsError)
         {
             content.Add(InfoBar(message: AppStrings.Format(diagnosticsError)).Error()

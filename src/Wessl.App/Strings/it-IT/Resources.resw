@@ -107,7 +107,8 @@
   <data name="TrayExit" xml:space="preserve"><value>Esci</value></data>
   <data name="TrayStopAll" xml:space="preserve"><value>Arresta tutti i contenitori</value></data>
   <data name="TrayStopAllConfirmationTitle" xml:space="preserve"><value>Arrestare tutti i contenitori?</value></data>
-  <data name="TrayStopAllConfirmation" xml:space="preserve"><value>Verranno arrestati {0} contenitori in esecuzione.</value></data>
+  <data name="TrayStopAllConfirmation" xml:space="preserve"><value>Verranno arrestati i seguenti contenitori in esecuzione:
+{0}</value></data>
   <data name="TrayStopAllConfirm" xml:space="preserve"><value>Arresta tutti</value></data>
   <data name="TrayStopAllPending" xml:space="preserve"><value>Arresto di {0} contenitori in esecuzione…</value></data>
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>Sono stati arrestati {0} dei {1} contenitori in esecuzione.</value></data>
@@ -121,7 +122,8 @@
   <data name="SelectContainerButton" xml:space="preserve"><value>Seleziona contenitore</value></data>
   <data name="DeselectContainerButton" xml:space="preserve"><value>Deseleziona contenitore</value></data>
   <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>Rimuovere i contenitori arrestati selezionati?</value></data>
-  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>Verranno rimossi solo i {0} contenitori selezionati che risultano ancora arrestati all’avvio della rimozione.</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>Verranno rimossi solo i contenitori selezionati seguenti che risultano ancora arrestati all’avvio della rimozione:
+{0}</value></data>
   <data name="BulkRemoveConfirm" xml:space="preserve"><value>Rimuovi arrestati</value></data>
   <data name="BulkStartPending" xml:space="preserve"><value>Avvio di {0} contenitori selezionati…</value></data>
   <data name="BulkRestartPending" xml:space="preserve"><value>Riavvio di {0} contenitori selezionati…</value></data>
@@ -174,7 +176,7 @@
   <data name="ContainerHealthStarting" xml:space="preserve"><value>Avvio</value></data>
   <data name="ContainerHealthHealthy" xml:space="preserve"><value>Sana</value></data>
   <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>Non sana</value></data>
-  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Non disponibile</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>La diagnostica del contenitore non è disponibile.</value></data>
   <data name="ContainerExitCode" xml:space="preserve"><value>Codice di uscita: {0}</value></data>
   <data name="ContainerExitTime" xml:space="preserve"><value>Terminato: {0}</value></data>
   <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Errore più recente del controllo di integrità: {0}</value></data>
@@ -229,4 +231,19 @@
   <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copia dettagli non segreti</value></data>
   <data name="ContainerDetailsCopied" xml:space="preserve"><value>Dettagli del contenitore copiati.</value></data>
   <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Impossibile copiare i dettagli del contenitore: {0}</value></data>
+  <data name="ContainersLoadFailed" xml:space="preserve"><value>Impossibile caricare i contenitori.</value></data>
+  <data name="ContainersShowingPreviousData" xml:space="preserve"><value>Vengono mostrati gli ultimi dati caricati perché l’aggiornamento non è riuscito.</value></data>
+  <data name="ContainersRefreshingPreviousData" xml:space="preserve"><value>Aggiornamento in corso; gli ultimi dati caricati restano visibili.</value></data>
+  <data name="ContainersShowFilters" xml:space="preserve"><value>Filtri, ordinamento e raggruppamento</value></data>
+  <data name="ContainersHideFilters" xml:space="preserve"><value>Nascondi filtri</value></data>
+  <data name="BulkHiddenSelectionCount" xml:space="preserve"><value>Selezionati ma nascosti dai filtri correnti: {0}</value></data>
+  <data name="ContainersReviewHiddenSelection" xml:space="preserve"><value>Mostra i contenitori selezionati</value></data>
+  <data name="BulkRemoveMoreTargets" xml:space="preserve"><value>… e altri {0}</value></data>
+  <data name="ImagesShowingPreviousData" xml:space="preserve"><value>Viene mostrato l’ultimo elenco di immagini caricato mentre la richiesta corrente è in corso o non è riuscita.</value></data>
+  <data name="ImagesLoadFailed" xml:space="preserve"><value>Impossibile caricare le immagini. Aggiorna per riprovare.</value></data>
+  <data name="ImagesPruneConfirmationTitle" xml:space="preserve"><value>Rimuovere le immagini inutilizzate?</value></data>
+  <data name="LogsFollowingStatus" xml:space="preserve"><value>Flusso in tempo reale. Chiudi questa finestra per interrompere il monitoraggio.</value></data>
+  <data name="LogsFollowingTruncatedStatus" xml:space="preserve"><value>Flusso in tempo reale; le righe precedenti sono state rimosse a 128 KB. Chiudi la finestra per interrompere.</value></data>
+  <data name="LogsEndedStatus" xml:space="preserve"><value>Flusso terminato. Sono inclusi i timestamp.</value></data>
+  <data name="LogsEndedTruncatedStatus" xml:space="preserve"><value>Flusso terminato; le righe precedenti sono state rimosse a 128 KB. Sono inclusi i timestamp.</value></data>
 </root>

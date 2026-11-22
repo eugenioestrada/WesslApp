@@ -24,6 +24,8 @@ public sealed partial class AppLifecycle(
     ContainerDetailsService details,
     IContainerLogsClient logsClient)
 {
+    private const int LogsMinimumWidthDips = 360;
+    private const int LogsMinimumHeightDips = 320;
     private DispatcherQueueTimer? _pollTimer;
     private DispatcherQueueTimer? _statsTimer;
     private ReactorWindow? _window;
@@ -115,9 +117,7 @@ public sealed partial class AppLifecycle(
         _trayMenu = null;
         _menuHostWindow?.Hide();
 
-        var cursorPosition = TrayPlacement.GetCursorPosition();
         var window = EnsureMainWindow();
-        TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
         ShowMainWindow(window);
         UpdatePolling(window);
     }
@@ -129,10 +129,8 @@ public sealed partial class AppLifecycle(
         _trayMenu = null;
         _menuHostWindow?.Hide();
 
-        var cursorPosition = TrayPlacement.GetCursorPosition();
         var window = EnsureMainWindow();
         _mainComponent?.ShowSettings();
-        TrayPlacement.MoveWindowNearTray(window.AppWindow, cursorPosition);
         ShowMainWindow(window);
         UpdatePolling(window);
     }
@@ -157,6 +155,11 @@ public sealed partial class AppLifecycle(
         _panelOpening = true;
         _panelClosing = false;
         var revision = ++_panelOpeningRevision;
+        if (window.AppWindow.IsVisible)
+        {
+            window.Hide();
+        }
+        TrayPlacement.MoveWindowAdjacentToTaskbar(window.AppWindow, TrayPlacement.GetCursorPosition());
         window.Show();
         window.AppWindow.MoveInZOrderAtTop();
         ActivateMainWindow(window);
@@ -254,6 +257,10 @@ public sealed partial class AppLifecycle(
     {
         AppStrings.SetLanguage(settings.LanguageTag);
         startupManager.SetEnabled(settings.StartWithWindows);
+        foreach (var logsWindow in _logsWindows)
+        {
+            ApplyTheme(logsWindow);
+        }
         if (_window is { } window)
         {
             ApplyTheme(window);
@@ -400,7 +407,16 @@ public sealed partial class AppLifecycle(
             session.Stop();
             _logsWindows.Remove(window);
         };
+        ApplyTheme(window);
         window.Show();
+        if (window.AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var root = window.NativeWindow.Content as FrameworkElement
+                ?? throw new InvalidOperationException("The logs window has no framework root element.");
+            var scale = root.XamlRoot?.RasterizationScale ?? 1;
+            presenter.PreferredMinimumWidth = (int)Math.Ceiling(LogsMinimumWidthDips * scale);
+            presenter.PreferredMinimumHeight = (int)Math.Ceiling(LogsMinimumHeightDips * scale);
+        }
         window.Activate();
         session.Start(containers.Containers.FirstOrDefault(item => item.Id == container.Id)
             ?? container with { State = ContainerState.Unknown });

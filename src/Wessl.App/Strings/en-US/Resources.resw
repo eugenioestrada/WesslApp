@@ -254,7 +254,8 @@
     <value>Stop all containers?</value>
   </data>
   <data name="TrayStopAllConfirmation" xml:space="preserve">
-    <value>This will stop {0} running containers.</value>
+    <value>The following running containers will be stopped:
+{0}</value>
   </data>
   <data name="TrayStopAllConfirm" xml:space="preserve">
     <value>Stop all</value>
@@ -296,7 +297,8 @@
     <value>Remove selected stopped containers?</value>
   </data>
   <data name="BulkRemoveConfirmation" xml:space="preserve">
-    <value>Only the {0} selected containers still confirmed as stopped when removal begins will be removed.</value>
+    <value>Only the selected containers below that are still confirmed stopped when removal starts will be removed:
+{0}</value>
   </data>
   <data name="BulkRemoveConfirm" xml:space="preserve">
     <value>Remove stopped</value>
@@ -434,7 +436,7 @@
   <data name="ContainerHealthStarting" xml:space="preserve"><value>Starting</value></data>
   <data name="ContainerHealthHealthy" xml:space="preserve"><value>Healthy</value></data>
   <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>Unhealthy</value></data>
-  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Container diagnostics are unavailable.</value></data>
   <data name="ContainerExitCode" xml:space="preserve"><value>Exit code: {0}</value></data>
   <data name="ContainerExitTime" xml:space="preserve"><value>Exited: {0}</value></data>
   <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Latest health-check error: {0}</value></data>
@@ -489,4 +491,19 @@
   <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copy non-secret details</value></data>
   <data name="ContainerDetailsCopied" xml:space="preserve"><value>Container details copied.</value></data>
   <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Unable to copy container details: {0}</value></data>
+  <data name="ContainersLoadFailed" xml:space="preserve"><value>Couldn’t load containers.</value></data>
+  <data name="ContainersShowingPreviousData" xml:space="preserve"><value>Showing the last loaded data because refresh failed.</value></data>
+  <data name="ContainersRefreshingPreviousData" xml:space="preserve"><value>Refreshing; the last loaded data remains visible.</value></data>
+  <data name="ContainersShowFilters" xml:space="preserve"><value>Filters, sorting, and grouping</value></data>
+  <data name="ContainersHideFilters" xml:space="preserve"><value>Hide filters</value></data>
+  <data name="BulkHiddenSelectionCount" xml:space="preserve"><value>Selected but hidden by current filters: {0}</value></data>
+  <data name="ContainersReviewHiddenSelection" xml:space="preserve"><value>Show selected containers</value></data>
+  <data name="BulkRemoveMoreTargets" xml:space="preserve"><value>…and {0} more</value></data>
+  <data name="ImagesShowingPreviousData" xml:space="preserve"><value>Showing the last loaded image list while the current request is pending or failed.</value></data>
+  <data name="ImagesLoadFailed" xml:space="preserve"><value>Couldn’t load images. Refresh to try again.</value></data>
+  <data name="ImagesPruneConfirmationTitle" xml:space="preserve"><value>Prune unused images?</value></data>
+  <data name="LogsFollowingStatus" xml:space="preserve"><value>Live stream. Close this window to stop following.</value></data>
+  <data name="LogsFollowingTruncatedStatus" xml:space="preserve"><value>Live stream; earlier lines were omitted at 128 KB. Close this window to stop following.</value></data>
+  <data name="LogsEndedStatus" xml:space="preserve"><value>Stream ended. Timestamps are included.</value></data>
+  <data name="LogsEndedTruncatedStatus" xml:space="preserve"><value>Stream ended; earlier lines were omitted at 128 KB. Timestamps are included.</value></data>
 </root>

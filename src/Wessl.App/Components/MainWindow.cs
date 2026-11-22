@@ -1,5 +1,6 @@
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
+using Microsoft.UI.Reactor.Hooks;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Wessl.App.Services;
@@ -23,6 +24,8 @@ public sealed class MainWindow(
     private bool _showStopAllConfirmation;
     private bool _showStopAllResult;
     private bool _showDetailsDialog;
+    private bool _focusAfterNavigation;
+    private bool _focusImagesButtonOnReturn;
     private ContainerInfo? _detailsContainer;
     private bool _showBulkRemoveConfirmation;
     private ContainerInfo[] _stopAllContainers = [];
@@ -33,11 +36,26 @@ public sealed class MainWindow(
     {
         var (_, setRevision) = UseState(0);
         _setRevision = setRevision;
+        var imagesButtonRef = this.UseElementRef<Button>();
+        var settingsButtonRef = this.UseElementRef<Button>();
         var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         var (confirmPrune, setConfirmPrune) = UseState(false);
         var (pullReference, setPullReference) = UseState(string.Empty);
         var (tagSource, setTagSource) = UseState(string.Empty);
         var (tagTarget, setTagTarget) = UseState(string.Empty);
+        UseEffect(() =>
+        {
+            if (!_focusAfterNavigation || _showSettings || _showImages)
+            {
+                return;
+            }
+
+            var target = _focusImagesButtonOnReturn
+                ? imagesButtonRef.Current
+                : settingsButtonRef.Current;
+            target?.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+            _focusAfterNavigation = false;
+        }, _showSettings, _showImages, _focusAfterNavigation, _focusImagesButtonOnReturn);
         UseEffect(() =>
         {
             void OnChanged() => RequestRender();
@@ -108,12 +126,14 @@ public sealed class MainWindow(
                         .ToolTip(imagesLabel)
                         .AutomationName(imagesLabel)
                         .VerticalAlignment(VerticalAlignment.Center)
+                        .Ref(imagesButtonRef)
                         .Grid(column: 1),
                     Button(Icon(FontIcon("\uE713", fontSize: 16)), ShowSettings)
                         .SubtleButton()
                         .ToolTip(settingsLabel)
                         .AutomationName(settingsLabel)
                         .VerticalAlignment(VerticalAlignment.Center)
+                        .Ref(settingsButtonRef)
                         .Grid(column: 2),
                     Button(Icon(FontIcon("\uE72C", fontSize: 16)), () => _ = polling.RefreshAsync())
                         .SubtleButton()
@@ -123,7 +143,9 @@ public sealed class MainWindow(
                         .Grid(column: 3))
                 .Margin(16, 4, 16, 0)
                 .Grid(row: 0),
-            TextBlock(AppStrings.Format("ContainerSummary", containers.Containers.Count, runningCount))
+            TextBlock(containers.HasRefreshed
+                    ? AppStrings.Format("ContainerSummary", containers.Containers.Count, runningCount)
+                    : AppStrings.Get(containers.Error is null ? "ContainersLoading" : "ContainersLoadFailed"))
                 .TextWrapping()
                 .Margin(16, 8, 16, 8)
                 .Grid(row: 1),
@@ -147,7 +169,8 @@ public sealed class MainWindow(
             content,
             (ContentDialog(
                 AppStrings.Get("TrayStopAllConfirmationTitle"),
-                TextBlock(AppStrings.Format("TrayStopAllConfirmation", _stopAllContainers.Length)),
+                TextBlock(AppStrings.Format("TrayStopAllConfirmation", FormatTargetNames(_stopAllContainers)))
+                    .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
                 AppStrings.Get("TrayStopAllConfirm")) with
                 {
                     IsOpen = _showStopAllConfirmation,
@@ -171,17 +194,17 @@ public sealed class MainWindow(
             _detailsContainer is { } detailsContainer
                 ? (ContentDialog(
                     AppStrings.Format("ContainerDetailsTitle", detailsContainer.Name),
-                    ContainerDetailsView.Create(detailsContainer, details),
-                    AppStrings.Get("CloseButton")) with
+                    ContainerDetailsView.Create(detailsContainer, details)) with
                 {
                     IsOpen = _showDetailsDialog,
-                    DefaultButton = ContentDialogButton.Primary
+                    CloseButtonText = AppStrings.Get("CloseButton"),
+                    DefaultButton = ContentDialogButton.Close
                 })
                 .Closed(_ => CloseDetails())
                 : TextBlock(string.Empty),
             (ContentDialog(
                 AppStrings.Get("BulkRemoveConfirmationTitle"),
-                TextBlock(AppStrings.Format("BulkRemoveConfirmation", _bulkRemoveContainers.Length))
+                TextBlock(AppStrings.Format("BulkRemoveConfirmation", FormatTargetNames(_bulkRemoveContainers)))
                     .TextWrapping(Microsoft.UI.Xaml.TextWrapping.Wrap),
                 AppStrings.Get("BulkRemoveConfirm")) with
                 {
@@ -195,6 +218,7 @@ public sealed class MainWindow(
     public void ShowSettings()
     {
         _showImages = false;
+        _focusImagesButtonOnReturn = false;
         Navigate(true);
     }
 
@@ -218,6 +242,7 @@ public sealed class MainWindow(
     {
         _showSettings = false;
         _showImages = true;
+        _focusImagesButtonOnReturn = true;
         RequestRender();
         _ = images.RefreshAsync();
     }
@@ -225,6 +250,7 @@ public sealed class MainWindow(
     private void ShowContainers()
     {
         _showImages = false;
+        _focusAfterNavigation = true;
         Navigate(false);
     }
 
@@ -294,4 +320,16 @@ public sealed class MainWindow(
     }
 
     private void RequestRender() => _setRevision?.Invoke(++_revision);
+
+    private static string FormatTargetNames(IReadOnlyList<ContainerInfo> containers)
+    {
+        const int maxNames = 5;
+        var names = containers.Take(maxNames).Select(container => container.Name).ToList();
+        if (containers.Count > maxNames)
+        {
+            names.Add(AppStrings.Format("BulkRemoveMoreTargets", containers.Count - maxNames));
+        }
+
+        return string.Join(Environment.NewLine, names);
+    }
 }
