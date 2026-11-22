@@ -5,6 +5,24 @@
   <data name="ImagesEmpty" xml:space="preserve"><value>未找到镜像。</value></data>
   <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
   <data name="ImageDetails" xml:space="preserve"><value>ID：{0} · 大小：{1}</value></data>
+  <data name="ImageDigest" xml:space="preserve"><value>摘要：{0}</value></data>
+  <data name="ImagesPullHeading" xml:space="preserve"><value>拉取映像</value></data>
+  <data name="ImagesPullReferenceLabel" xml:space="preserve"><value>映像引用</value></data>
+  <data name="ImagesPullReferencePlaceholder" xml:space="preserve"><value>例如 nginx:latest</value></data>
+  <data name="ImagesPullButton" xml:space="preserve"><value>拉取映像</value></data>
+  <data name="ImagesPullPending" xml:space="preserve"><value>正在拉取 {0}…</value></data>
+  <data name="ImagesPullSuccess" xml:space="preserve"><value>已拉取 {0}：{1}</value></data>
+  <data name="ImagesPullError" xml:space="preserve"><value>无法拉取 {0}：{1}</value></data>
+  <data name="ImagesTagHeading" xml:space="preserve"><value>标记映像</value></data>
+  <data name="ImagesTagSourceLabel" xml:space="preserve"><value>源映像</value></data>
+  <data name="ImagesTagSourcePlaceholder" xml:space="preserve"><value>例如 nginx:latest</value></data>
+  <data name="ImagesTagTargetLabel" xml:space="preserve"><value>新映像引用</value></data>
+  <data name="ImagesTagTargetPlaceholder" xml:space="preserve"><value>例如 local/nginx:dev</value></data>
+  <data name="ImagesTagButton" xml:space="preserve"><value>标记映像</value></data>
+  <data name="ImagesTagPending" xml:space="preserve"><value>正在将 {0} 标记为 {1}…</value></data>
+  <data name="ImagesTagSuccess" xml:space="preserve"><value>已将 {0} 标记为 {1}：{2}</value></data>
+  <data name="ImagesTagError" xml:space="preserve"><value>无法将 {0} 标记为 {1}：{2}</value></data>
+  <data name="ImagesInvalidReference" xml:space="preserve"><value>请输入有效的映像引用，且不能以连字符开头。</value></data>
   <data name="ImagesLoading" xml:space="preserve"><value>正在加载镜像…</value></data>
   <data name="ImagesRefreshError" xml:space="preserve"><value>无法刷新镜像：{0}</value></data>
   <data name="ImagesPruneButton" xml:space="preserve"><value>清理未使用的镜像</value></data>

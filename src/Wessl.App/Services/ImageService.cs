@@ -13,11 +13,55 @@ public sealed class ImageService(IImageClient client, Action<Action> dispatch)
     public LocalizedMessage? Status { get; private set; }
     public event Action? Changed;
 
-    public Task RefreshAsync() => RunAsync(prune: false);
+    public Task RefreshAsync() => RunAsync();
 
-    public Task PruneAsync() => RunAsync(prune: true);
+    public Task PruneAsync() => RunAsync(
+        "ImagesPrunePending",
+        "ImagesPruneError",
+        "ImagesPruneSuccess",
+        [],
+        () => client.PruneImagesAsync(),
+        output => [string.IsNullOrWhiteSpace(output) ? AppOutputUnavailable() : output.Trim()]);
 
-    private async Task RunAsync(bool prune)
+    public Task PullImageAsync(string image)
+    {
+        if (!IsValidImageReference(image))
+        {
+            return ReportInvalidImageReference();
+        }
+
+        return RunAsync(
+            "ImagesPullPending",
+            "ImagesPullError",
+            "ImagesPullSuccess",
+            [image],
+            () => client.PullImageAsync(image),
+            output => [image, string.IsNullOrWhiteSpace(output) ? AppOutputUnavailable() : output.Trim()]);
+    }
+
+    public Task TagImageAsync(string source, string target)
+    {
+        if (!IsValidImageReference(source) || !IsValidImageReference(target))
+        {
+            return ReportInvalidImageReference();
+        }
+
+        return RunAsync(
+            "ImagesTagPending",
+            "ImagesTagError",
+            "ImagesTagSuccess",
+            [source, target],
+            () => client.TagImageAsync(source, target),
+            output => [source, target, string.IsNullOrWhiteSpace(output) ? AppOutputUnavailable() : output.Trim()]);
+    }
+
+    private async Task RunAsync(
+        string? pendingResourceKey = null,
+        string? errorResourceKey = null,
+        string? successResourceKey = null,
+        object?[]? actionArguments = null,
+        Func<Task<string>>? action = null,
+        Func<string, object?[]>? successArguments = null)
     {
         if (Interlocked.CompareExchange(ref _busy, 1, 0) != 0)
         {
@@ -27,23 +71,23 @@ public sealed class ImageService(IImageClient client, Action<Action> dispatch)
         dispatch(() =>
         {
             Error = null;
-            Status = new(prune ? "ImagesPrunePending" : "ImagesLoading", []);
+            Status = new(pendingResourceKey ?? "ImagesLoading", actionArguments ?? []);
             Changed?.Invoke();
         });
 
         string? output = null;
-        Exception? pruneError = null;
+        Exception? actionError = null;
         Exception? refreshError = null;
         IReadOnlyList<ImageInfo>? images = null;
-        if (prune)
+        if (action is not null)
         {
             try
             {
-                output = await client.PruneImagesAsync().ConfigureAwait(false);
+                output = await action().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                pruneError = exception;
+                actionError = exception;
             }
         }
 
@@ -64,18 +108,38 @@ public sealed class ImageService(IImageClient client, Action<Action> dispatch)
                 HasLoaded = true;
             }
 
-            var refreshFailure = refreshError is null ? null : new LocalizedMessage("ImagesRefreshError", [refreshError.Message]);
-            var pruneFailure = pruneError is null ? null : new LocalizedMessage("ImagesPruneError", [pruneError.Message]);
-            Error = pruneFailure is not null && refreshFailure is not null
-                ? new("ActionAndRefreshError", [pruneFailure, refreshFailure])
-                : pruneFailure ?? refreshFailure;
-            Status = prune && pruneError is null
-                ? new("ImagesPruneSuccess", [string.IsNullOrWhiteSpace(output) ? AppOutputUnavailable() : output.Trim()])
+            var refreshFailure = refreshError is null
+                ? null
+                : new LocalizedMessage("ImagesRefreshError", [refreshError.Message]);
+            var actionFailure = actionError is null || errorResourceKey is null
+                ? null
+                : new LocalizedMessage(
+                    errorResourceKey,
+                    actionArguments?.Append(actionError.Message).ToArray() ?? [actionError.Message]);
+            Error = actionFailure is not null && refreshFailure is not null
+                ? new("ActionAndRefreshError", [actionFailure, refreshFailure])
+                : actionFailure ?? refreshFailure;
+            Status = action is not null && actionError is null && successResourceKey is not null
+                ? new(successResourceKey, successArguments!(output ?? string.Empty))
                 : null;
             Interlocked.Exchange(ref _busy, 0);
             Changed?.Invoke();
         });
     }
+
+    private Task ReportInvalidImageReference()
+    {
+        dispatch(() =>
+        {
+            Error = new("ImagesInvalidReference", []);
+            Status = null;
+            Changed?.Invoke();
+        });
+        return Task.CompletedTask;
+    }
+
+    private static bool IsValidImageReference(string? image) =>
+        !string.IsNullOrWhiteSpace(image) && image[0] != '-';
 
     private static LocalizedMessage AppOutputUnavailable() => new("ImagesPruneNoDetails", []);
 }

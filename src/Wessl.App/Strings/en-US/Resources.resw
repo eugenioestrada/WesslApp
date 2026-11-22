@@ -5,6 +5,24 @@
   <data name="ImagesEmpty" xml:space="preserve"><value>No images found.</value></data>
   <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
   <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Size: {1}</value></data>
+  <data name="ImageDigest" xml:space="preserve"><value>Digest: {0}</value></data>
+  <data name="ImagesPullHeading" xml:space="preserve"><value>Pull an image</value></data>
+  <data name="ImagesPullReferenceLabel" xml:space="preserve"><value>Image reference</value></data>
+  <data name="ImagesPullReferencePlaceholder" xml:space="preserve"><value>For example, nginx:latest</value></data>
+  <data name="ImagesPullButton" xml:space="preserve"><value>Pull image</value></data>
+  <data name="ImagesPullPending" xml:space="preserve"><value>Pulling {0}…</value></data>
+  <data name="ImagesPullSuccess" xml:space="preserve"><value>Pulled {0}: {1}</value></data>
+  <data name="ImagesPullError" xml:space="preserve"><value>Unable to pull {0}: {1}</value></data>
+  <data name="ImagesTagHeading" xml:space="preserve"><value>Tag an image</value></data>
+  <data name="ImagesTagSourceLabel" xml:space="preserve"><value>Source image</value></data>
+  <data name="ImagesTagSourcePlaceholder" xml:space="preserve"><value>For example, nginx:latest</value></data>
+  <data name="ImagesTagTargetLabel" xml:space="preserve"><value>New image reference</value></data>
+  <data name="ImagesTagTargetPlaceholder" xml:space="preserve"><value>For example, local/nginx:dev</value></data>
+  <data name="ImagesTagButton" xml:space="preserve"><value>Tag image</value></data>
+  <data name="ImagesTagPending" xml:space="preserve"><value>Tagging {0} as {1}…</value></data>
+  <data name="ImagesTagSuccess" xml:space="preserve"><value>Tagged {0} as {1}: {2}</value></data>
+  <data name="ImagesTagError" xml:space="preserve"><value>Unable to tag {0} as {1}: {2}</value></data>
+  <data name="ImagesInvalidReference" xml:space="preserve"><value>Enter a valid image reference that does not start with a hyphen.</value></data>
   <data name="ImagesLoading" xml:space="preserve"><value>Loading images…</value></data>
   <data name="ImagesRefreshError" xml:space="preserve"><value>Unable to refresh images: {0}</value></data>
   <data name="ImagesPruneButton" xml:space="preserve"><value>Prune unused images</value></data>

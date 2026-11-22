@@ -18,7 +18,7 @@ Published TCP mappings in a container's `Ports` field also offer localhost URLs 
 
 Containers can be grouped by the Compose project label (`com.docker.compose.project`) or any other label returned by WSLc. Group Start and Stop actions apply to the matching containers currently shown by search and filters. When WSLc returns no labels, containers remain ungrouped; Wessl does not infer a project from container names.
 
-Open **Images** to explicitly load the WSLc image list and its reported size. Refresh reloads it. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action.
+Open **Images** to explicitly load the WSLc image list, reported size, and digest when available. Refresh reloads it. Pull an image with `wslc image pull <image>` or tag one with `wslc image tag <source> <target>`; both operations show pending, result, and error feedback and run only when requested. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action. Image history is not available in the verified WSLc 3.0.5.0 command set (`wslc image --help` has no history command), so Wessl does not offer a history action.
 
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Use real WSLc integration for this action; Windows Terminal and a WSLc version supporting `exec -it` must be available.
 

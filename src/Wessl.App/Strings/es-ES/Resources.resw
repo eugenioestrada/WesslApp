@@ -5,6 +5,24 @@
   <data name="ImagesEmpty" xml:space="preserve"><value>No se encontraron imágenes.</value></data>
   <data name="ImageName" xml:space="preserve"><value>{0}:{1}</value></data>
   <data name="ImageDetails" xml:space="preserve"><value>ID: {0} · Tamaño: {1}</value></data>
+  <data name="ImageDigest" xml:space="preserve"><value>Resumen: {0}</value></data>
+  <data name="ImagesPullHeading" xml:space="preserve"><value>Descargar una imagen</value></data>
+  <data name="ImagesPullReferenceLabel" xml:space="preserve"><value>Referencia de imagen</value></data>
+  <data name="ImagesPullReferencePlaceholder" xml:space="preserve"><value>Por ejemplo, nginx:latest</value></data>
+  <data name="ImagesPullButton" xml:space="preserve"><value>Descargar imagen</value></data>
+  <data name="ImagesPullPending" xml:space="preserve"><value>Descargando {0}…</value></data>
+  <data name="ImagesPullSuccess" xml:space="preserve"><value>Se descargó {0}: {1}</value></data>
+  <data name="ImagesPullError" xml:space="preserve"><value>No se pudo descargar {0}: {1}</value></data>
+  <data name="ImagesTagHeading" xml:space="preserve"><value>Etiquetar una imagen</value></data>
+  <data name="ImagesTagSourceLabel" xml:space="preserve"><value>Imagen de origen</value></data>
+  <data name="ImagesTagSourcePlaceholder" xml:space="preserve"><value>Por ejemplo, nginx:latest</value></data>
+  <data name="ImagesTagTargetLabel" xml:space="preserve"><value>Nueva referencia de imagen</value></data>
+  <data name="ImagesTagTargetPlaceholder" xml:space="preserve"><value>Por ejemplo, local/nginx:dev</value></data>
+  <data name="ImagesTagButton" xml:space="preserve"><value>Etiquetar imagen</value></data>
+  <data name="ImagesTagPending" xml:space="preserve"><value>Etiquetando {0} como {1}…</value></data>
+  <data name="ImagesTagSuccess" xml:space="preserve"><value>Se etiquetó {0} como {1}: {2}</value></data>
+  <data name="ImagesTagError" xml:space="preserve"><value>No se pudo etiquetar {0} como {1}: {2}</value></data>
+  <data name="ImagesInvalidReference" xml:space="preserve"><value>Introduce una referencia de imagen válida que no empiece por un guion.</value></data>
   <data name="ImagesLoading" xml:space="preserve"><value>Cargando imágenes…</value></data>
   <data name="ImagesRefreshError" xml:space="preserve"><value>No se pudieron actualizar las imágenes: {0}</value></data>
   <data name="ImagesPruneButton" xml:space="preserve"><value>Podar imágenes sin usar</value></data>

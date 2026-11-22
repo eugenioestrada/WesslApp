@@ -35,6 +35,9 @@ public sealed class MainWindow(
         _setRevision = setRevision;
         var (pendingRemoval, setPendingRemoval) = UseState<string?>(null);
         var (confirmPrune, setConfirmPrune) = UseState(false);
+        var (pullReference, setPullReference) = UseState(string.Empty);
+        var (tagSource, setTagSource) = UseState(string.Empty);
+        var (tagTarget, setTagTarget) = UseState(string.Empty);
         UseEffect(() =>
         {
             void OnChanged() => RequestRender();
@@ -58,8 +61,18 @@ public sealed class MainWindow(
 
         if (_showImages)
         {
-            return WithDialogs(ImagePage.Create(images, confirmPrune, () => setConfirmPrune(true),
-                () => setConfirmPrune(false), ShowContainers));
+            return WithDialogs(ImagePage.Create(
+                images,
+                confirmPrune,
+                () => setConfirmPrune(true),
+                () => setConfirmPrune(false),
+                pullReference,
+                setPullReference,
+                tagSource,
+                setTagSource,
+                tagTarget,
+                setTagTarget,
+                ShowContainers));
         }
 
         var runningCount = containers.Containers.Count(container => container.State == ContainerState.Running);

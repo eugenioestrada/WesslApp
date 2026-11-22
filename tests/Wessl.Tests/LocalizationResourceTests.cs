@@ -95,6 +95,14 @@ public sealed class LocalizationResourceTests
             }
         }
         referencedKeys.UnionWith([
+            "ImagesPullPending",
+            "ImagesPullSuccess",
+            "ImagesPullError",
+            "ImagesTagPending",
+            "ImagesTagSuccess",
+            "ImagesTagError",
+            "ImagesPruneError",
+            "ImagesPruneSuccess",
             "ImagesPrunePending",
             "ContainerDetailsImage",
             "ContainerDetailsImageDigest",

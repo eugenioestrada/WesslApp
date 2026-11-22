@@ -17,6 +17,18 @@ public sealed class SampleWslcClient : IWslcClient, IContainerLogsClient, IImage
         return Task.FromResult("0 B");
     }
 
+    public Task<string> PullImageAsync(string image, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult($"Pulled {image}");
+    }
+
+    public Task<string> TagImageAsync(string source, string target, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult($"Tagged {source} as {target}");
+    }
+
     private readonly List<ContainerInfo> _containers =
     [
         new("sample-1", "web", "nginx:latest", ContainerState.Running),

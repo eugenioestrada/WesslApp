@@ -358,12 +358,13 @@ public static class WslcOutputParser
             var repository = GetString(root, "Repository");
             var tag = GetString(root, "Tag");
             var size = GetString(root, "Size");
+            var digest = GetString(root, "Digest");
             if (id.Length == 0 || repository.Length == 0 || tag.Length == 0 || size.Length == 0)
             {
                 throw new FormatException("WSLc output is missing image information.");
             }
 
-            images.Add(new ImageInfo(id, repository, tag, size));
+            images.Add(new ImageInfo(id, repository, tag, size, digest));
         }
 
         return images;

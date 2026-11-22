@@ -45,6 +45,23 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public void ImageCommandsUseTheInstalledWslcArgumentOrder()
+    {
+        var client = new WslcClient("wslc");
+
+        Assert.Equal(
+            ["image", "list", "--format", "json", "--digests"],
+            client.CreateImageListStartInfo().ArgumentList);
+        Assert.Equal(
+            ["image", "pull", "nginx:latest"],
+            client.CreateImagePullStartInfo("nginx:latest").ArgumentList);
+        Assert.Equal(
+            ["image", "tag", "nginx:latest", "local/nginx:dev"],
+            client.CreateImageTagStartInfo("nginx:latest", "local/nginx:dev").ArgumentList);
+        Assert.Throws<ArgumentException>(() => client.CreateImagePullStartInfo("--help"));
+    }
+
+    [Fact]
     public void InspectCommandRequestsBatchedJsonAndPassesIdsAsArguments()
     {
         var client = new WslcClient("wslc");
