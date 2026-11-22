@@ -34,12 +34,23 @@
   <data name="ContainerUsage" xml:space="preserve"><value>CPU: {0} · RAM: {1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>CPU- und RAM-Auslastung konnte nicht geladen werden: {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Protokolle: {0}</value></data>
-  <data name="LogsFollowing" xml:space="preserve"><value>Protokolle werden verfolgt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>
-  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Protokolle werden verfolgt; ältere Zeilen wurden nach Erreichen des Limits von 128 KB entfernt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>
-  <data name="LogsEnded" xml:space="preserve"><value>Der Protokollstream wurde beendet.</value></data>
-  <data name="LogsEndedTruncated" xml:space="preserve"><value>Der Protokollstream wurde beendet; ältere Zeilen wurden nach Erreichen des Limits von 128 KB entfernt.</value></data>
+  <data name="LogsFollowing" xml:space="preserve"><value>Protokolle mit Zeitstempeln für vorhandene und neue Zeilen werden verfolgt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>
+  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Protokolle mit Zeitstempeln für vorhandene und neue Zeilen werden verfolgt; ältere Zeilen wurden nach Erreichen des Limits von 128 KB entfernt. Schließen Sie dieses Fenster, um den Vorgang zu beenden.</value></data>
+  <data name="LogsEnded" xml:space="preserve"><value>Der Protokollstream wurde beendet. Zeitstempel sind für alle angezeigten Zeilen aktiviert.</value></data>
+  <data name="LogsEndedTruncated" xml:space="preserve"><value>Der Protokollstream wurde beendet; ältere Zeilen wurden nach Erreichen des Limits von 128 KB entfernt. Zeitstempel sind für alle angezeigten Zeilen aktiviert.</value></data>
   <data name="LogsNotRunning" xml:space="preserve"><value>Protokolle können nur für einen laufenden Container verfolgt werden.</value></data>
   <data name="LogsError" xml:space="preserve"><value>Protokolle konnten nicht verfolgt werden: {0}</value></data>
+  <data name="LogsSearchLabel" xml:space="preserve"><value>Protokolle durchsuchen</value></data>
+  <data name="LogsContentLabel" xml:space="preserve"><value>Protokollausgabe</value></data>
+  <data name="LogsNoMatches" xml:space="preserve"><value>Keine Protokolle entsprechen der Suche.</value></data>
+  <data name="LogsCopySelected" xml:space="preserve"><value>Ausgewählte kopieren</value></data>
+  <data name="LogsCopyVisible" xml:space="preserve"><value>Sichtbare kopieren</value></data>
+  <data name="LogsSaveButton" xml:space="preserve"><value>In Datei speichern</value></data>
+  <data name="LogsCopied" xml:space="preserve"><value>Protokolle in die Zwischenablage kopiert.</value></data>
+  <data name="LogsCopyError" xml:space="preserve"><value>Protokolle konnten nicht kopiert werden: {0}</value></data>
+  <data name="LogsSaved" xml:space="preserve"><value>Protokolle gespeichert.</value></data>
+  <data name="LogsSaveError" xml:space="preserve"><value>Protokolle konnten nicht gespeichert werden: {0}</value></data>
+  <data name="LogsTextFileType" xml:space="preserve"><value>Textdateien</value></data>
   <data name="RemoveButton" xml:space="preserve"><value>Entfernen</value></data>
   <data name="ConfirmRemoveButton" xml:space="preserve"><value>Entfernen bestätigen</value></data>
   <data name="CancelButton" xml:space="preserve"><value>Abbrechen</value></data>

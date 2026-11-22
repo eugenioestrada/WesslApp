@@ -34,12 +34,23 @@
   <data name="ContainerUsage" xml:space="preserve"><value>CPU: {0} · RAM: {1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>Impossibile caricare l’utilizzo di CPU e RAM: {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Log: {0}</value></data>
-  <data name="LogsFollowing" xml:space="preserve"><value>Visualizzazione continua dei log. Chiudi questa finestra per interromperla.</value></data>
-  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Visualizzazione continua dei log; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB. Chiudi questa finestra per interromperla.</value></data>
-  <data name="LogsEnded" xml:space="preserve"><value>Il flusso dei log è terminato.</value></data>
-  <data name="LogsEndedTruncated" xml:space="preserve"><value>Il flusso dei log è terminato; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB.</value></data>
+  <data name="LogsFollowing" xml:space="preserve"><value>Visualizzazione continua dei log con timestamp per le righe esistenti e nuove. Chiudi questa finestra per interromperla.</value></data>
+  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Visualizzazione continua dei log con timestamp per le righe esistenti e nuove; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB. Chiudi questa finestra per interromperla.</value></data>
+  <data name="LogsEnded" xml:space="preserve"><value>Il flusso dei log è terminato. I timestamp erano attivi per tutte le righe visualizzate.</value></data>
+  <data name="LogsEndedTruncated" xml:space="preserve"><value>Il flusso dei log è terminato; le righe meno recenti sono state rimosse al raggiungimento del limite di 128 KB. I timestamp erano attivi per tutte le righe visualizzate.</value></data>
   <data name="LogsNotRunning" xml:space="preserve"><value>È possibile visualizzare i log solo per un contenitore in esecuzione.</value></data>
   <data name="LogsError" xml:space="preserve"><value>Impossibile seguire i log: {0}</value></data>
+  <data name="LogsSearchLabel" xml:space="preserve"><value>Cerca nei log</value></data>
+  <data name="LogsContentLabel" xml:space="preserve"><value>Output del log</value></data>
+  <data name="LogsNoMatches" xml:space="preserve"><value>Nessun log corrisponde alla ricerca.</value></data>
+  <data name="LogsCopySelected" xml:space="preserve"><value>Copia selezione</value></data>
+  <data name="LogsCopyVisible" xml:space="preserve"><value>Copia visibili</value></data>
+  <data name="LogsSaveButton" xml:space="preserve"><value>Salva su file</value></data>
+  <data name="LogsCopied" xml:space="preserve"><value>Log copiati negli appunti.</value></data>
+  <data name="LogsCopyError" xml:space="preserve"><value>Impossibile copiare i log: {0}</value></data>
+  <data name="LogsSaved" xml:space="preserve"><value>Log salvati.</value></data>
+  <data name="LogsSaveError" xml:space="preserve"><value>Impossibile salvare i log: {0}</value></data>
+  <data name="LogsTextFileType" xml:space="preserve"><value>File di testo</value></data>
   <data name="RemoveButton" xml:space="preserve"><value>Rimuovi</value></data>
   <data name="ConfirmRemoveButton" xml:space="preserve"><value>Conferma rimozione</value></data>
   <data name="CancelButton" xml:space="preserve"><value>Annulla</value></data>

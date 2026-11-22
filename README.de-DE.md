@@ -20,7 +20,7 @@ Veröffentlichte TCP-Zuordnungen im Feld `Ports` eines Containers bieten außerd
 
 Bei einem laufenden Container öffnet **Shell öffnen** Windows Terminal mit einer interaktiven Sitzung `wslc exec -it <container-id> /bin/sh`. Dafür ist die echte WSLc-Integration erforderlich; Windows Terminal und eine WSLc-Version mit Unterstützung für `exec -it` müssen verfügbar sein.
 
-**Protokolle anzeigen** öffnet ein separates Fenster, das `wslc container logs -f <container-id>` verfolgt. Beim Schließen des Fensters wird der Verfolgungsprozess beendet. Die Anzeige behält die letzten 128 Ki Zeichen bei.
+**Protokolle anzeigen** öffnet ein separates Fenster, das `wslc container logs --timestamps -f <container-id>` verfolgt. Vorhandene und neu gestreamte Zeilen enthalten Zeitstempel. Durchsuchen Sie die geladenen Protokolle, kopieren Sie ausgewählte oder sichtbare Zeilen oder speichern Sie die verfügbaren Protokolle in einer Datei. Beim Schließen des Fensters wird die Verfolgung beendet. Die Anzeige behält die letzten 128 Ki Zeichen bei.
 
 Laufende Container zeigen CPU, Arbeitsspeicher, Netzwerk- und Block-E/A sowie die Anzahl der PIDs mit `wslc stats --format json` an. Die Statistiken werden standardmäßig jede Sekunde aktualisiert; das Intervall ist in den Einstellungen änderbar. Bei ausgeblendetem Panel wird die Abfrage angehalten.
 

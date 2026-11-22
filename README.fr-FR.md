@@ -20,7 +20,7 @@ Ouvrez **Images** pour charger explicitement la liste des images WSLc et les tai
 
 Pour un conteneur en cours d’exécution, **Ouvrir le terminal** lance Windows Terminal avec une session interactive `wslc exec -it <container-id> /bin/sh`. Cette action nécessite une véritable intégration WSLc ; Windows Terminal et une version de WSLc prenant en charge `exec -it` doivent être disponibles.
 
-**Afficher les journaux** ouvre une fenêtre séparée qui suit `wslc container logs -f <container-id>`. Fermer cette fenêtre arrête le processus de suivi. L’affichage conserve les 128 Ki les plus récents.
+**Afficher les journaux** ouvre une fenêtre séparée qui suit `wslc container logs --timestamps -f <container-id>`. Les lignes existantes et nouvelles comportent un horodatage. Recherchez dans les journaux chargés, copiez les lignes sélectionnées ou visibles, ou enregistrez les journaux disponibles dans un fichier. Fermer cette fenêtre arrête le suivi. L’affichage conserve les 128 Ki les plus récents.
 
 Les conteneurs en cours d’exécution affichent le processeur, la mémoire, les E/S réseau et bloc et le nombre de PID via `wslc stats --format json`. Les statistiques sont actualisées chaque seconde par défaut ; l’intervalle est configurable dans les paramètres. L’actualisation s’arrête lorsque le panneau est masqué.
 

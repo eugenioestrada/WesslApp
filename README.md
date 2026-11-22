@@ -20,7 +20,7 @@ Open **Images** to explicitly load the WSLc image list and its reported size. Re
 
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Use real WSLc integration for this action; Windows Terminal and a WSLc version supporting `exec -it` must be available.
 
-**View logs** opens a separate window following `wslc container logs -f <container-id>`. Closing the window stops the follow process. The display retains the most recent 128 Ki characters.
+**View logs** opens a separate window following `wslc container logs --timestamps -f <container-id>`. Timestamps are included for existing and newly streamed lines. Search the loaded logs, copy selected or visible lines, or save the available logs to a file. Closing the window stops the follow process. The display retains the most recent 128 Ki characters.
 
 Running containers show CPU, memory, network and block I/O, and PID counts using `wslc stats --format json`. Statistics refresh every second by default; change this interval in Settings. Polling stops when the panel is hidden.
 

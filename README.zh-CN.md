@@ -20,7 +20,7 @@ Wessl 是一款轻量级的 Windows 原生系统托盘应用，用于管理 WSL 
 
 对于正在运行的容器，**打开终端**会启动 Windows Terminal，并运行交互式会话 `wslc exec -it <container-id> /bin/sh`。此操作需要使用真实的 WSLc 集成；系统中必须安装 Windows Terminal 和支持 `exec -it` 的 WSLc 版本。
 
-**查看日志**会打开独立窗口并持续跟踪 `wslc container logs -f <container-id>`。关闭该窗口会停止跟踪进程。显示区域最多保留最近的 128 Ki 字符。
+**查看日志**会打开独立窗口并持续跟踪 `wslc container logs --timestamps -f <container-id>`。现有日志行和新流入的日志行均包含时间戳。可以搜索已加载的日志、复制所选或可见的日志行，或将可用日志保存到文件。关闭该窗口会停止跟踪进程。显示区域最多保留最近的 128 Ki 字符。
 
 运行中的容器通过 `wslc stats --format json` 显示 CPU、内存、网络和块 I/O 以及 PID 数量。统计信息默认每秒刷新一次；可在设置中更改间隔。隐藏面板后停止轮询。
 

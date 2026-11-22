@@ -31,7 +31,7 @@
 - [ ] [Search, filter, and sort containers](https://github.com/eugenioestrada/WesslApp/issues/53).
 - [ ] [Show health and exit diagnostics](https://github.com/eugenioestrada/WesslApp/issues/54).
 - [ ] [Inspect container details safely](https://github.com/eugenioestrada/WesslApp/issues/55).
-- [ ] [Improve container log tools](https://github.com/eugenioestrada/WesslApp/issues/56).
+- [x] [Improve container log tools](https://github.com/eugenioestrada/WesslApp/issues/56).
 - [ ] [Expand image management actions](https://github.com/eugenioestrada/WesslApp/issues/57).
 - [ ] [Add safe bulk container actions](https://github.com/eugenioestrada/WesslApp/issues/58).
 

@@ -20,7 +20,7 @@ Abre **Imágenes** para cargar explícitamente la lista de imágenes de WSLc y e
 
 Para un contenedor en ejecución, **Abrir consola** inicia Windows Terminal con una sesión interactiva `wslc exec -it <container-id> /bin/sh`. Esta acción requiere la integración real con WSLc; Windows Terminal y una versión de WSLc compatible con `exec -it` deben estar disponibles.
 
-**Ver registros** abre una ventana independiente que sigue `wslc container logs -f <container-id>`. Al cerrar la ventana se detiene el proceso de seguimiento. La vista conserva los 128 Ki más recientes.
+**Ver registros** abre una ventana independiente que sigue `wslc container logs --timestamps -f <container-id>`. Se incluyen marcas de tiempo en las líneas existentes y en las nuevas. Busca en los registros cargados, copia las líneas seleccionadas o visibles, o guarda los registros disponibles en un archivo. Al cerrar la ventana se detiene el seguimiento. La vista conserva los 128 Ki más recientes.
 
 Los contenedores en ejecución muestran CPU, memoria, E/S de red y de bloque, y número de PID mediante `wslc stats --format json`. Las estadísticas se actualizan cada segundo de forma predeterminada; el intervalo se puede cambiar en Configuración. El sondeo se detiene al ocultar el panel.
 

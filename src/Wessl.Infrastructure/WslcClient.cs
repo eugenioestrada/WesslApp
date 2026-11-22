@@ -178,7 +178,7 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
             RedirectStandardError = true,
             CreateNoWindow = true
         };
-        foreach (var argument in new[] { "container", "logs", "-f", id })
+        foreach (var argument in new[] { "container", "logs", "--timestamps", "-f", id })
         {
             startInfo.ArgumentList.Add(argument);
         }
