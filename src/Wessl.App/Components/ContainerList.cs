@@ -256,8 +256,7 @@ public sealed class ContainerList : Component<ContainerListProps>
         }
         else if (groupByLabel is null)
         {
-            list = ScrollViewer(VStack(8, filteredContainers.Select(CreateRow).ToArray()))
-                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
+            list = VStack(8, filteredContainers.Select(CreateRow).ToArray());
         }
         else
         {
@@ -279,27 +278,24 @@ public sealed class ContainerList : Component<ContainerListProps>
                 sections.AddRange(grouping.Ungrouped.Select(CreateRow));
             }
 
-            list = ScrollViewer(VStack(8, sections.ToArray()))
-                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
+            list = VStack(8, sections.ToArray());
         }
 
+        var content = new List<Element> { controls };
         if (service.DiagnosticsError is { } diagnosticsError)
         {
-            var diagnosticsInfo = InfoBar(message: AppStrings.Format(diagnosticsError)).Error()
-                with { IsOpen = true, IsClosable = false };
-            return Grid(
-                [GridSize.Star()],
-                [GridSize.Auto, GridSize.Auto, GridSize.Star()],
-                controls.Grid(row: 0),
-                diagnosticsInfo.Grid(row: 1),
-                list.Grid(row: 2));
+            content.Add(InfoBar(message: AppStrings.Format(diagnosticsError)).Error()
+                with { IsOpen = true, IsClosable = false });
         }
+        content.Add(list);
 
-        return Grid(
-            [GridSize.Star()],
-            [GridSize.Auto, GridSize.Star()],
-            controls.Grid(row: 0),
-            list.Grid(row: 1));
+        // Disabling horizontal input alone does not constrain the content's measured width.
+        return ScrollViewer(VStack(8, content.ToArray()))
+            .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled) with
+            {
+                HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto
+            };
     }
 
 }

@@ -41,12 +41,8 @@
   <data name="UpdateCommandCopyError" xml:space="preserve">
     <value>No se pudo copiar el comando de actualización: {0}</value>
   </data>
-  <data name="NoPorts" xml:space="preserve">
-    <value>Ninguno</value>
-  </data>
-  <data name="PortsLabel" xml:space="preserve">
-    <value>Puertos: {0}</value>
-  </data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>Abrir {0}</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>Copiar {0}</value></data>
   <data name="StartButton" xml:space="preserve">
     <value>Iniciar</value>
   </data>

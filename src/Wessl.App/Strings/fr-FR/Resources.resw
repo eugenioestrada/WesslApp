@@ -23,8 +23,8 @@
   <data name="CopyUpdateCommand" xml:space="preserve"><value>Copier la commande de mise à jour</value></data>
   <data name="UpdateCommandCopied" xml:space="preserve"><value>La commande wsl --update a été copiée dans le Presse-papiers.</value></data>
   <data name="UpdateCommandCopyError" xml:space="preserve"><value>Impossible de copier la commande de mise à jour : {0}</value></data>
-  <data name="NoPorts" xml:space="preserve"><value>Aucun</value></data>
-  <data name="PortsLabel" xml:space="preserve"><value>Ports : {0}</value></data>
+  <data name="PortOpenAccessible" xml:space="preserve"><value>Ouvrir {0}</value></data>
+  <data name="CopyUrlAccessible" xml:space="preserve"><value>Copier {0}</value></data>
   <data name="StartButton" xml:space="preserve"><value>Démarrer</value></data>
   <data name="StopButton" xml:space="preserve"><value>Arrêter</value></data>
   <data name="RestartButton" xml:space="preserve"><value>Redémarrer</value></data>
