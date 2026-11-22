@@ -1,5 +1,10 @@
 # Technical decisions
 
+## Issue and roadmap completion
+
+- When an issue implementation is complete, update `ROADMAP.md` in the same change. If an existing roadmap entry is linked to the issue, mark it `[x]`; if no linked entry exists, add a `[x]` entry with the issue link under the appropriate section.
+- Mark an issue complete only when its full scope and acceptance criteria are actually satisfied. Leave it incomplete for partial implementations.
+
 ## Architecture
 
 - Keep `Wessl.Domain` limited to dependency-free models and interfaces. Do not put platform APIs, process execution, or UI concerns in this project.
@@ -10,6 +15,7 @@
 
 ## Design and UX
 
+- Follow WinUI 3 and Fluent UI design principles and recommended patterns. Keep UX professional, with clearly ordered content, consistent presentation, and appropriate hierarchy and spacing.
 - Treat the main window as a compact system-tray panel, not a conventional desktop window. Position it beside the tray when opened; do not allow title-bar dragging.
 - Do not show a native title bar or Close, Minimize, or Maximize buttons on the main panel. Open it visibly and focused beside the tray, without making it always-on-top. Hide it when it loses activation, keeping the tray app running. Use short entry/exit animations that respect Windows animation settings; allow reopening from the tray. Keep separate tool windows, such as logs, independently usable.
 - Follow native WinUI 3 control styles and semantic theme resources. Use Mica for the main panel, and acrylic only where appropriate for transient surfaces. Preserve readability, high-contrast support, and light/dark adaptation; avoid expensive effects and decorative transparency.

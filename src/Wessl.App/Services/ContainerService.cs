@@ -28,6 +28,8 @@ public sealed class ContainerService(
 
     public LocalizedMessage? Error { get; private set; }
 
+    public LocalizedMessage? DiagnosticsError { get; private set; }
+
     public LocalizedMessage? Status { get; private set; }
 
     public bool IsBusy => Volatile.Read(ref _actionInProgress) != 0;
@@ -234,13 +236,13 @@ public sealed class ContainerService(
             return;
         }
 
-        IReadOnlyList<ContainerInfo>? result = null;
+        ContainerRefreshResult? result = null;
         LocalizedMessage? error = null;
         var unavailable = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            result = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+            result = await RefreshContainerListAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -265,12 +267,14 @@ public sealed class ContainerService(
 
             if (result is not null)
             {
-                SetContainers(result);
+                SetContainers(result.Containers);
+                DiagnosticsError = result.DiagnosticsError;
                 HasRefreshed = true;
             }
             else if (unavailable)
             {
                 SetContainers([]);
+                DiagnosticsError = null;
                 HasRefreshed = false;
             }
 
@@ -287,6 +291,15 @@ public sealed class ContainerService(
         RunActionAsync(container, "Stop", client.StopContainerAsync);
 
     public Task<StopAllResult> StopAllAsync() => StopAllAsync(Containers);
+
+    public Task<BulkActionResult> StartSelectedAsync(IReadOnlyCollection<ContainerInfo> containers) =>
+        RunBulkActionAsync(containers, "Start", ContainerState.Stopped, client.StartContainerAsync);
+
+    public Task<BulkActionResult> RestartSelectedAsync(IReadOnlyCollection<ContainerInfo> containers) =>
+        RunBulkActionAsync(containers, "Restart", ContainerState.Running, client.RestartContainerAsync);
+
+    public Task<BulkActionResult> RemoveSelectedAsync(IReadOnlyCollection<ContainerInfo> containers) =>
+        RunBulkActionAsync(containers, "Remove", ContainerState.Stopped, client.RemoveContainerAsync);
 
     public async Task<StopAllResult> StopAllAsync(IReadOnlyCollection<ContainerInfo> containersToStop)
     {
@@ -316,7 +329,7 @@ public sealed class ContainerService(
             var failures = new List<(string Name, string Message)>();
             var stopped = 0;
             Exception? refreshError = null;
-            IReadOnlyList<ContainerInfo>? result = null;
+            ContainerRefreshResult? result = null;
             await _refreshLock.WaitAsync();
             try
             {
@@ -335,7 +348,7 @@ public sealed class ContainerService(
 
                 try
                 {
-                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
@@ -366,12 +379,14 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    SetContainers(result);
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
                     SetContainers([]);
+                    DiagnosticsError = null;
                     HasRefreshed = false;
                 }
 
@@ -384,7 +399,7 @@ public sealed class ContainerService(
         }
         finally
         {
-            Interlocked.Exchange(ref _actionInProgress, 0);
+            ReleaseAction();
         }
     }
 
@@ -393,6 +408,360 @@ public sealed class ContainerService(
 
     public Task RemoveAsync(ContainerInfo container) =>
         RunActionAsync(container, "Remove", client.RemoveContainerAsync);
+
+    private async Task<BulkActionResult> RunBulkActionAsync(
+        IReadOnlyCollection<ContainerInfo> selectedContainers,
+        string action,
+        ContainerState requiredState,
+        Func<string, CancellationToken, Task> execute)
+    {
+        ArgumentNullException.ThrowIfNull(selectedContainers);
+        var selected = selectedContainers
+            .DistinctBy(container => container.Id, StringComparer.Ordinal)
+            .ToArray();
+        if (selected.Length == 0)
+        {
+            return new(null, null);
+        }
+
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
+        {
+            var busyError = new LocalizedMessage("WaitForCurrentAction", []);
+            dispatch(() =>
+            {
+                Error = busyError;
+                Changed?.Invoke();
+            });
+            return new(null, busyError);
+        }
+
+        try
+        {
+            var pendingKey = action switch
+            {
+                "Start" => "BulkStartPending",
+                "Restart" => "BulkRestartPending",
+                "Remove" => "BulkRemovePending",
+                _ => throw new ArgumentOutOfRangeException(nameof(action))
+            };
+            dispatch(() =>
+            {
+                Error = null;
+                Status = new(pendingKey, [selected.Length]);
+                Changed?.Invoke();
+            });
+
+            var successes = new List<LocalizedMessage>();
+            var failures = new List<LocalizedMessage>();
+            Exception? verificationError = null;
+            Exception? refreshError = null;
+            IReadOnlyList<ContainerInfo>? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                IReadOnlyList<ContainerInfo>? currentContainers = null;
+                if (action == "Remove")
+                {
+                    currentContainers = [];
+                }
+                else
+                {
+                    try
+                    {
+                        currentContainers = await client.ListContainersAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception exception)
+                    {
+                        verificationError = exception;
+                        foreach (var container in selected)
+                        {
+                            failures.Add(new("BulkActionVerificationFailed", [container.Name, exception.Message]));
+                        }
+                    }
+                }
+
+                if (currentContainers is not null)
+                {
+                    foreach (var container in selected)
+                    {
+                        IReadOnlyList<ContainerInfo> actionContainers = currentContainers;
+                        if (action == "Remove")
+                        {
+                            try
+                            {
+                                actionContainers = await client.ListContainersAsync().ConfigureAwait(false);
+                            }
+                            catch (Exception exception)
+                            {
+                                verificationError ??= exception;
+                                failures.Add(new("BulkActionVerificationFailed", [container.Name, exception.Message]));
+                                continue;
+                            }
+                        }
+
+                        var current = actionContainers.FirstOrDefault(item =>
+                            string.Equals(item.Id, container.Id, StringComparison.Ordinal));
+                        if (current is null)
+                        {
+                            failures.Add(new("BulkActionNotFound", [container.Name]));
+                            continue;
+                        }
+
+                        if (current.State != requiredState)
+                        {
+                            failures.Add(new("BulkActionStateChanged", [container.Name]));
+                            continue;
+                        }
+
+                        try
+                        {
+                            await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
+                            successes.Add(new("BulkActionItemSucceeded", [container.Name]));
+                        }
+                        catch (Exception exception)
+                        {
+                            failures.Add(new("BulkActionFailureDetail", [container.Name, exception.Message]));
+                        }
+                    }
+
+                    try
+                    {
+                        result = await client.ListContainersAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception exception)
+                    {
+                        refreshError = exception;
+                    }
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
+
+            var completedStatus = new LocalizedMessage(
+                "BulkActionCompleted",
+                [successes.Count, selected.Length, new LocalizedMessageList(successes)]);
+            LocalizedMessage? completedError = failures.Count > 0
+                ? new("BulkActionPartialFailure", [new LocalizedMessageList(failures)])
+                : null;
+            if (refreshError is not null)
+            {
+                var refreshMessage = new LocalizedMessage("RefreshError", [refreshError.Message]);
+                completedError = completedError is null
+                    ? refreshMessage
+                    : new("ActionAndRefreshError", [completedError, refreshMessage]);
+            }
+
+            var isUnavailable = result is null
+                && (verificationError is WslcUnavailableException || refreshError is WslcUnavailableException);
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    SetContainers(result);
+                    HasRefreshed = true;
+                }
+                else if (isUnavailable)
+                {
+                    SetContainers([]);
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = isUnavailable;
+                Status = completedStatus;
+                Error = completedError;
+                Changed?.Invoke();
+            });
+            return new(completedStatus, completedError);
+        }
+        finally
+        {
+            ReleaseAction();
+        }
+    }
+
+    public Task<BulkActionResult> StartGroupAsync(
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group) =>
+        RunGroupActionAsync(
+            "Start",
+            groupName,
+            group,
+            ContainerState.Stopped,
+            client.StartContainerAsync);
+
+    public Task<BulkActionResult> StopGroupAsync(
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group) =>
+        RunGroupActionAsync(
+            "Stop",
+            groupName,
+            group,
+            ContainerState.Running,
+            client.StopContainerAsync);
+
+    private async Task<BulkActionResult> RunGroupActionAsync(
+        string action,
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group,
+        ContainerState requiredState,
+        Func<string, CancellationToken, Task> execute)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(groupName);
+        ArgumentNullException.ThrowIfNull(group);
+        var members = group
+            .Where(container => container.State == requiredState)
+            .DistinctBy(container => container.Id, StringComparer.Ordinal)
+            .ToArray();
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
+        {
+            var busyError = new LocalizedMessage("WaitForCurrentAction", []);
+            dispatch(() =>
+            {
+                Error = busyError;
+                Changed?.Invoke();
+            });
+            return new(null, busyError);
+        }
+
+        try
+        {
+            if (members.Length == 0)
+            {
+                var nothingToDo = new LocalizedMessage("GroupActionNothingToDo", [groupName]);
+                dispatch(() =>
+                {
+                    Error = null;
+                    Status = nothingToDo;
+                    Changed?.Invoke();
+                });
+                return new(nothingToDo, null);
+            }
+
+            var actionName = action == "Start"
+                ? new LocalizedMessage("GroupStartName", [])
+                : new LocalizedMessage("GroupStopName", []);
+            dispatch(() =>
+            {
+                Error = null;
+                Status = new("GroupActionPending", [actionName, groupName, members.Length]);
+                Changed?.Invoke();
+            });
+
+            var successes = new List<LocalizedMessage>();
+            var failures = new List<LocalizedMessage>();
+            Exception? verificationError = null;
+            Exception? refreshError = null;
+            ContainerRefreshResult? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                IReadOnlyList<ContainerInfo>? currentContainers = null;
+                try
+                {
+                    currentContainers = await client.ListContainersAsync().ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    verificationError = exception;
+                    failures.AddRange(members.Select(container =>
+                        new LocalizedMessage("BulkActionVerificationFailed", [container.Name, exception.Message])));
+                }
+
+                if (currentContainers is not null)
+                {
+                    foreach (var container in members)
+                    {
+                        var current = currentContainers.FirstOrDefault(item =>
+                            string.Equals(item.Id, container.Id, StringComparison.Ordinal));
+                        if (current is null)
+                        {
+                            failures.Add(new("BulkActionNotFound", [container.Name]));
+                            continue;
+                        }
+
+                        if (current.State != requiredState)
+                        {
+                            failures.Add(new("BulkActionStateChanged", [container.Name]));
+                            continue;
+                        }
+
+                        try
+                        {
+                            await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
+                            successes.Add(new("BulkActionItemSucceeded", [container.Name]));
+                        }
+                        catch (Exception exception)
+                        {
+                            failures.Add(new("GroupActionFailureDetail", [container.Name, exception.Message]));
+                        }
+                    }
+                }
+
+                try
+                {
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    refreshError = exception;
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
+
+            var completedStatus = new LocalizedMessage(
+                "GroupActionCompleted",
+                [actionName, groupName, successes.Count, members.Length]);
+            LocalizedMessage? completedError = failures.Count > 0
+                ? new("GroupActionPartialFailure", [
+                    groupName,
+                    action == "Start"
+                        ? new LocalizedMessage("GroupStartVerb", [])
+                        : new LocalizedMessage("GroupStopVerb", []),
+                    new LocalizedMessageList(failures)
+                ])
+                : null;
+            if (refreshError is not null)
+            {
+                var refreshMessage = new LocalizedMessage("RefreshError", [refreshError.Message]);
+                completedError = completedError is null
+                    ? refreshMessage
+                    : new("ActionAndRefreshError", [completedError, refreshMessage]);
+            }
+
+            var isUnavailable = result is null
+                && (verificationError is WslcUnavailableException || refreshError is WslcUnavailableException);
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
+                    HasRefreshed = true;
+                }
+                else if (isUnavailable)
+                {
+                    SetContainers([]);
+                    DiagnosticsError = null;
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = isUnavailable;
+                Status = completedStatus;
+                Error = completedError;
+                Changed?.Invoke();
+            });
+            return new(completedStatus, completedError);
+        }
+        finally
+        {
+            ReleaseAction();
+        }
+    }
 
     private async Task RunActionAsync(
         ContainerInfo container,
@@ -420,7 +789,7 @@ public sealed class ContainerService(
 
             Exception? actionError = null;
             Exception? refreshError = null;
-            IReadOnlyList<ContainerInfo>? result = null;
+            ContainerRefreshResult? result = null;
             await _refreshLock.WaitAsync();
             try
             {
@@ -435,7 +804,7 @@ public sealed class ContainerService(
 
                 try
                 {
-                    result = await client.ListContainersAsync().ConfigureAwait(false);
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
@@ -451,12 +820,14 @@ public sealed class ContainerService(
             {
                 if (result is not null)
                 {
-                    SetContainers(result);
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
                     HasRefreshed = true;
                 }
                 else if (refreshError is WslcUnavailableException)
                 {
                     SetContainers([]);
+                    DiagnosticsError = null;
                     HasRefreshed = false;
                 }
 
@@ -490,8 +861,14 @@ public sealed class ContainerService(
         }
         finally
         {
-            Interlocked.Exchange(ref _actionInProgress, 0);
+            ReleaseAction();
         }
+    }
+
+    private void ReleaseAction()
+    {
+        Interlocked.Exchange(ref _actionInProgress, 0);
+        dispatch(() => Changed?.Invoke());
     }
 
     private void SetContainers(IReadOnlyList<ContainerInfo> containers)
@@ -511,6 +888,48 @@ public sealed class ContainerService(
             _usageErrors.Remove(id);
         }
     }
+
+    private async Task<ContainerRefreshResult> RefreshContainerListAsync(CancellationToken cancellationToken)
+    {
+        var containers = await client.ListContainersAsync(cancellationToken).ConfigureAwait(false);
+        if (containers.Count == 0)
+        {
+            return new(containers, null);
+        }
+
+        IReadOnlyDictionary<string, ContainerDiagnostics> diagnostics;
+        try
+        {
+            diagnostics = await client.GetContainerDiagnosticsAsync(
+                containers.Select(container => container.Id).ToArray(),
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            var unavailable = containers
+                .Select(container => container with { Diagnostics = ContainerDiagnostics.Unavailable })
+                .ToArray();
+            return new(unavailable, new("ContainerDiagnosticsLoadError", [exception.Message]));
+        }
+
+        var enriched = containers
+            .Select(container => container with
+            {
+                Diagnostics = diagnostics.TryGetValue(container.Id, out var value)
+                    ? value
+                    : ContainerDiagnostics.Unavailable
+            })
+            .ToArray();
+        return new(enriched, null);
+    }
+
+    private sealed record ContainerRefreshResult(
+        IReadOnlyList<ContainerInfo> Containers,
+        LocalizedMessage? DiagnosticsError);
 }
 
 public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);
@@ -518,3 +937,5 @@ public sealed record LocalizedMessage(string ResourceKey, object?[] Arguments);
 public sealed record LocalizedMessageList(IReadOnlyList<LocalizedMessage> Messages);
 
 public sealed record StopAllResult(LocalizedMessage? Status, LocalizedMessage? Error);
+
+public sealed record BulkActionResult(LocalizedMessage? Status, LocalizedMessage? Error);

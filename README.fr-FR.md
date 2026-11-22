@@ -20,11 +20,13 @@ Ouvrez **Images** pour charger explicitement la liste des images WSLc et les tai
 
 Pour un conteneur en cours d’exécution, **Ouvrir le terminal** lance Windows Terminal avec une session interactive `wslc exec -it <container-id> /bin/sh`. Cette action nécessite une véritable intégration WSLc ; Windows Terminal et une version de WSLc prenant en charge `exec -it` doivent être disponibles.
 
-**Afficher les journaux** ouvre une fenêtre séparée qui suit `wslc container logs -f <container-id>`. Fermer cette fenêtre arrête le processus de suivi. L’affichage conserve les 128 Ki les plus récents.
+**Afficher les journaux** ouvre une fenêtre séparée qui suit `wslc container logs --timestamps -f <container-id>`. Les lignes existantes et nouvelles comportent un horodatage. Recherchez dans les journaux chargés, copiez les lignes sélectionnées ou visibles, ou enregistrez les journaux disponibles dans un fichier. Fermer cette fenêtre arrête le suivi. L’affichage conserve les 128 Ki les plus récents.
 
 Les conteneurs en cours d’exécution affichent le processeur, la mémoire, les E/S réseau et bloc et le nombre de PID via `wslc stats --format json`. Les statistiques sont actualisées chaque seconde par défaut ; l’intervalle est configurable dans les paramètres. L’actualisation s’arrête lorsque le panneau est masqué.
 
 L’état des conteneurs est actualisé à l’ouverture de la fenêtre, puis toutes les 10 secondes tant qu’elle reste visible. Le bouton Actualiser permet également de demander une mise à jour immédiate. La vérification périodique s’arrête lorsque la fenêtre est masquée, réduite ou fermée ; le simple démarrage de l’application dans la zone de notification n’invoque pas WSLc. L’indicateur de la zone affiche un état inconnu jusqu’à la première actualisation réussie, puis reflète le dernier état connu lorsque la fenêtre est fermée.
+
+À chaque actualisation visible, les cartes demandent les diagnostics groupés avec `wslc container inspect --format json`. Elles affichent l’état de santé signalé par WSLc et, pour les conteneurs arrêtés, le code et l’heure de sortie lorsqu’ils sont disponibles. Les valeurs absentes restent explicitement inconnues ou indisponibles ; la sortie du dernier contrôle de santé en échec n’est affichée que si WSLc la fournit. Aucun diagnostic n’est interrogé lorsque le panneau est masqué.
 
 ## Prérequis
 

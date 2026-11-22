@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Wessl.App.Components;
 using Wessl.Domain;
 using Windows.Foundation;
+using Windows.Storage.Pickers;
 using Windows.UI.ViewManagement;
 
 namespace Wessl.App.Services;
@@ -20,6 +21,7 @@ public sealed partial class AppLifecycle(
     AppSettings settings,
     IStartupManager startupManager,
     ImageService images,
+    ContainerDetailsService details,
     IContainerLogsClient logsClient)
 {
     private DispatcherQueueTimer? _pollTimer;
@@ -303,7 +305,7 @@ public sealed partial class AppLifecycle(
                 },
                 () =>
                 {
-                    _mainComponent = new MainWindow(containers, polling, settings, images, OpenLogs);
+                    _mainComponent = new MainWindow(containers, polling, settings, images, details, OpenLogs);
                     return _mainComponent;
                 });
             if (_window.AppWindow.Presenter is not OverlappedPresenter presenter)
@@ -386,9 +388,12 @@ public sealed partial class AppLifecycle(
                 throw new InvalidOperationException("Could not dispatch the log update.");
             }
         });
-        var window = ReactorApp.OpenWindow(
+        ReactorWindow? window = null;
+        window = ReactorApp.OpenWindow(
             new WindowSpec { Title = AppStrings.Format("LogsTitle", container.Name), Width = 720, Height = 480 },
-            () => new LogsWindow(session));
+            () => new LogsWindow(
+                session,
+                () => PickLogsSavePathAsync(window!, container.Name)));
         _logsWindows.Add(window);
         window.Closed += (_, _) =>
         {
@@ -399,6 +404,17 @@ public sealed partial class AppLifecycle(
         window.Activate();
         session.Start(containers.Containers.FirstOrDefault(item => item.Id == container.Id)
             ?? container with { State = ContainerState.Unknown });
+    }
+
+    private static async Task<string?> PickLogsSavePathAsync(ReactorWindow owner, string containerName)
+    {
+        var picker = new FileSavePicker();
+        picker.FileTypeChoices.Add(AppStrings.Get("LogsTextFileType"), [".txt"]);
+        picker.SuggestedFileName = $"{containerName}-logs";
+        WinRT.Interop.InitializeWithWindow.Initialize(
+            picker,
+            WinRT.Interop.WindowNative.GetWindowHandle(owner.NativeWindow));
+        return (await picker.PickSaveFileAsync())?.Path;
     }
 
     private static bool IsVisible(ReactorWindow window) =>

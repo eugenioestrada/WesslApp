@@ -25,9 +25,12 @@
 
   <ItemGroup>
     <Compile Include="..\..\src\Wessl.App\Services\ContainerService.cs" Link="ContainerService.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerGrouping.cs" Link="ContainerGrouping.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerDetailsService.cs" Link="ContainerDetailsService.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\ContainerLogsSession.cs" Link="ContainerLogsSession.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\ImageService.cs" Link="ImageService.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\ContainerPolling.cs" Link="ContainerPolling.cs" />
+    <Compile Include="..\..\src\Wessl.App\Services\ContainerListQuery.cs" Link="ContainerListQuery.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\ServiceRegistration.cs" Link="ServiceRegistration.cs" />
     <Compile Include="..\..\src\Wessl.App\Services\AppSettings.cs" Link="AppSettings.cs" />
   </ItemGroup>

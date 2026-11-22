@@ -34,12 +34,23 @@
   <data name="ContainerUsage" xml:space="preserve"><value>Processeur : {0} · RAM : {1}</value></data>
   <data name="ContainerUsageError" xml:space="preserve"><value>Impossible de charger l’utilisation du processeur et de la RAM : {0}</value></data>
   <data name="LogsTitle" xml:space="preserve"><value>Journaux : {0}</value></data>
-  <data name="LogsFollowing" xml:space="preserve"><value>Suivi des journaux. Fermez cette fenêtre pour arrêter le suivi.</value></data>
-  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Suivi des journaux ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. Fermez cette fenêtre pour arrêter le suivi.</value></data>
-  <data name="LogsEnded" xml:space="preserve"><value>Le flux des journaux est terminé.</value></data>
-  <data name="LogsEndedTruncated" xml:space="preserve"><value>Le flux des journaux est terminé ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko.</value></data>
+  <data name="LogsFollowing" xml:space="preserve"><value>Suivi des journaux avec horodatage pour les lignes existantes et nouvelles. Fermez cette fenêtre pour arrêter le suivi.</value></data>
+  <data name="LogsFollowingTruncated" xml:space="preserve"><value>Suivi des journaux avec horodatage pour les lignes existantes et nouvelles ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. Fermez cette fenêtre pour arrêter le suivi.</value></data>
+  <data name="LogsEnded" xml:space="preserve"><value>Le flux des journaux est terminé. L’horodatage était activé pour toutes les lignes affichées.</value></data>
+  <data name="LogsEndedTruncated" xml:space="preserve"><value>Le flux des journaux est terminé ; les anciennes lignes ont été supprimées après avoir atteint la limite de 128 Ko. L’horodatage était activé pour toutes les lignes affichées.</value></data>
   <data name="LogsNotRunning" xml:space="preserve"><value>Le suivi des journaux est possible uniquement pour un conteneur en cours d’exécution.</value></data>
   <data name="LogsError" xml:space="preserve"><value>Impossible de suivre les journaux : {0}</value></data>
+  <data name="LogsSearchLabel" xml:space="preserve"><value>Rechercher dans les journaux</value></data>
+  <data name="LogsContentLabel" xml:space="preserve"><value>Sortie du journal</value></data>
+  <data name="LogsNoMatches" xml:space="preserve"><value>Aucun journal ne correspond à la recherche.</value></data>
+  <data name="LogsCopySelected" xml:space="preserve"><value>Copier la sélection</value></data>
+  <data name="LogsCopyVisible" xml:space="preserve"><value>Copier les éléments visibles</value></data>
+  <data name="LogsSaveButton" xml:space="preserve"><value>Enregistrer dans un fichier</value></data>
+  <data name="LogsCopied" xml:space="preserve"><value>Journaux copiés dans le Presse-papiers.</value></data>
+  <data name="LogsCopyError" xml:space="preserve"><value>Impossible de copier les journaux : {0}</value></data>
+  <data name="LogsSaved" xml:space="preserve"><value>Journaux enregistrés.</value></data>
+  <data name="LogsSaveError" xml:space="preserve"><value>Impossible d’enregistrer les journaux : {0}</value></data>
+  <data name="LogsTextFileType" xml:space="preserve"><value>Fichiers texte</value></data>
   <data name="RemoveButton" xml:space="preserve"><value>Supprimer</value></data>
   <data name="ConfirmRemoveButton" xml:space="preserve"><value>Confirmer la suppression</value></data>
   <data name="CancelButton" xml:space="preserve"><value>Annuler</value></data>
@@ -84,7 +95,26 @@
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>{0} conteneurs sur {1} en cours d’exécution ont été arrêtés.</value></data>
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>Certains conteneurs n’ont pas pu être arrêtés : {0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
-  <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value> ; </value></data>
+  <data name="BulkSelectionCount" xml:space="preserve"><value>Sélectionnés : {0}</value></data>
+  <data name="BulkStartSelectedButton" xml:space="preserve"><value>Démarrer ({0})</value></data>
+  <data name="BulkRestartSelectedButton" xml:space="preserve"><value>Redémarrer ({0})</value></data>
+  <data name="BulkRemoveSelectedButton" xml:space="preserve"><value>Supprimer les arrêtés ({0})</value></data>
+  <data name="BulkClearSelectionButton" xml:space="preserve"><value>Effacer la sélection</value></data>
+  <data name="SelectContainerButton" xml:space="preserve"><value>Sélectionner le conteneur</value></data>
+  <data name="DeselectContainerButton" xml:space="preserve"><value>Désélectionner le conteneur</value></data>
+  <data name="BulkRemoveConfirmationTitle" xml:space="preserve"><value>Supprimer les conteneurs arrêtés sélectionnés ?</value></data>
+  <data name="BulkRemoveConfirmation" xml:space="preserve"><value>Seuls les {0} conteneurs sélectionnés encore confirmés comme arrêtés au début de la suppression seront supprimés.</value></data>
+  <data name="BulkRemoveConfirm" xml:space="preserve"><value>Supprimer les arrêtés</value></data>
+  <data name="BulkStartPending" xml:space="preserve"><value>Démarrage de {0} conteneurs sélectionnés…</value></data>
+  <data name="BulkRestartPending" xml:space="preserve"><value>Redémarrage de {0} conteneurs sélectionnés…</value></data>
+  <data name="BulkRemovePending" xml:space="preserve"><value>Suppression de {0} conteneurs arrêtés sélectionnés…</value></data>
+  <data name="BulkActionCompleted" xml:space="preserve"><value>Réussite pour {0} conteneurs sélectionnés sur {1} : {2}</value></data>
+  <data name="BulkActionItemSucceeded" xml:space="preserve"><value>{0} : réussite</value></data>
+  <data name="BulkActionPartialFailure" xml:space="preserve"><value>Certains conteneurs sélectionnés n’ont pas été traités : {0}</value></data>
+  <data name="BulkActionNotFound" xml:space="preserve"><value>{0} n’est plus disponible et a été ignoré.</value></data>
+  <data name="BulkActionStateChanged" xml:space="preserve"><value>{0} n’est plus dans l’état requis et a été ignoré.</value></data>
+  <data name="BulkActionVerificationFailed" xml:space="preserve"><value>Impossible de vérifier {0} ; aucune modification effectuée : {1}</value></data>
+  <data name="BulkActionFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
   <data name="TrayStopAllResultTitle" xml:space="preserve"><value>Arrêter tous les conteneurs</value></data>
   <data name="TrayStopAllResult" xml:space="preserve"><value>{0}&#10;{1}</value></data>
   <data name="CloseButton" xml:space="preserve"><value>Fermer</value></data>
@@ -120,4 +150,65 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 seconde</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>Réseau : {0} · E/S bloc : {1} · PID : {2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Les statistiques de ce conteneur ne sont pas disponibles.</value></data>
+  <data name="ContainerHealth" xml:space="preserve"><value>Santé : {0}</value></data>
+  <data name="ContainerHealthUnknown" xml:space="preserve"><value>Inconnue</value></data>
+  <data name="ContainerHealthUnavailable" xml:space="preserve"><value>Non signalée</value></data>
+  <data name="ContainerHealthStarting" xml:space="preserve"><value>Démarrage</value></data>
+  <data name="ContainerHealthHealthy" xml:space="preserve"><value>En bonne santé</value></data>
+  <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>En mauvaise santé</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Indisponible</value></data>
+  <data name="ContainerExitCode" xml:space="preserve"><value>Code de sortie : {0}</value></data>
+  <data name="ContainerExitTime" xml:space="preserve"><value>Terminé : {0}</value></data>
+  <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Dernière erreur de contrôle de santé : {0}</value></data>
+  <data name="ContainerDiagnosticsLoadError" xml:space="preserve"><value>Les diagnostics du conteneur ne sont pas disponibles : {0}</value></data>
+  <data name="ContainersSearchLabel" xml:space="preserve"><value>Rechercher des conteneurs</value></data>
+  <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>Rechercher par nom ou image</value></data>
+  <data name="ContainersStateFilterLabel" xml:space="preserve"><value>État</value></data>
+  <data name="ContainersImageFilterLabel" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainersSortLabel" xml:space="preserve"><value>Trier par</value></data>
+  <data name="ContainersSortName" xml:space="preserve"><value>Nom</value></data>
+  <data name="ContainersSortState" xml:space="preserve"><value>État</value></data>
+  <data name="ContainersSortImage" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainersFilterAllStates" xml:space="preserve"><value>Tous les états</value></data>
+  <data name="ContainersFilterAllImages" xml:space="preserve"><value>Toutes les images</value></data>
+  <data name="ContainersNoMatches" xml:space="preserve"><value>Aucun conteneur ne correspond à la recherche et aux filtres.</value></data>
+  <data name="ContainersResetFilters" xml:space="preserve"><value>Effacer la recherche et les filtres</value></data>
+  <data name="ContainersGroupByLabelLabel" xml:space="preserve"><value>Grouper par</value></data>
+  <data name="ContainersGroupNone" xml:space="preserve"><value>Aucun regroupement</value></data>
+  <data name="ContainersGroupCompose" xml:space="preserve"><value>Projet Compose</value></data>
+  <data name="ContainersGroupLabel" xml:space="preserve"><value>Label : {0}</value></data>
+  <data name="ContainersGroupNoMetadata" xml:space="preserve"><value>WSLc n’a renvoyé aucune métadonnée de label. Les conteneurs sont affichés sans groupes.</value></data>
+  <data name="ContainersGroupComposeUnavailable" xml:space="preserve"><value>Aucun label de projet Compose n’a été renvoyé. Choisissez un label disponible ou affichez les conteneurs sans groupes.</value></data>
+  <data name="ContainersWithoutGroupLabel" xml:space="preserve"><value>Les conteneurs sans valeur pour {0} sont affichés séparément.</value></data>
+  <data name="ContainerGroupTitle" xml:space="preserve"><value>{0} : {1} conteneurs</value></data>
+  <data name="GroupStartButton" xml:space="preserve"><value>Démarrer le groupe</value></data>
+  <data name="GroupStopButton" xml:space="preserve"><value>Arrêter le groupe</value></data>
+  <data name="GroupStartName" xml:space="preserve"><value>Démarrer</value></data>
+  <data name="GroupStopName" xml:space="preserve"><value>Arrêter</value></data>
+  <data name="GroupStartVerb" xml:space="preserve"><value>démarrer</value></data>
+  <data name="GroupStopVerb" xml:space="preserve"><value>arrêter</value></data>
+  <data name="GroupActionPending" xml:space="preserve"><value>{0} du groupe {1} ({2} conteneurs)…</value></data>
+  <data name="GroupActionCompleted" xml:space="preserve"><value>{0} du groupe {1} : {2} conteneurs sur {3} traités.</value></data>
+  <data name="GroupActionNothingToDo" xml:space="preserve"><value>Aucun conteneur du groupe {0} ne nécessite cette action.</value></data>
+  <data name="GroupActionPartialFailure" xml:space="preserve"><value>Certains conteneurs du groupe {0} n’ont pas pu {1} : {2}</value></data>
+  <data name="GroupActionFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
+  <data name="ActionFailureSeparator" xml:space="preserve"><value> ; </value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>Détails du conteneur</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>Détails de {0}</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>Image</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>ID / empreinte de l’image</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>Créé</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>Démarré</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>Commande</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>Ports</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>Montages</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>Réseaux</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>Non disponible</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>Aucun</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>Les valeurs des variables d’environnement ne sont ni affichées ni incluses lors de la copie.</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>Chargement des détails du conteneur…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>Impossible d’inspecter ce conteneur : {0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copier les détails non secrets</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>Détails du conteneur copiés.</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>Impossible de copier les détails du conteneur : {0}</value></data>
 </root>

@@ -20,11 +20,13 @@ Abre **Imágenes** para cargar explícitamente la lista de imágenes de WSLc y e
 
 Para un contenedor en ejecución, **Abrir consola** inicia Windows Terminal con una sesión interactiva `wslc exec -it <container-id> /bin/sh`. Esta acción requiere la integración real con WSLc; Windows Terminal y una versión de WSLc compatible con `exec -it` deben estar disponibles.
 
-**Ver registros** abre una ventana independiente que sigue `wslc container logs -f <container-id>`. Al cerrar la ventana se detiene el proceso de seguimiento. La vista conserva los 128 Ki más recientes.
+**Ver registros** abre una ventana independiente que sigue `wslc container logs --timestamps -f <container-id>`. Se incluyen marcas de tiempo en las líneas existentes y en las nuevas. Busca en los registros cargados, copia las líneas seleccionadas o visibles, o guarda los registros disponibles en un archivo. Al cerrar la ventana se detiene el seguimiento. La vista conserva los 128 Ki más recientes.
 
 Los contenedores en ejecución muestran CPU, memoria, E/S de red y de bloque, y número de PID mediante `wslc stats --format json`. Las estadísticas se actualizan cada segundo de forma predeterminada; el intervalo se puede cambiar en Configuración. El sondeo se detiene al ocultar el panel.
 
 El estado de los contenedores se actualiza al abrir la ventana y cada 10 segundos mientras permanece visible. El botón Actualizar también solicita una actualización inmediata. El sondeo se detiene cuando la ventana se oculta, minimiza o cierra; iniciar la aplicación en la bandeja no invoca WSLc. El indicador de la bandeja muestra un estado desconocido hasta la primera actualización correcta y, después, refleja el último estado conocido mientras la ventana está cerrada.
+
+Las tarjetas de contenedores solicitan una única inspección agrupada con `wslc container inspect --format json` en cada actualización visible. Muestran el estado de salud indicado por WSLc y, para los contenedores detenidos, el código y la hora de salida cuando están disponibles. Los valores ausentes se muestran explícitamente como desconocidos o no disponibles; la salida del último control de salud fallido solo se muestra si WSLc la proporciona. Los diagnósticos no se consultan mientras el panel está oculto.
 
 ## Requisitos previos
 

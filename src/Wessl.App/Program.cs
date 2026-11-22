@@ -35,6 +35,17 @@ using var services = new ServiceCollection()
                 throw new InvalidOperationException("Could not dispatch the image result.");
             }
         }))
+    .AddSingleton<ContainerDetailsService>(provider => new ContainerDetailsService(
+        provider.GetRequiredService<IWslcClient>(),
+        action =>
+        {
+            var dispatcher = ReactorApp.UIDispatcher
+                ?? throw new InvalidOperationException("The UI dispatcher is not available.");
+            if (!dispatcher.TryEnqueue(() => action()))
+            {
+                throw new InvalidOperationException("Could not dispatch the container details result.");
+            }
+        }))
     .AddSingleton<AppSettings>()
     .AddSingleton<AppLifecycle>()
     .BuildServiceProvider();
