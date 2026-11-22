@@ -1,5 +1,6 @@
 using Wessl.Domain;
 using Wessl.Infrastructure;
+using System.Text.Json;
 
 namespace Wessl.Tests;
 
@@ -194,6 +195,76 @@ public sealed class WslcOutputParserTests
         Assert.Equal([new ExposedPort(8080, 80, "tcp")], containers[0].PublishedPorts);
         Assert.Equal([new ExposedPort(15432, 5432, "tcp")], containers[1].PublishedPorts);
         Assert.Empty(containers[2].Ports);
+    }
+
+    [Fact]
+    public void ParseContainerDetailsReadsWslcInspectFieldsWithoutRetainingEnvironmentValues()
+    {
+        const string output = """
+            [{
+              "Id":"container-id",
+              "Name":"/api",
+              "Created":"2026-04-03T12:30:00Z",
+              "Image":"sha256:0123456789abcdef",
+              "State":{"Status":"running","Running":true,"ExitCode":0,"StartedAt":"2026-04-03T12:31:00Z","FinishedAt":"0001-01-01T00:00:00Z"},
+              "Config":{"Image":"registry.example/api:1.2","Env":["API_TOKEN=super-secret"],"Entrypoint":["dotnet"],"Cmd":["service.dll"]},
+              "Ports":{"8080/tcp":[{"HostIp":"127.0.0.1","HostPort":"18080"}],"53/udp":[]},
+              "Mounts":[{"Type":"bind","Name":"","Source":"/srv/api","Destination":"/data","ReadWrite":false}],
+              "NetworkSettings":{"Networks":{"wsl-bridge":{"IPAddress":"172.20.0.2"}}}
+            }]
+            """;
+
+        var details = WslcOutputParser.ParseContainerDetails(output);
+
+        Assert.Equal("registry.example/api:1.2", details.Image);
+        Assert.Equal("sha256:0123456789abcdef", details.ImageDigest);
+        Assert.Equal("2026-04-03T12:30:00Z", details.CreatedAt);
+        Assert.Equal("2026-04-03T12:31:00Z", details.StartedAt);
+        Assert.Equal("[\"dotnet\",\"service.dll\"]", details.Command);
+        Assert.Equal(["8080/tcp → 127.0.0.1:18080", "53/udp"], details.Ports);
+        Assert.Equal(["bind: /srv/api → /data (read-only)"], details.Mounts);
+        Assert.Equal(["wsl-bridge"], details.Networks);
+        Assert.DoesNotContain("super-secret", JsonSerializer.Serialize(details));
+    }
+
+    [Fact]
+    public void ParseContainerDetailsDistinguishesUnavailableAndEmptyFields()
+    {
+        const string output = """
+            [{
+              "Id":"container-id",
+              "Name":"/api",
+              "Created":"",
+              "Image":"",
+              "Config":{"Entrypoint":[],"Cmd":[]},
+              "State":{"StartedAt":"0001-01-01T00:00:00Z"},
+              "Ports":{},
+              "Mounts":[],
+              "NetworkSettings":{"Networks":{}}
+            }]
+            """;
+
+        var details = WslcOutputParser.ParseContainerDetails(output);
+
+        Assert.Null(details.Image);
+        Assert.Null(details.ImageDigest);
+        Assert.Null(details.CreatedAt);
+        Assert.Null(details.StartedAt);
+        Assert.Equal("[]", details.Command);
+        Assert.Empty(details.Ports!);
+        Assert.Empty(details.Mounts!);
+        Assert.Empty(details.Networks!);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("[]")]
+    [InlineData("[{},{}]")]
+    [InlineData("""[{"Id":"id","Name":"/api","Ports":[]} ]""")]
+    [InlineData("""[{"Id":"id","Name":"/api","Config":{"Cmd":"not-an-array"}}]""")]
+    public void ParseContainerDetailsRejectsInvalidOrUnsupportedSchema(string output)
+    {
+        Assert.Throws<FormatException>(() => WslcOutputParser.ParseContainerDetails(output));
     }
 
     [Fact]

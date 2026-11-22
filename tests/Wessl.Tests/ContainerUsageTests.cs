@@ -92,6 +92,9 @@ public sealed class ContainerUsageTests
             return UsageCompletion ?? Task.FromResult(new ContainerUsage("1.25%", "25 MiB / 1 GiB"));
         }
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -364,6 +367,10 @@ public sealed class ContainerUsageTests
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();

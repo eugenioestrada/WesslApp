@@ -47,6 +47,14 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
         return WslcOutputParser.ParseUsage(output);
     }
 
+    public async Task<ContainerDetails> GetContainerDetailsAsync(
+        string id,
+        CancellationToken cancellationToken = default)
+    {
+        var output = await RunCommandAsync(CreateContainerDetailsStartInfo(id), cancellationToken);
+        return WslcOutputParser.ParseContainerDetails(output);
+    }
+
     public async Task<IReadOnlyDictionary<string, ContainerUsage>> GetContainerUsagesAsync(
         IReadOnlyCollection<string> ids, CancellationToken cancellationToken = default)
     {
@@ -235,6 +243,23 @@ public sealed class WslcClient : IWslcClient, IContainerLogsClient, IImageClient
             }
 
             startInfo.ArgumentList.Add(id);
+        }
+
+        return startInfo;
+    }
+
+    internal ProcessStartInfo CreateContainerDetailsStartInfo(string id)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        if (id.StartsWith('-'))
+        {
+            throw new ArgumentException("The container ID cannot start with a hyphen.", nameof(id));
+        }
+
+        var startInfo = CreateStartInfo();
+        foreach (var argument in new[] { "container", "inspect", "--format", "json", id })
+        {
+            startInfo.ArgumentList.Add(argument);
         }
 
         return startInfo;

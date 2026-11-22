@@ -30,10 +30,10 @@
 - [ ] [Send native Windows Toast notifications when a container exits unexpectedly with a non-zero code](https://github.com/eugenioestrada/WesslApp/issues/18).
 - [x] [Search, filter, and sort containers](https://github.com/eugenioestrada/WesslApp/issues/53).
 - [x] [Show health and exit diagnostics](https://github.com/eugenioestrada/WesslApp/issues/54).
-- [ ] [Inspect container details safely](https://github.com/eugenioestrada/WesslApp/issues/55).
+- [x] [Inspect container details safely](https://github.com/eugenioestrada/WesslApp/issues/55).
 - [x] [Improve container log tools](https://github.com/eugenioestrada/WesslApp/issues/56).
 - [ ] [Expand image management actions](https://github.com/eugenioestrada/WesslApp/issues/57).
-- [ ] [Add safe bulk container actions](https://github.com/eugenioestrada/WesslApp/issues/58).
+- [x] [Add safe bulk container actions](https://github.com/eugenioestrada/WesslApp/issues/58).
 
 ## Non-Goals (Explicitly Out of Scope)
 

@@ -168,6 +168,9 @@ public sealed class ContainerPollingTests
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
@@ -206,6 +209,9 @@ public sealed class ContainerPollingTests
             NoDiagnosticsAsync();
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -248,6 +254,9 @@ public sealed class ContainerPollingTests
             NoDiagnosticsAsync();
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>

@@ -58,6 +58,17 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public void ContainerDetailsCommandRequestsSingleContainerJson()
+    {
+        var client = new WslcClient("wslc");
+        var startInfo = client.CreateContainerDetailsStartInfo("container-123");
+
+        Assert.Equal(["container", "inspect", "--format", "json", "container-123"], startInfo.ArgumentList);
+        Assert.True(startInfo.RedirectStandardOutput);
+        Assert.Throws<ArgumentException>(() => client.CreateContainerDetailsStartInfo("--help"));
+    }
+
+    [Fact]
     public async Task UnavailableStateReplacesStaleContainersAndRecovers()
     {
         var client = new ChangingClient();
@@ -166,6 +177,120 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public async Task BulkStartAndRestartUsePerContainerCallsAndReportEachResult()
+    {
+        var client = new BulkActionClient(
+            new("start-one", "start one", "image", ContainerState.Stopped),
+            new("start-two", "start two", "image", ContainerState.Stopped),
+            new("restart-one", "restart one", "image", ContainerState.Running),
+            new("restart-two", "restart two", "image", ContainerState.Running))
+        {
+            FailStartId = "start-two",
+            FailRestartId = "restart-two"
+        };
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+        await service.RefreshAsync();
+
+        var startResult = await service.StartSelectedAsync(
+            service.Containers.Where(container => container.State == ContainerState.Stopped).ToArray());
+        var restartResult = await service.RestartSelectedAsync(
+            service.Containers.Where(container => container.State == ContainerState.Running).ToArray());
+
+        Assert.Equal(["start-one", "start-two"], client.StartAttempts);
+        Assert.Equal(["restart-one", "restart-two"], client.RestartAttempts);
+        Assert.Equal([1, 2], startResult.Status!.Arguments.Take(2));
+        Assert.Equal([1, 2], restartResult.Status!.Arguments.Take(2));
+        Assert.Equal("BulkActionItemSucceeded",
+            Assert.Single(Assert.IsType<LocalizedMessageList>(startResult.Status.Arguments[2]).Messages).ResourceKey);
+        Assert.Equal("start one",
+            Assert.Single(Assert.IsType<LocalizedMessageList>(startResult.Status.Arguments[2]).Messages).Arguments[0]);
+        Assert.Equal("BulkActionPartialFailure", startResult.Error!.ResourceKey);
+        Assert.Equal("start two",
+            Assert.Single(Assert.IsType<LocalizedMessageList>(startResult.Error.Arguments[0]).Messages).Arguments[0]);
+        Assert.Equal("BulkActionPartialFailure", restartResult.Error!.ResourceKey);
+        Assert.Equal("restart two",
+            Assert.Single(Assert.IsType<LocalizedMessageList>(restartResult.Error.Arguments[0]).Messages).Arguments[0]);
+    }
+
+    [Fact]
+    public async Task BulkRemoveRechecksStateAndOnlyRemovesCurrentlyStoppedContainers()
+    {
+        var client = new BulkActionClient(
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("started-now", "started now", "image", ContainerState.Running),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped))
+        {
+            FailRemoveId = "remove-fails"
+        };
+        client.ListResponses.Enqueue([
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("started-now", "started now", "image", ContainerState.Stopped),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        ]);
+        client.ListResponses.Enqueue([
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("started-now", "started now", "image", ContainerState.Running),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        ]);
+        client.ListResponses.Enqueue([
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        ]);
+        client.ListResponses.Enqueue([
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        ]);
+        client.ListResponses.Enqueue([
+            new("started-now", "started now", "image", ContainerState.Running),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        ]);
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+        var selected = new ContainerInfo[]
+        {
+            new("still-stopped", "still stopped", "image", ContainerState.Stopped),
+            new("started-now", "started now", "image", ContainerState.Stopped),
+            new("no-longer-listed", "no longer listed", "image", ContainerState.Stopped),
+            new("remove-fails", "remove fails", "image", ContainerState.Stopped)
+        };
+
+        var result = await service.RemoveSelectedAsync(selected);
+
+        Assert.Equal(["still-stopped", "remove-fails"], client.RemoveAttempts);
+        Assert.Equal([1, 4], result.Status!.Arguments.Take(2));
+        var failures = Assert.IsType<LocalizedMessageList>(result.Error!.Arguments[0]).Messages;
+        Assert.Equal(3, failures.Count);
+        Assert.Contains(failures, failure => failure.ResourceKey == "BulkActionStateChanged"
+            && Equals(failure.Arguments[0], "started now"));
+        Assert.Contains(failures, failure => failure.ResourceKey == "BulkActionNotFound"
+            && Equals(failure.Arguments[0], "no longer listed"));
+        Assert.Contains(failures, failure => failure.ResourceKey == "BulkActionFailureDetail"
+            && Equals(failure.Arguments[0], "remove fails"));
+    }
+
+    [Fact]
+    public async Task ConcurrentBulkActionsAreRejectedUntilTheCurrentActionCompletes()
+    {
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var client = new BulkActionClient(
+            new("stopped", "stopped", "image", ContainerState.Stopped),
+            new("running", "running", "image", ContainerState.Running))
+        {
+            StartCompletion = completion.Task
+        };
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+
+        var startTask = service.StartSelectedAsync([client.Containers[0]]);
+        Assert.True(service.IsBusy);
+        var restartResult = await service.RestartSelectedAsync([client.Containers[1]]);
+
+        Assert.Equal("WaitForCurrentAction", restartResult.Error!.ResourceKey);
+        Assert.Empty(client.RestartAttempts);
+        completion.SetResult();
+        await startTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.False(service.IsBusy);
+    }
+
+    [Fact]
     public async Task OpeningShellUsesTheSavedDefaultTerminal()
     {
         var client = new ChangingClient();
@@ -215,6 +340,9 @@ public sealed class WslcIntegrationTests
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -238,6 +366,9 @@ public sealed class WslcIntegrationTests
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
@@ -254,6 +385,55 @@ public sealed class WslcIntegrationTests
 
         public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+    }
+
+    private sealed class BulkActionClient(params ContainerInfo[] containers) : IWslcClient
+    {
+        public IReadOnlyList<ContainerInfo> Containers { get; } = containers;
+        public Queue<IReadOnlyList<ContainerInfo>> ListResponses { get; } = [];
+        public List<string> StartAttempts { get; } = [];
+        public List<string> RestartAttempts { get; } = [];
+        public List<string> RemoveAttempts { get; } = [];
+        public string? FailStartId { get; init; }
+        public string? FailRestartId { get; init; }
+        public string? FailRemoveId { get; init; }
+        public Task? StartCompletion { get; init; }
+
+        public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(ListResponses.TryDequeue(out var response) ? response : Containers);
+
+        public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task StartContainerAsync(string id, CancellationToken cancellationToken = default)
+        {
+            StartAttempts.Add(id);
+            return FailStartId == id
+                ? Task.FromException(new InvalidOperationException("start failed"))
+                : StartCompletion ?? Task.CompletedTask;
+        }
+
+        public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default)
+        {
+            RestartAttempts.Add(id);
+            return FailRestartId == id
+                ? Task.FromException(new InvalidOperationException("restart failed"))
+                : Task.CompletedTask;
+        }
+
+        public Task RemoveContainerAsync(string id, CancellationToken cancellationToken = default)
+        {
+            RemoveAttempts.Add(id);
+            return FailRemoveId == id
+                ? Task.FromException(new InvalidOperationException("remove failed"))
+                : Task.CompletedTask;
+        }
     }
 
     private sealed class UnusedShellLauncher : IContainerShellLauncher
