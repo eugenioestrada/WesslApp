@@ -13,6 +13,7 @@ public sealed class MainWindow(
     ContainerPolling polling,
     AppSettings settings,
     ImageService images,
+    ContainerDetailsService details,
     Action<Wessl.Domain.ContainerInfo> openLogs) : Component
 {
     private Action<int>? _setRevision;
@@ -21,6 +22,8 @@ public sealed class MainWindow(
     private bool _showImages;
     private bool _showStopAllConfirmation;
     private bool _showStopAllResult;
+    private bool _showDetailsDialog;
+    private ContainerInfo? _detailsContainer;
     private bool _showBulkRemoveConfirmation;
     private ContainerInfo[] _stopAllContainers = [];
     private ContainerInfo[] _bulkRemoveContainers = [];
@@ -38,13 +41,15 @@ public sealed class MainWindow(
             containers.Changed += OnChanged;
             settings.Changed += OnChanged;
             images.Changed += OnChanged;
+            details.Changed += OnChanged;
             return () =>
             {
                 containers.Changed -= OnChanged;
                 settings.Changed -= OnChanged;
                 images.Changed -= OnChanged;
+                details.Changed -= OnChanged;
             };
-        }, containers, settings, images);
+        }, containers, settings, images, details);
 
         if (_showSettings)
         {
@@ -115,6 +120,7 @@ public sealed class MainWindow(
                 containers,
                 containers.OpenShell,
                 openLogs,
+                OpenDetails,
                 pendingRemoval,
                 id => setPendingRemoval(id),
                 () => setPendingRemoval(null),
@@ -149,6 +155,17 @@ public sealed class MainWindow(
                     _showStopAllResult = false;
                     RequestRender();
                 }),
+            _detailsContainer is { } detailsContainer
+                ? (ContentDialog(
+                    AppStrings.Format("ContainerDetailsTitle", detailsContainer.Name),
+                    ContainerDetailsView.Create(detailsContainer, details),
+                    AppStrings.Get("CloseButton")) with
+                {
+                    IsOpen = _showDetailsDialog,
+                    DefaultButton = ContentDialogButton.Primary
+                })
+                .Closed(_ => CloseDetails())
+                : TextBlock(string.Empty),
             (ContentDialog(
                 AppStrings.Get("BulkRemoveConfirmationTitle"),
                 TextBlock(AppStrings.Format("BulkRemoveConfirmation", _bulkRemoveContainers.Length))
@@ -196,6 +213,22 @@ public sealed class MainWindow(
     {
         _showImages = false;
         Navigate(false);
+    }
+
+    private void OpenDetails(ContainerInfo container)
+    {
+        _detailsContainer = container;
+        _showDetailsDialog = true;
+        RequestRender();
+        _ = details.InspectAsync(container);
+    }
+
+    private void CloseDetails()
+    {
+        _detailsContainer = null;
+        _showDetailsDialog = false;
+        details.Clear();
+        RequestRender();
     }
 
     private void OnStopAllConfirmationClosed(ContentDialogResult result)

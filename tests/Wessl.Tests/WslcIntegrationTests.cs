@@ -45,6 +45,17 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
+    public void ContainerDetailsCommandRequestsSingleContainerJson()
+    {
+        var client = new WslcClient("wslc");
+        var startInfo = client.CreateContainerDetailsStartInfo("container-123");
+
+        Assert.Equal(["container", "inspect", "--format", "json", "container-123"], startInfo.ArgumentList);
+        Assert.True(startInfo.RedirectStandardOutput);
+        Assert.Throws<ArgumentException>(() => client.CreateContainerDetailsStartInfo("--help"));
+    }
+
+    [Fact]
     public async Task UnavailableStateReplacesStaleContainersAndRecovers()
     {
         var client = new ChangingClient();
@@ -311,6 +322,9 @@ public sealed class WslcIntegrationTests
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task StopContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task RestartContainerAsync(string id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
@@ -327,6 +341,9 @@ public sealed class WslcIntegrationTests
             Task.FromResult<IReadOnlyList<ContainerInfo>>(containers);
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -363,6 +380,9 @@ public sealed class WslcIntegrationTests
             Task.FromResult(ListResponses.TryDequeue(out var response) ? response : Containers);
 
         public Task<ContainerUsage> GetContainerUsageAsync(string id, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ContainerDetails> GetContainerDetailsAsync(string id, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
         public Task StartContainerAsync(string id, CancellationToken cancellationToken = default)

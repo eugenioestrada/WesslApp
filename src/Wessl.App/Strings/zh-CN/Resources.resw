@@ -163,4 +163,22 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>所有映像</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>没有容器符合搜索条件和筛选条件。</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>清除搜索和筛选条件</value></data>
+  <data name="ContainerDetailsButton" xml:space="preserve"><value>容器详情</value></data>
+  <data name="ContainerDetailsTitle" xml:space="preserve"><value>{0} 的详情</value></data>
+  <data name="ContainerDetailsImage" xml:space="preserve"><value>映像</value></data>
+  <data name="ContainerDetailsImageDigest" xml:space="preserve"><value>映像 ID / 摘要</value></data>
+  <data name="ContainerDetailsCreated" xml:space="preserve"><value>创建时间</value></data>
+  <data name="ContainerDetailsStarted" xml:space="preserve"><value>启动时间</value></data>
+  <data name="ContainerDetailsCommand" xml:space="preserve"><value>命令</value></data>
+  <data name="ContainerDetailsPorts" xml:space="preserve"><value>端口</value></data>
+  <data name="ContainerDetailsMounts" xml:space="preserve"><value>挂载</value></data>
+  <data name="ContainerDetailsNetworks" xml:space="preserve"><value>网络</value></data>
+  <data name="ContainerDetailsUnavailable" xml:space="preserve"><value>不可用</value></data>
+  <data name="ContainerDetailsNone" xml:space="preserve"><value>无</value></data>
+  <data name="ContainerDetailsEnvironmentOmitted" xml:space="preserve"><value>环境变量值不会显示，也不会包含在复制内容中。</value></data>
+  <data name="ContainerDetailsLoading" xml:space="preserve"><value>正在加载容器详情…</value></data>
+  <data name="ContainerDetailsError" xml:space="preserve"><value>无法检查此容器：{0}</value></data>
+  <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>复制非机密详情</value></data>
+  <data name="ContainerDetailsCopied" xml:space="preserve"><value>已复制容器详情。</value></data>
+  <data name="ContainerDetailsCopyError" xml:space="preserve"><value>无法复制容器详情：{0}</value></data>
 </root>

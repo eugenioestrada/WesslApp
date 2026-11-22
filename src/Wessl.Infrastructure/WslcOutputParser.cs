@@ -62,6 +62,268 @@ public static class WslcOutputParser
         return usages;
     }
 
+    public static ContainerDetails ParseContainerDetails(string output)
+    {
+        using var document = JsonDocument.Parse(output);
+        var root = document.RootElement;
+        if (root.ValueKind != JsonValueKind.Array || root.GetArrayLength() != 1)
+        {
+            throw new FormatException("WSLc output must contain exactly one inspected container.");
+        }
+
+        var container = root[0];
+        if (container.ValueKind != JsonValueKind.Object)
+        {
+            throw new FormatException("WSLc output contains an invalid container inspection.");
+        }
+
+        _ = RequireString(container, "Id");
+        _ = RequireString(container, "Name");
+        var config = GetOptionalObject(container, "Config");
+        var state = GetOptionalObject(container, "State");
+
+        return new ContainerDetails(
+            config is { } configElement ? GetOptionalString(configElement, "Image") : null,
+            GetOptionalString(container, "Image"),
+            GetOptionalTimestamp(container, "Created"),
+            state is { } stateElement ? GetOptionalTimestamp(stateElement, "StartedAt") : null,
+            ReadCommand(config),
+            ReadPorts(container),
+            ReadMounts(container),
+            ReadNetworks(container));
+    }
+
+    private static string RequireString(JsonElement element, string propertyName)
+    {
+        var value = GetOptionalString(element, propertyName);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new FormatException($"WSLc output is missing container {propertyName}.");
+        }
+
+        return value;
+    }
+
+    private static JsonElement? GetOptionalObject(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Object)
+        {
+            throw new FormatException($"WSLc output contains an invalid {propertyName} object.");
+        }
+
+        return value;
+    }
+
+    private static string? GetOptionalString(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.String)
+        {
+            throw new FormatException($"WSLc output contains an invalid {propertyName} value.");
+        }
+
+        var text = value.GetString();
+        return string.IsNullOrWhiteSpace(text) ? null : text;
+    }
+
+    private static string? GetOptionalTimestamp(JsonElement element, string propertyName)
+    {
+        var value = GetOptionalString(element, propertyName);
+        return value is null || IsUnsetTimestamp(value) ? null : value;
+    }
+
+    private static bool IsUnsetTimestamp(string value) =>
+        value.Equals("0001-01-01T00:00:00Z", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("0001-01-01T00:00:00.000000000Z", StringComparison.OrdinalIgnoreCase);
+
+    private static string? ReadCommand(JsonElement? config)
+    {
+        if (config is not { } configElement)
+        {
+            return null;
+        }
+
+        var entrypoint = ReadOptionalStringArray(configElement, "Entrypoint");
+        var command = ReadOptionalStringArray(configElement, "Cmd");
+        if (entrypoint is null && command is null)
+        {
+            return null;
+        }
+
+        return JsonSerializer.Serialize((entrypoint ?? []).Concat(command ?? []).ToArray());
+    }
+
+    private static IReadOnlyList<string>? ReadOptionalStringArray(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            throw new FormatException($"WSLc output contains an invalid {propertyName} array.");
+        }
+
+        var result = new List<string>();
+        foreach (var item in value.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String)
+            {
+                throw new FormatException($"WSLc output contains an invalid value in {propertyName}.");
+            }
+
+            result.Add(item.GetString() ?? string.Empty);
+        }
+
+        return result;
+    }
+
+    private static IReadOnlyList<string>? ReadPorts(JsonElement container)
+    {
+        if (!TryGetProperty(container, "Ports", out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Object)
+        {
+            throw new FormatException("WSLc output contains an invalid ports object.");
+        }
+
+        var ports = new List<string>();
+        foreach (var port in value.EnumerateObject())
+        {
+            if (port.Value.ValueKind != JsonValueKind.Array)
+            {
+                throw new FormatException("WSLc output contains an invalid port bindings array.");
+            }
+
+            if (port.Value.GetArrayLength() == 0)
+            {
+                ports.Add(port.Name);
+                continue;
+            }
+
+            foreach (var binding in port.Value.EnumerateArray())
+            {
+                if (binding.ValueKind != JsonValueKind.Object)
+                {
+                    throw new FormatException("WSLc output contains an invalid port binding.");
+                }
+
+                var hostIp = GetOptionalString(binding, "HostIp");
+                var hostPort = GetOptionalString(binding, "HostPort");
+                ports.Add(hostPort is null
+                    ? port.Name
+                    : $"{port.Name} → {(hostIp is null ? string.Empty : $"{hostIp}:")}{hostPort}");
+            }
+        }
+
+        return ports;
+    }
+
+    private static IReadOnlyList<string>? ReadMounts(JsonElement container)
+    {
+        if (!TryGetProperty(container, "Mounts", out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            throw new FormatException("WSLc output contains an invalid mounts array.");
+        }
+
+        var mounts = new List<string>();
+        foreach (var mount in value.EnumerateArray())
+        {
+            if (mount.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc output contains an invalid mount.");
+            }
+
+            var type = GetOptionalString(mount, "Type") ?? string.Empty;
+            var source = GetOptionalString(mount, "Source") ?? string.Empty;
+            var destination = GetOptionalString(mount, "Destination") ?? string.Empty;
+            var readWrite = GetOptionalBoolean(mount, "ReadWrite");
+            mounts.Add($"{type}: {source} → {destination} ({(readWrite ? "read-write" : "read-only")})");
+        }
+
+        return mounts;
+    }
+
+    private static bool GetOptionalBoolean(JsonElement element, string propertyName)
+    {
+        if (!TryGetProperty(element, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return false;
+        }
+
+        if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            throw new FormatException($"WSLc output contains an invalid {propertyName} value.");
+        }
+
+        return value.GetBoolean();
+    }
+
+    private static IReadOnlyList<string>? ReadNetworks(JsonElement container)
+    {
+        var networkSettings = GetOptionalObject(container, "NetworkSettings");
+        if (networkSettings is not { } settings)
+        {
+            return null;
+        }
+
+        if (!TryGetProperty(settings, "Networks", out var value) || value.ValueKind == JsonValueKind.Null)
+        {
+            return null;
+        }
+
+        if (value.ValueKind != JsonValueKind.Object)
+        {
+            throw new FormatException("WSLc output contains an invalid networks object.");
+        }
+
+        var networks = new List<string>();
+        foreach (var network in value.EnumerateObject())
+        {
+            if (network.Value.ValueKind != JsonValueKind.Object)
+            {
+                throw new FormatException("WSLc output contains an invalid network.");
+            }
+
+            networks.Add(network.Name);
+        }
+
+        return networks;
+    }
+
+    private static bool TryGetProperty(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
     private static ContainerUsage ReadUsage(JsonElement root)
     {
         var cpu = GetString(root, "CPUPerc");
