@@ -11,6 +11,16 @@ public enum ContainerSortOrder
 
 public static class ContainerListQuery
 {
+    public static int CountHiddenSelected(
+        IReadOnlyCollection<ContainerInfo> selectedContainers,
+        IEnumerable<ContainerInfo> visibleContainers)
+    {
+        var visibleIds = visibleContainers
+            .Select(container => container.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        return selectedContainers.Count(container => !visibleIds.Contains(container.Id));
+    }
+
     public static IReadOnlyList<ContainerInfo> Apply(
         IEnumerable<ContainerInfo> containers,
         string? searchText,

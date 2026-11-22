@@ -254,7 +254,8 @@
     <value>¿Detener todos los contenedores?</value>
   </data>
   <data name="TrayStopAllConfirmation" xml:space="preserve">
-    <value>Se detendrán {0} contenedores en ejecución.</value>
+    <value>Se detendrán los siguientes contenedores en ejecución:
+{0}</value>
   </data>
   <data name="TrayStopAllConfirm" xml:space="preserve">
     <value>Detener todos</value>
@@ -296,7 +297,8 @@
     <value>¿Eliminar los contenedores detenidos seleccionados?</value>
   </data>
   <data name="BulkRemoveConfirmation" xml:space="preserve">
-    <value>Solo se eliminarán los {0} contenedores seleccionados que sigan confirmados como detenidos al iniciar la eliminación.</value>
+    <value>Solo se eliminarán los contenedores detenidos siguientes que sigan confirmados como detenidos al iniciar la eliminación:
+{0}</value>
   </data>
   <data name="BulkRemoveConfirm" xml:space="preserve">
     <value>Eliminar detenidos</value>
@@ -434,7 +436,7 @@
   <data name="ContainerHealthStarting" xml:space="preserve"><value>Iniciando</value></data>
   <data name="ContainerHealthHealthy" xml:space="preserve"><value>Saludable</value></data>
   <data name="ContainerHealthUnhealthy" xml:space="preserve"><value>No saludable</value></data>
-  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>No disponible</value></data>
+  <data name="ContainerDiagnosticUnavailable" xml:space="preserve"><value>Los diagnósticos del contenedor no están disponibles.</value></data>
   <data name="ContainerExitCode" xml:space="preserve"><value>Código de salida: {0}</value></data>
   <data name="ContainerExitTime" xml:space="preserve"><value>Finalizó: {0}</value></data>
   <data name="ContainerLatestHealthCheckError" xml:space="preserve"><value>Error más reciente de comprobación de salud: {0}</value></data>
@@ -489,4 +491,19 @@
   <data name="ContainerDetailsCopyButton" xml:space="preserve"><value>Copiar detalles no secretos</value></data>
   <data name="ContainerDetailsCopied" xml:space="preserve"><value>Se copiaron los detalles del contenedor.</value></data>
   <data name="ContainerDetailsCopyError" xml:space="preserve"><value>No se pudieron copiar los detalles del contenedor: {0}</value></data>
+  <data name="ContainersLoadFailed" xml:space="preserve"><value>No se pudieron cargar los contenedores.</value></data>
+  <data name="ContainersShowingPreviousData" xml:space="preserve"><value>Se muestran los últimos datos cargados porque falló la actualización.</value></data>
+  <data name="ContainersRefreshingPreviousData" xml:space="preserve"><value>Actualizando; los últimos datos cargados siguen visibles.</value></data>
+  <data name="ContainersShowFilters" xml:space="preserve"><value>Filtros, orden y agrupación</value></data>
+  <data name="ContainersHideFilters" xml:space="preserve"><value>Ocultar filtros</value></data>
+  <data name="BulkHiddenSelectionCount" xml:space="preserve"><value>Selección oculta por los filtros actuales: {0}</value></data>
+  <data name="ContainersReviewHiddenSelection" xml:space="preserve"><value>Mostrar contenedores seleccionados</value></data>
+  <data name="BulkRemoveMoreTargets" xml:space="preserve"><value>…y {0} más</value></data>
+  <data name="ImagesShowingPreviousData" xml:space="preserve"><value>Se muestra la última lista de imágenes cargada mientras la solicitud actual sigue pendiente o ha fallado.</value></data>
+  <data name="ImagesLoadFailed" xml:space="preserve"><value>No se pudieron cargar las imágenes. Actualiza para volver a intentarlo.</value></data>
+  <data name="ImagesPruneConfirmationTitle" xml:space="preserve"><value>¿Podar las imágenes que no se usan?</value></data>
+  <data name="LogsFollowingStatus" xml:space="preserve"><value>Flujo en vivo. Cierra esta ventana para detenerlo.</value></data>
+  <data name="LogsFollowingTruncatedStatus" xml:space="preserve"><value>Flujo en vivo; se omitieron líneas anteriores al alcanzar 128 KB. Cierra esta ventana para detenerlo.</value></data>
+  <data name="LogsEndedStatus" xml:space="preserve"><value>Flujo finalizado. Se incluyen marcas de tiempo.</value></data>
+  <data name="LogsEndedTruncatedStatus" xml:space="preserve"><value>Flujo finalizado; se omitieron líneas anteriores al alcanzar 128 KB. Se incluyen marcas de tiempo.</value></data>
 </root>

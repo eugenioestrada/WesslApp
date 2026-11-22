@@ -54,6 +54,20 @@ public sealed class ContainerListQueryTests
         Assert.Empty(result);
     }
 
+    [Fact]
+    public void CountHiddenSelectedReportsSelectionsOutsideTheCurrentFilter()
+    {
+        var selected = new[] { Containers[1], Containers[0] };
+        var visible = ContainerListQuery.Apply(
+            Containers,
+            "web",
+            null,
+            null,
+            ContainerSortOrder.Name);
+
+        Assert.Equal(1, ContainerListQuery.CountHiddenSelected(selected, visible));
+    }
+
     [Theory]
     [InlineData(ContainerSortOrder.Name, "4,2,1,3")]
     [InlineData(ContainerSortOrder.State, "3,4,1,2")]

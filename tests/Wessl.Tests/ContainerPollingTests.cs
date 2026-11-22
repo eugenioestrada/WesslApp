@@ -62,14 +62,17 @@ public sealed class ContainerPollingTests
 
         Assert.False(service.HasRefreshed);
         polling.Start();
-        Assert.Single(updates);
+        Assert.Equal(2, updates.Count);
         polling.Stop();
         updates[0]();
+        updates[1]();
 
         Assert.Empty(service.Containers);
         Assert.False(service.HasRefreshed);
+        Assert.False(service.IsRefreshing);
         await polling.RefreshAsync();
-        updates[1]();
+        updates[2]();
+        updates[3]();
         Assert.Single(service.Containers);
         Assert.True(service.HasRefreshed);
     }
@@ -116,6 +119,40 @@ public sealed class ContainerPollingTests
     }
 
     [Fact]
+    public async Task InitialRefreshFailureDoesNotReportAnEmptyListAsLoaded()
+    {
+        var client = new RecordingClient
+        {
+            ListError = new InvalidOperationException("temporary failure")
+        };
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+
+        await service.RefreshAsync();
+
+        Assert.False(service.HasRefreshed);
+        Assert.False(service.IsRefreshing);
+        Assert.Empty(service.Containers);
+        Assert.Equal("RefreshError", service.Error?.ResourceKey);
+    }
+
+    [Fact]
+    public async Task RefreshFailureKeepsTheLastSuccessfulContainersVisible()
+    {
+        var client = new RecordingClient();
+        var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
+        await service.RefreshAsync();
+        var loadedContainer = Assert.Single(service.Containers);
+
+        client.ListError = new InvalidOperationException("temporary failure");
+        await service.RefreshAsync();
+
+        Assert.True(service.HasRefreshed);
+        Assert.False(service.IsRefreshing);
+        Assert.Same(loadedContainer, Assert.Single(service.Containers));
+        Assert.Equal("RefreshError", service.Error?.ResourceKey);
+    }
+
+    [Fact]
     public void ActiveRefreshIntervalTracksSavedSetting()
     {
         using var directory = new TemporaryDirectory();
@@ -147,6 +184,7 @@ public sealed class ContainerPollingTests
     private sealed class RecordingClient : IWslcClient
     {
         public int Calls { get; private set; }
+        public Exception? ListError { get; set; }
         public IReadOnlyDictionary<string, ContainerDiagnostics> Diagnostics { get; set; } =
             new Dictionary<string, ContainerDiagnostics>(StringComparer.Ordinal);
         public Exception? DiagnosticsError { get; set; }
@@ -154,8 +192,10 @@ public sealed class ContainerPollingTests
         public Task<IReadOnlyList<ContainerInfo>> ListContainersAsync(CancellationToken cancellationToken = default)
         {
             Calls++;
-            return Task.FromResult<IReadOnlyList<ContainerInfo>>(
-                [new("id", "name", "image", ContainerState.Running)]);
+            return ListError is { } error
+                ? Task.FromException<IReadOnlyList<ContainerInfo>>(error)
+                : Task.FromResult<IReadOnlyList<ContainerInfo>>(
+                    [new("id", "name", "image", ContainerState.Running)]);
         }
 
         public Task<IReadOnlyDictionary<string, ContainerDiagnostics>> GetContainerDiagnosticsAsync(

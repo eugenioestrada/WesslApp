@@ -86,7 +86,7 @@ public sealed class WslcIntegrationTests
     }
 
     [Fact]
-    public async Task UnavailableStateReplacesStaleContainersAndRecovers()
+    public async Task UnavailableRefreshRetainsTheLastSuccessfulContainersAndRecovers()
     {
         var client = new ChangingClient();
         var service = new ContainerService(client, action => action(), new UnusedShellLauncher());
@@ -96,8 +96,8 @@ public sealed class WslcIntegrationTests
         client.Failure = new WslcUnavailableException("not found");
         await service.RefreshAsync();
         Assert.True(service.IsWslcUnavailable);
-        Assert.False(service.HasRefreshed);
-        Assert.Empty(service.Containers);
+        Assert.True(service.HasRefreshed);
+        Assert.Single(service.Containers);
         Assert.Equal("not found", service.Error!.Arguments[0]);
 
         client.Failure = null;

@@ -72,6 +72,26 @@ public sealed class LocalizationResourceTests
     }
 
     [Fact]
+    public void ProjectUiSkillUsesCopilotDiscoveryMetadataAndCoversResponsiveValidation()
+    {
+        var skillPath = Path.Combine(
+            FindRepositoryRoot(),
+            ".github",
+            "skills",
+            "wessl-winui-ux",
+            "SKILL.md");
+        Assert.True(File.Exists(skillPath));
+
+        var skill = File.ReadAllText(skillPath);
+        Assert.Matches("(?m)^name: wessl-winui-ux\\r?$", skill);
+        Assert.Matches("(?m)^description: .+WinUI.+Reactor.+\\r?$", skill);
+        Assert.Contains("360-DIP logs window", skill);
+        Assert.Contains("UI Automation", skill);
+        Assert.Contains("Narrator", skill);
+        Assert.Contains("high-contrast", skill);
+    }
+
+    [Fact]
     public void ResourceKeysAreReferencedByApplicationCode()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -118,9 +138,19 @@ public sealed class LocalizationResourceTests
             "LogsFollowingTruncated",
             "LogsEnded",
             "LogsEndedTruncated",
+            "LogsFollowingStatus",
+            "LogsFollowingTruncatedStatus",
+            "LogsEndedStatus",
+            "LogsEndedTruncatedStatus",
+            "ContainersShowingPreviousData",
+            "ContainersRefreshingPreviousData",
             "ContainerStateUnknown",
             "ContainerStateRunning",
             "ContainerStateStopped",
+            "ContainersShowFilters",
+            "ContainersHideFilters",
+            "ContainersGroupNoMetadata",
+            "ContainersGroupComposeUnavailable",
             "SelectContainerButton",
             "DeselectContainerButton",
             "BulkStartPending",

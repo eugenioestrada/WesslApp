@@ -29,6 +29,20 @@ public sealed class ContainerLogsTests
         Assert.Equal(string.Empty, ContainerLogsSession.FilterText(text, "missing"));
     }
 
+    [Theory]
+    [InlineData("clipboard")]
+    [InlineData("file")]
+    public async Task CopyAndSaveFailuresRemainErrors(string operationName)
+    {
+        var result = await LogOperation.RunAsync(
+            () => Task.FromException(new IOException($"{operationName} denied")),
+            "Operation completed",
+            exception => $"{operationName} failed: {exception.Message}");
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal($"{operationName} failed: {operationName} denied", result.Message);
+    }
+
     [Fact]
     public async Task SaveToFileWritesTheAvailableLogContent()
     {

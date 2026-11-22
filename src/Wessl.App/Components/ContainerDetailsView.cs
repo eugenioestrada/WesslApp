@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
 using Microsoft.UI.Reactor.Layout;
@@ -26,19 +27,19 @@ public sealed class ContainerDetailsView : Component<ContainerDetailsViewProps>
         var details = isCurrentContainer ? Props.Service.Details : null;
         var content = new List<Element>
         {
-            InfoBar(AppStrings.Get("ContainerDetailsEnvironmentOmitted"))
+            InfoBar(message: AppStrings.Get("ContainerDetailsEnvironmentOmitted"))
                 .Informational() with { IsOpen = true, IsClosable = false }
         };
 
         if (!isCurrentContainer || Props.Service.IsLoading)
         {
-            content.Add(InfoBar(AppStrings.Get("ContainerDetailsLoading"))
+            content.Add(InfoBar(message: AppStrings.Get("ContainerDetailsLoading"))
                 .Informational() with { IsOpen = true, IsClosable = false });
             content.Add(ProgressRing());
         }
         else if (Props.Service.Error is { } error)
         {
-            content.Add(InfoBar(AppStrings.Format("ContainerDetailsError", error.Message))
+            content.Add(InfoBar(message: AppStrings.Format("ContainerDetailsError", error.Message))
                 .Error() with { IsOpen = true, IsClosable = false });
         }
         else if (details is not null)
@@ -47,8 +48,8 @@ public sealed class ContainerDetailsView : Component<ContainerDetailsViewProps>
             {
                 DetailField("ContainerDetailsImage", details.Image),
                 DetailField("ContainerDetailsImageDigest", details.ImageDigest),
-                DetailField("ContainerDetailsCreated", details.CreatedAt),
-                DetailField("ContainerDetailsStarted", details.StartedAt),
+                DetailField("ContainerDetailsCreated", FormatDate(details.CreatedAt)),
+                DetailField("ContainerDetailsStarted", FormatDate(details.StartedAt)),
                 DetailField("ContainerDetailsCommand", FormatCommand(details.Command)),
                 DetailField("ContainerDetailsPorts", FormatList(details.Ports)),
                 DetailField("ContainerDetailsMounts", FormatList(details.Mounts)),
@@ -61,23 +62,36 @@ public sealed class ContainerDetailsView : Component<ContainerDetailsViewProps>
                 .TextWrapping(TextWrapping.Wrap));
         }
 
-        if (copyStatus is { } status)
-        {
-            var message = InfoBar(AppStrings.Format(status));
-            content.Add((status.ResourceKey == "ContainerDetailsCopyError" ? message.Error() : message.Success())
-                with { IsOpen = true, IsClosable = false });
-        }
-
         var actions = new List<Element>();
         if (details is not null)
         {
             actions.Add(Button(AppStrings.Get("ContainerDetailsCopyButton"), () => CopyDetails(details, setCopyStatus)));
         }
 
-        return VStack(8,
-            ScrollViewer(VStack(8, content.ToArray()))
-                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled),
-            HStack(8, actions.ToArray()));
+        var rows = copyStatus is null
+            ? new[] { GridSize.Star().MinSize(0), GridSize.Auto }
+            : new[] { GridSize.Star().MinSize(0), GridSize.Auto, GridSize.Auto };
+        var elements = new List<Element>
+        {
+            (ScrollViewer(VStack(8, content.ToArray()))
+                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled)
+                .VerticalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Enabled) with
+                {
+                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto
+                }).Grid(row: 0)
+        };
+        var actionRow = 1;
+        if (copyStatus is { } status)
+        {
+            var message = InfoBar(message: AppStrings.Format(status));
+            elements.Add(((status.ResourceKey == "ContainerDetailsCopyError" ? message.Error() : message.Success())
+                with { IsOpen = true, IsClosable = false }).Grid(row: 1));
+            actionRow = 2;
+        }
+
+        elements.Add(HStack(8, actions.ToArray()).Grid(row: actionRow));
+        return Grid([GridSize.Star().MinSize(0)], rows, elements.ToArray());
     }
 
     private static Element DetailField(string labelKey, string? value) =>
@@ -92,6 +106,15 @@ public sealed class ContainerDetailsView : Component<ContainerDetailsViewProps>
 
     private static string? FormatCommand(string? command) =>
         command == "[]" ? AppStrings.Get("ContainerDetailsNone") : command;
+
+    private static string? FormatDate(string? value) =>
+        DateTimeOffset.TryParse(
+            value,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+            out var timestamp)
+            ? $"{timestamp.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)} {timestamp.ToLocalTime().ToString("zzz", CultureInfo.CurrentCulture)}"
+            : value;
 
     private static void CopyDetails(ContainerDetails details, Action<LocalizedMessage?> setStatus)
     {

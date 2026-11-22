@@ -24,9 +24,13 @@ public sealed class ContainerService(
 
     public bool HasRefreshed { get; private set; }
 
+    public bool IsRefreshing { get; private set; }
+
     public bool IsWslcUnavailable { get; private set; }
 
     public LocalizedMessage? Error { get; private set; }
+
+    public LocalizedMessage? RefreshError { get; private set; }
 
     public LocalizedMessage? DiagnosticsError { get; private set; }
 
@@ -239,14 +243,22 @@ public sealed class ContainerService(
         ContainerRefreshResult? result = null;
         LocalizedMessage? error = null;
         var unavailable = false;
+        var cancelled = false;
         try
         {
+            dispatch(() =>
+            {
+                IsRefreshing = true;
+                Error = null;
+                RefreshError = null;
+                Changed?.Invoke();
+            });
             cancellationToken.ThrowIfCancellationRequested();
             result = await RefreshContainerListAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            return;
+            cancelled = true;
         }
         catch (Exception exception)
         {
@@ -260,8 +272,10 @@ public sealed class ContainerService(
 
         dispatch(() =>
         {
-            if (cancellationToken.IsCancellationRequested)
+            IsRefreshing = false;
+            if (cancelled || cancellationToken.IsCancellationRequested)
             {
+                Changed?.Invoke();
                 return;
             }
 
@@ -271,15 +285,10 @@ public sealed class ContainerService(
                 DiagnosticsError = result.DiagnosticsError;
                 HasRefreshed = true;
             }
-            else if (unavailable)
-            {
-                SetContainers([]);
-                DiagnosticsError = null;
-                HasRefreshed = false;
-            }
 
             IsWslcUnavailable = unavailable;
             Error = error;
+            RefreshError = error;
             Changed?.Invoke();
         });
     }
