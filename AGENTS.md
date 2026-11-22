@@ -1,5 +1,10 @@
 # Technical decisions
 
+## Issue and roadmap completion
+
+- When an issue implementation is complete, update `ROADMAP.md` in the same change. If an existing roadmap entry is linked to the issue, mark it `[x]`; if no linked entry exists, add a `[x]` entry with the issue link under the appropriate section.
+- Mark an issue complete only when its full scope and acceptance criteria are actually satisfied. Leave it incomplete for partial implementations.
+
 ## Architecture
 
 - Keep `Wessl.Domain` limited to dependency-free models and interfaces. Do not put platform APIs, process execution, or UI concerns in this project.
