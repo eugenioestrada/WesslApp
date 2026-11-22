@@ -15,6 +15,8 @@ public sealed record ContainerRowProps(
     ContainerService Service,
     Action<ContainerInfo> OnOpenShell,
     Action<ContainerInfo> OnOpenLogs,
+    bool IsSelected,
+    Action ToggleSelection,
     bool ConfirmRemove,
     Action RequestRemove,
     Action CancelRemove);
@@ -26,11 +28,14 @@ public sealed class ContainerRow : Component<ContainerRowProps>
         ContainerService service,
         Action<ContainerInfo> onOpenShell,
         Action<ContainerInfo> onOpenLogs,
+        bool isSelected,
+        Action toggleSelection,
         bool confirmRemove,
         Action requestRemove,
         Action cancelRemove) =>
         Component<ContainerRow, ContainerRowProps>(
-            new(container, service, onOpenShell, onOpenLogs, confirmRemove, requestRemove, cancelRemove));
+            new(container, service, onOpenShell, onOpenLogs, isSelected, toggleSelection, confirmRemove,
+                requestRemove, cancelRemove));
 
     public override Element Render()
     {
@@ -51,23 +56,30 @@ public sealed class ContainerRow : Component<ContainerRowProps>
             ContainerState.Stopped => Theme.SystemNeutral,
             _ => Theme.SystemCaution
         };
-        var actionPending = Props.Service.Status?.ResourceKey.EndsWith("Pending", StringComparison.Ordinal) == true;
+        var actionPending = Props.Service.IsBusy
+            || Props.Service.Status?.ResourceKey.EndsWith("Pending", StringComparison.Ordinal) == true;
         var row = new List<Element>
         {
-            Grid([GridSize.Auto, GridSize.Star(), GridSize.Star()], [GridSize.Auto],
+            Grid([GridSize.Auto, GridSize.Auto, GridSize.Star(), GridSize.Star()], [GridSize.Auto],
+                IconButton(
+                    Props.IsSelected ? "\uE73A" : "\uE739",
+                    AppStrings.Get(Props.IsSelected ? "DeselectContainerButton" : "SelectContainerButton"),
+                    Props.ToggleSelection,
+                    accent: Props.IsSelected)
+                    .IsEnabled(!actionPending).Grid(column: 0),
                 TextBlock(stateGlyph).FontSize(14)
                     .Foreground(stateColor)
                     .ToolTip(AppStrings.GetContainerState(container.State))
                     .AutomationName(AppStrings.GetContainerState(container.State))
-                    .Margin(0, 0, 8, 0).Grid(column: 0),
-                TextBlock(container.Name).FontSize(16).SemiBold().TextWrapping().Grid(column: 1),
+                    .Margin(0, 0, 8, 0).Grid(column: 1),
+                TextBlock(container.Name).FontSize(16).SemiBold().TextWrapping().Grid(column: 2),
                 Caption(container.Image)
                     .Foreground(Theme.SecondaryText)
                     .TextTrimming(TextTrimming.CharacterEllipsis)
                     .ToolTip(container.Image)
                     .HorizontalAlignment(HorizontalAlignment.Right)
                     .TextAlignment(TextAlignment.Right)
-                    .Margin(8, 0, 0, 0).Grid(column: 2)),
+                    .Margin(8, 0, 0, 0).Grid(column: 3)),
             Caption(AppStrings.Format("PortsLabel", ports)).Foreground(Theme.SecondaryText).TextWrapping(),
         };
         row.AddRange(container.PublishedPorts
