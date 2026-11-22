@@ -400,11 +400,49 @@ public static class WslcOutputParser
             containers.Add(new ContainerInfo(id, name, image, ParseState(state))
             {
                 Ports = ports,
-                PublishedPorts = publishedPorts
+                PublishedPorts = publishedPorts,
+                Labels = GetLabels(root)
             });
         }
 
         return containers;
+    }
+
+    private static IReadOnlyDictionary<string, string> GetLabels(JsonElement container)
+    {
+        foreach (var property in container.EnumerateObject())
+        {
+            if (!property.Name.Equals("Labels", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.Null)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.String)
+            {
+                throw new FormatException("WSLc output contains an invalid container labels value.");
+            }
+
+            var labels = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var entry in (property.Value.GetString() ?? string.Empty)
+                         .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                var separator = entry.IndexOf('=');
+                if (separator <= 0
+                    || !labels.TryAdd(entry[..separator], entry[(separator + 1)..]))
+                {
+                    throw new FormatException("WSLc output contains an invalid or duplicate container label.");
+                }
+            }
+
+            return labels;
+        }
+
+        return new Dictionary<string, string>();
     }
 
     public static IReadOnlyDictionary<string, ContainerDiagnostics> ParseContainerDiagnostics(string output)

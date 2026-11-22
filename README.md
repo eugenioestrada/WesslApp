@@ -16,6 +16,8 @@ The app uses the real WSLc client by default. The `wslc` executable must be on `
 
 Published TCP mappings in a container's `Ports` field also offer localhost URLs to open or copy.
 
+Containers can be grouped by the Compose project label (`com.docker.compose.project`) or any other label returned by WSLc. Group Start and Stop actions apply to the matching containers currently shown by search and filters. When WSLc returns no labels, containers remain ungrouped; Wessl does not infer a project from container names.
+
 Open **Images** to explicitly load the WSLc image list and its reported size. Refresh reloads it. **Prune unused images** requires confirmation and removes all images not referenced by any container, including tagged images; the WSLc result and any errors are shown. Image operations can start WSL and are only invoked after a user action.
 
 For a running container, **Open shell** launches Windows Terminal with an interactive `wslc exec -it <container-id> /bin/sh` session. Use real WSLc integration for this action; Windows Terminal and a WSLc version supporting `exec -it` must be available.

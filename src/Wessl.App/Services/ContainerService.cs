@@ -581,6 +581,188 @@ public sealed class ContainerService(
         }
     }
 
+    public Task<BulkActionResult> StartGroupAsync(
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group) =>
+        RunGroupActionAsync(
+            "Start",
+            groupName,
+            group,
+            ContainerState.Stopped,
+            client.StartContainerAsync);
+
+    public Task<BulkActionResult> StopGroupAsync(
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group) =>
+        RunGroupActionAsync(
+            "Stop",
+            groupName,
+            group,
+            ContainerState.Running,
+            client.StopContainerAsync);
+
+    private async Task<BulkActionResult> RunGroupActionAsync(
+        string action,
+        string groupName,
+        IReadOnlyCollection<ContainerInfo> group,
+        ContainerState requiredState,
+        Func<string, CancellationToken, Task> execute)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(groupName);
+        ArgumentNullException.ThrowIfNull(group);
+        var members = group
+            .Where(container => container.State == requiredState)
+            .DistinctBy(container => container.Id, StringComparer.Ordinal)
+            .ToArray();
+        if (Interlocked.CompareExchange(ref _actionInProgress, 1, 0) != 0)
+        {
+            var busyError = new LocalizedMessage("WaitForCurrentAction", []);
+            dispatch(() =>
+            {
+                Error = busyError;
+                Changed?.Invoke();
+            });
+            return new(null, busyError);
+        }
+
+        try
+        {
+            if (members.Length == 0)
+            {
+                var nothingToDo = new LocalizedMessage("GroupActionNothingToDo", [groupName]);
+                dispatch(() =>
+                {
+                    Error = null;
+                    Status = nothingToDo;
+                    Changed?.Invoke();
+                });
+                return new(nothingToDo, null);
+            }
+
+            var actionName = action == "Start"
+                ? new LocalizedMessage("GroupStartName", [])
+                : new LocalizedMessage("GroupStopName", []);
+            dispatch(() =>
+            {
+                Error = null;
+                Status = new("GroupActionPending", [actionName, groupName, members.Length]);
+                Changed?.Invoke();
+            });
+
+            var successes = new List<LocalizedMessage>();
+            var failures = new List<LocalizedMessage>();
+            Exception? verificationError = null;
+            Exception? refreshError = null;
+            ContainerRefreshResult? result = null;
+            await _refreshLock.WaitAsync();
+            try
+            {
+                IReadOnlyList<ContainerInfo>? currentContainers = null;
+                try
+                {
+                    currentContainers = await client.ListContainersAsync().ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    verificationError = exception;
+                    failures.AddRange(members.Select(container =>
+                        new LocalizedMessage("BulkActionVerificationFailed", [container.Name, exception.Message])));
+                }
+
+                if (currentContainers is not null)
+                {
+                    foreach (var container in members)
+                    {
+                        var current = currentContainers.FirstOrDefault(item =>
+                            string.Equals(item.Id, container.Id, StringComparison.Ordinal));
+                        if (current is null)
+                        {
+                            failures.Add(new("BulkActionNotFound", [container.Name]));
+                            continue;
+                        }
+
+                        if (current.State != requiredState)
+                        {
+                            failures.Add(new("BulkActionStateChanged", [container.Name]));
+                            continue;
+                        }
+
+                        try
+                        {
+                            await execute(container.Id, CancellationToken.None).ConfigureAwait(false);
+                            successes.Add(new("BulkActionItemSucceeded", [container.Name]));
+                        }
+                        catch (Exception exception)
+                        {
+                            failures.Add(new("GroupActionFailureDetail", [container.Name, exception.Message]));
+                        }
+                    }
+                }
+
+                try
+                {
+                    result = await RefreshContainerListAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    refreshError = exception;
+                }
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
+
+            var completedStatus = new LocalizedMessage(
+                "GroupActionCompleted",
+                [actionName, groupName, successes.Count, members.Length]);
+            LocalizedMessage? completedError = failures.Count > 0
+                ? new("GroupActionPartialFailure", [
+                    groupName,
+                    action == "Start"
+                        ? new LocalizedMessage("GroupStartVerb", [])
+                        : new LocalizedMessage("GroupStopVerb", []),
+                    new LocalizedMessageList(failures)
+                ])
+                : null;
+            if (refreshError is not null)
+            {
+                var refreshMessage = new LocalizedMessage("RefreshError", [refreshError.Message]);
+                completedError = completedError is null
+                    ? refreshMessage
+                    : new("ActionAndRefreshError", [completedError, refreshMessage]);
+            }
+
+            var isUnavailable = result is null
+                && (verificationError is WslcUnavailableException || refreshError is WslcUnavailableException);
+            dispatch(() =>
+            {
+                if (result is not null)
+                {
+                    SetContainers(result.Containers);
+                    DiagnosticsError = result.DiagnosticsError;
+                    HasRefreshed = true;
+                }
+                else if (isUnavailable)
+                {
+                    SetContainers([]);
+                    DiagnosticsError = null;
+                    HasRefreshed = false;
+                }
+
+                IsWslcUnavailable = isUnavailable;
+                Status = completedStatus;
+                Error = completedError;
+                Changed?.Invoke();
+            });
+            return new(completedStatus, completedError);
+        }
+        finally
+        {
+            ReleaseAction();
+        }
+    }
+
     private async Task RunActionAsync(
         ContainerInfo container,
         string action,

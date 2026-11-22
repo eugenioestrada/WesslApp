@@ -44,6 +44,7 @@ public sealed class ContainerList : Component<ContainerListProps>
         var (stateFilter, setStateFilter) = UseState<ContainerState?>(null);
         var (imageFilter, setImageFilter) = UseState<string?>(null);
         var (sortOrder, setSortOrder) = UseState(ContainerSortOrder.Name);
+        var (groupingSelection, setGroupingSelection) = UseState(string.Empty);
         var (selectedIds, setSelectedIds) = UseState(Array.Empty<string>());
         var service = Props.Service;
 
@@ -112,6 +113,26 @@ public sealed class ContainerList : Component<ContainerListProps>
             stateFilter,
             imageFilter,
             sortOrder);
+        var labelKeys = ContainerGrouping.GetLabelKeys(Props.Containers);
+        var hasComposeProjectLabel = labelKeys.Contains(
+            ContainerGrouping.ComposeProjectLabel,
+            StringComparer.Ordinal);
+        var groupByLabel = groupingSelection switch
+        {
+            "" => hasComposeProjectLabel ? ContainerGrouping.ComposeProjectLabel : null,
+            "\0" => null,
+            _ => labelKeys.Contains(groupingSelection, StringComparer.Ordinal) ? groupingSelection : null
+        };
+        var groupingKeys = new string?[] { null }.Concat(labelKeys).ToArray();
+        var groupingLabels = new[] { AppStrings.Get("ContainersGroupNone") }
+            .Concat(labelKeys.Select(key => key == ContainerGrouping.ComposeProjectLabel
+                ? AppStrings.Get("ContainersGroupCompose")
+                : AppStrings.Format("ContainersGroupLabel", key)))
+            .ToArray();
+        var groupingIndex = Array.FindIndex(
+            groupingKeys,
+            key => string.Equals(key, groupByLabel, StringComparison.Ordinal));
+
         var selectedContainers = Props.Containers
             .Where(container => selectedIds.Contains(container.Id, StringComparer.Ordinal))
             .ToArray();
@@ -145,7 +166,8 @@ public sealed class ContainerList : Component<ContainerListProps>
             RowGap = 8
         };
 
-        var controls = VStack(8,
+        var controlSections = new List<Element>
+        {
             selectionActions,
             TextBox(searchText, setSearchText)
                 .PlaceholderText(AppStrings.Get("ContainersSearchPlaceholder"))
@@ -181,34 +203,85 @@ public sealed class ContainerList : Component<ContainerListProps>
                 Wrap = FlexWrap.Wrap,
                 ColumnGap = 8,
                 RowGap = 8
-            });
+            },
+            VStack(4,
+                TextBlock(AppStrings.Get("ContainersGroupByLabelLabel")),
+                ComboBox(groupingLabels, groupingIndex, index =>
+                {
+                    if (index >= 0)
+                    {
+                        setGroupingSelection(groupingKeys[index] ?? "\0");
+                    }
+                })
+                .AutomationName(AppStrings.Get("ContainersGroupByLabelLabel"))
+                .WithKey($"containers-group-{Props.LanguageTag}-{string.Join("|", labelKeys)}"))
+        };
+        if (labelKeys.Count == 0)
+        {
+            controlSections.Add(TextBlock(AppStrings.Get("ContainersGroupNoMetadata"))
+                .TextWrapping(TextWrapping.Wrap));
+        }
+        else if (!hasComposeProjectLabel && groupingSelection.Length == 0)
+        {
+            controlSections.Add(TextBlock(AppStrings.Get("ContainersGroupComposeUnavailable"))
+                    .TextWrapping(TextWrapping.Wrap));
+        }
+        var controls = VStack(8, controlSections.ToArray());
 
-        Element list = filteredContainers.Count == 0
-            ? TextBlock(AppStrings.Get("ContainersNoMatches"))
-                .TextWrapping(TextWrapping.Wrap)
-            : ScrollViewer(VStack(
-                8,
-                filteredContainers.Select(container =>
-                    ContainerRow.Create(
-                        container,
-                        service,
-                        Props.OnOpenShell,
-                        Props.OnOpenLogs,
-                        Props.OnOpenDetails,
-                        selectedIds.Contains(container.Id, StringComparer.Ordinal),
-                        () =>
-                        {
-                            var nextSelectedIds = selectedIds.ToHashSet(StringComparer.Ordinal);
-                            if (!nextSelectedIds.Add(container.Id))
-                            {
-                                nextSelectedIds.Remove(container.Id);
-                            }
-                            setSelectedIds(nextSelectedIds.ToArray());
-                        },
-                        Props.PendingRemoval == container.Id,
-                        () => Props.RequestRemove(container.Id),
-                        Props.CancelRemove).WithKey(container.Id)).ToArray()))
+        Element CreateRow(ContainerInfo container) =>
+            ContainerRow.Create(
+                container,
+                service,
+                Props.OnOpenShell,
+                Props.OnOpenLogs,
+                Props.OnOpenDetails,
+                selectedIds.Contains(container.Id, StringComparer.Ordinal),
+                () =>
+                {
+                    var nextSelectedIds = selectedIds.ToHashSet(StringComparer.Ordinal);
+                    if (!nextSelectedIds.Add(container.Id))
+                    {
+                        nextSelectedIds.Remove(container.Id);
+                    }
+                    setSelectedIds(nextSelectedIds.ToArray());
+                },
+                Props.PendingRemoval == container.Id,
+                () => Props.RequestRemove(container.Id),
+                Props.CancelRemove).WithKey(container.Id);
+        Element list;
+        if (filteredContainers.Count == 0)
+        {
+            list = TextBlock(AppStrings.Get("ContainersNoMatches"))
+                .TextWrapping(TextWrapping.Wrap);
+        }
+        else if (groupByLabel is null)
+        {
+            list = ScrollViewer(VStack(8, filteredContainers.Select(CreateRow).ToArray()))
                 .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
+        }
+        else
+        {
+            var grouping = ContainerGrouping.GroupByLabel(filteredContainers, groupByLabel);
+            var labelName = groupByLabel == ContainerGrouping.ComposeProjectLabel
+                ? AppStrings.Get("ContainersGroupCompose")
+                : AppStrings.Format("ContainersGroupLabel", groupByLabel);
+            var sections = grouping.Groups
+                .Select(group => (Element)ContainerGroupSection.Create(
+                    group,
+                    labelName,
+                    service,
+                    CreateRow))
+                .ToList();
+            if (grouping.Ungrouped.Count > 0)
+            {
+                sections.Add(TextBlock(AppStrings.Format("ContainersWithoutGroupLabel", groupByLabel))
+                    .TextWrapping(TextWrapping.Wrap));
+                sections.AddRange(grouping.Ungrouped.Select(CreateRow));
+            }
+
+            list = ScrollViewer(VStack(8, sections.ToArray()))
+                .HorizontalScrollMode(Microsoft.UI.Xaml.Controls.ScrollMode.Disabled);
+        }
 
         if (service.DiagnosticsError is { } diagnosticsError)
         {
@@ -227,6 +300,56 @@ public sealed class ContainerList : Component<ContainerListProps>
             [GridSize.Auto, GridSize.Star()],
             controls.Grid(row: 0),
             list.Grid(row: 1));
+    }
+
+}
+
+public sealed record ContainerGroupSectionProps(
+    ContainerLabelGroup Group,
+    string LabelName,
+    ContainerService Service,
+    Func<ContainerInfo, Element> CreateRow);
+
+public sealed class ContainerGroupSection : Component<ContainerGroupSectionProps>
+{
+    public static Element Create(
+        ContainerLabelGroup group,
+        string labelName,
+        ContainerService service,
+        Func<ContainerInfo, Element> createRow) =>
+        Component<ContainerGroupSection, ContainerGroupSectionProps>(
+            new(group, labelName, service, createRow));
+
+    public override Element Render()
+    {
+        var group = Props.Group;
+        var stopped = group.Containers.Count(container => container.State == ContainerState.Stopped);
+        var running = group.Containers.Count(container => container.State == ContainerState.Running);
+        var actionPending = Props.Service.Status?.ResourceKey.EndsWith("Pending", StringComparison.Ordinal) == true;
+
+        return Card(VStack(8,
+            TextBlock(AppStrings.Format(
+                    "ContainerGroupTitle",
+                    $"{Props.LabelName} · {group.Value}",
+                    group.Containers.Count))
+                .FontSize(15)
+                .SemiBold()
+                .TextWrapping(TextWrapping.Wrap),
+            FlexRow(
+                Button(AppStrings.Get("GroupStartButton"), () =>
+                    _ = Props.Service.StartGroupAsync(group.Value, group.Containers))
+                    .AccentButton()
+                    .IsEnabled(stopped > 0 && !actionPending),
+                Button(AppStrings.Get("GroupStopButton"), () =>
+                    _ = Props.Service.StopGroupAsync(group.Value, group.Containers))
+                    .IsEnabled(running > 0 && !actionPending)) with
+            {
+                Wrap = FlexWrap.Wrap,
+                ColumnGap = 8,
+                RowGap = 8
+            },
+            VStack(8, group.Containers.Select(Props.CreateRow).ToArray())))
+            .Padding(12);
     }
 }
 

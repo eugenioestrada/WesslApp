@@ -95,7 +95,6 @@
   <data name="TrayStopAllCompleted" xml:space="preserve"><value>{0} conteneurs sur {1} en cours d’exécution ont été arrêtés.</value></data>
   <data name="TrayStopAllPartialFailure" xml:space="preserve"><value>Certains conteneurs n’ont pas pu être arrêtés : {0}</value></data>
   <data name="TrayStopAllFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
-  <data name="TrayStopAllFailureSeparator" xml:space="preserve"><value> ; </value></data>
   <data name="BulkSelectionCount" xml:space="preserve"><value>Sélectionnés : {0}</value></data>
   <data name="BulkStartSelectedButton" xml:space="preserve"><value>Démarrer ({0})</value></data>
   <data name="BulkRestartSelectedButton" xml:space="preserve"><value>Redémarrer ({0})</value></data>
@@ -174,6 +173,26 @@
   <data name="ContainersFilterAllImages" xml:space="preserve"><value>Toutes les images</value></data>
   <data name="ContainersNoMatches" xml:space="preserve"><value>Aucun conteneur ne correspond à la recherche et aux filtres.</value></data>
   <data name="ContainersResetFilters" xml:space="preserve"><value>Effacer la recherche et les filtres</value></data>
+  <data name="ContainersGroupByLabelLabel" xml:space="preserve"><value>Grouper par</value></data>
+  <data name="ContainersGroupNone" xml:space="preserve"><value>Aucun regroupement</value></data>
+  <data name="ContainersGroupCompose" xml:space="preserve"><value>Projet Compose</value></data>
+  <data name="ContainersGroupLabel" xml:space="preserve"><value>Label : {0}</value></data>
+  <data name="ContainersGroupNoMetadata" xml:space="preserve"><value>WSLc n’a renvoyé aucune métadonnée de label. Les conteneurs sont affichés sans groupes.</value></data>
+  <data name="ContainersGroupComposeUnavailable" xml:space="preserve"><value>Aucun label de projet Compose n’a été renvoyé. Choisissez un label disponible ou affichez les conteneurs sans groupes.</value></data>
+  <data name="ContainersWithoutGroupLabel" xml:space="preserve"><value>Les conteneurs sans valeur pour {0} sont affichés séparément.</value></data>
+  <data name="ContainerGroupTitle" xml:space="preserve"><value>{0} : {1} conteneurs</value></data>
+  <data name="GroupStartButton" xml:space="preserve"><value>Démarrer le groupe</value></data>
+  <data name="GroupStopButton" xml:space="preserve"><value>Arrêter le groupe</value></data>
+  <data name="GroupStartName" xml:space="preserve"><value>Démarrer</value></data>
+  <data name="GroupStopName" xml:space="preserve"><value>Arrêter</value></data>
+  <data name="GroupStartVerb" xml:space="preserve"><value>démarrer</value></data>
+  <data name="GroupStopVerb" xml:space="preserve"><value>arrêter</value></data>
+  <data name="GroupActionPending" xml:space="preserve"><value>{0} du groupe {1} ({2} conteneurs)…</value></data>
+  <data name="GroupActionCompleted" xml:space="preserve"><value>{0} du groupe {1} : {2} conteneurs sur {3} traités.</value></data>
+  <data name="GroupActionNothingToDo" xml:space="preserve"><value>Aucun conteneur du groupe {0} ne nécessite cette action.</value></data>
+  <data name="GroupActionPartialFailure" xml:space="preserve"><value>Certains conteneurs du groupe {0} n’ont pas pu {1} : {2}</value></data>
+  <data name="GroupActionFailureDetail" xml:space="preserve"><value>{0} : {1}</value></data>
+  <data name="ActionFailureSeparator" xml:space="preserve"><value> ; </value></data>
   <data name="ContainerDetailsButton" xml:space="preserve"><value>Détails du conteneur</value></data>
   <data name="ContainerDetailsTitle" xml:space="preserve"><value>Détails de {0}</value></data>
   <data name="ContainerDetailsImage" xml:space="preserve"><value>Image</value></data>
