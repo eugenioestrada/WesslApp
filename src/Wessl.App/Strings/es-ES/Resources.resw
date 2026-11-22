@@ -324,4 +324,16 @@
   <data name="SettingsStatsInterval1" xml:space="preserve"><value>1 segundo</value></data>
   <data name="ContainerUsageDetails" xml:space="preserve"><value>Red: {0} · E/S de bloque: {1} · PID: {2}</value></data>
   <data name="ContainerUsageUnavailable" xml:space="preserve"><value>Las estadísticas de este contenedor no están disponibles.</value></data>
+  <data name="ContainersSearchLabel" xml:space="preserve"><value>Buscar contenedores</value></data>
+  <data name="ContainersSearchPlaceholder" xml:space="preserve"><value>Buscar por nombre o imagen</value></data>
+  <data name="ContainersStateFilterLabel" xml:space="preserve"><value>Estado</value></data>
+  <data name="ContainersImageFilterLabel" xml:space="preserve"><value>Imagen</value></data>
+  <data name="ContainersSortLabel" xml:space="preserve"><value>Ordenar por</value></data>
+  <data name="ContainersSortName" xml:space="preserve"><value>Nombre</value></data>
+  <data name="ContainersSortState" xml:space="preserve"><value>Estado</value></data>
+  <data name="ContainersSortImage" xml:space="preserve"><value>Imagen</value></data>
+  <data name="ContainersFilterAllStates" xml:space="preserve"><value>Todos los estados</value></data>
+  <data name="ContainersFilterAllImages" xml:space="preserve"><value>Todas las imágenes</value></data>
+  <data name="ContainersNoMatches" xml:space="preserve"><value>Ningún contenedor coincide con la búsqueda y los filtros.</value></data>
+  <data name="ContainersResetFilters" xml:space="preserve"><value>Borrar búsqueda y filtros</value></data>
 </root>
